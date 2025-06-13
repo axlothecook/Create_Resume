@@ -1,0 +1,229 @@
+/* Resume viewer part */
+.resume-view-top {
+    --paper-height: 297mm;
+    background-color: var(--white);
+    width: 210mm;
+    height: var(--paper-height);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding: 30px;
+}
+
+.resume-view-right {
+    --paper-height: 297mm;
+    background-color: var(--white);
+    width: 210mm;
+    height: var(--paper-height);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.personal-info-box-no-side-padding {
+    grid-column: 1 / 2;
+    padding: 0 0 12px 0; 
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    gap: 15px;
+    background-color: var(--dark-blue);
+}
+
+.personal-info-box-left {
+    grid-column: 1 / 2;
+    padding: 50px 32px;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 25px;
+    background-color: var(--dark-blue);
+}
+
+.personal-info-box-right {
+    grid-column: 3 / 4;
+    padding: 32px;
+    display: flex;
+    flex-flow: column wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+    background-color: var(--dark-blue);
+}
+
+.personal-info-details-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    /* align-items: center; */
+    gap: 22px;
+}
+
+.personal-info-details-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 30px;
+    /* border: 1px solid red; */
+    margin-bottom: 3rem;
+}
+
+.details-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.resume-info-parent-box-left {
+    grid-column: 2 / 4;
+    /* border: 1px solid blue; */
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    /* height: 80%; */
+}
+
+.resume-info-parent-box-right {
+    grid-area: 1 / 1 / 2 / 3;
+    /* border: 1px solid blue; */
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    /* height: 80%; */
+}
+
+.resume-info-box {
+    /* border: 1px solid red; */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.resume-info-box-lang {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* border: 1px solid red; */
+}
+
+.resume-title-box {
+    background-color: var(--input);
+    text-align: center;
+    padding: 4px 0;
+}
+
+.resume-title-box {
+    color: var(--dark-blue);
+}
+
+.resume-title-box > h3 {
+    font-weight: 600;
+}
+
+.resume-date > h4{
+    font-weight: 550;
+}
+
+.resume-details-box {
+    display: flex;
+    gap: 30px;
+}
+
+.resume-skills-n-languages-details-box {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.resume-skill-lang-box-parent {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    line-height: 0.6;
+}
+
+.resume-skill-lang-box-parent > h4, .resume-place > h4, .resume-project-title > h4 {
+    font-weight: bold;
+}
+
+.left-date-location-box {
+    min-width: 170px;
+    width: fit-content;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.right-name-position-desc-box {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+}
+
+.resume-description, .resume-project-purpose {
+    line-height: 1.4;
+    padding-left: 0;
+    margin: 0;
+}
+
+.list-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.list-dot {
+    background-color: black;
+    border-radius: 50%;
+    min-width: 5px;
+    min-height: 5px;
+}
+
+.resume-skill-box-child, .resume-language-box-child {
+    line-height: 1.6;
+}
+
+.sub-layout-segments-line {
+    display: flex;
+    gap: 40px;
+}
+
+.sub-line-segment {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-left: 11px;
+    cursor: pointer;
+    min-width: 80px;
+}
+
+.style-subcontainer > h4 {
+    font-size: 14px;
+}
+
+.style-subcontainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    justify-content: center;
+}
+
+.filed-out-segment {
+    padding: 5px 10px;
+    display: flex;
+    justify-content: center;
+    min-width: 80px;
+}
+
+.lined-out-segment {
+    padding: 5px 10px;
+    border-bottom: 3px solid black;
+    display: flex;
+    justify-content: center;
+    min-width: 80px;
+}

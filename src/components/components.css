@@ -1,0 +1,46 @@
+.document-svg, .details-box-svg, .dropdown-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.dropdown-svg {
+    transition: transform 0.25s;
+}
+
+.document-svg, .edit-svg {
+    fill: var(--dark-blue);
+}
+
+.dropdown-svg {
+    fill: black;
+}
+
+.education-svg, .skills-svg, .experiences-svg, .personal-projects-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.tab-open-svg, .tab-closed-svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--title-blue);
+}
+
+.tick-svg, .delete-svg {
+    width: 15px;
+    height: 15px;
+}
+
+.tick-svg {
+    fill: green;
+}
+
+.delete-svg {
+    fill: red;
+}
+
+.add-svg {
+    fill: black;
+    width: 15px;
+    height: 15px;
+}
