@@ -32,15 +32,20 @@ const GeneralInfoBox = (props) => {
                                 <h4 style={{fontFamily: props.assumeStyle.font}}>{ongoingChecker(item.startDate)} - {ongoingChecker(item.endDate)}</h4>
                             </div>
                             <div className="resume-location">
-                                <h4 style={{fontFamily: props.assumeStyle.font}}>{item.location}</h4>
+                                {!item.links && <h4 style={{fontFamily: props.assumeStyle.font}}>{item.subtext}</h4>}
+                                {item.links && item.links.map((subItem) => (
+                                    <a key={subItem.id} style={{fontFamily: props.assumeStyle.font}}  target='_blank' href={subItem.text}>
+                                        {subItem.text}
+                                    </a>
+                                ))}
                             </div>
                         </div>
                         <div className='right-name-position-desc-box'>
                             <div className="resume-place">
-                                <h4 style={{fontFamily: props.assumeStyle.font}}>{item.source}</h4>
+                                <h4 style={{fontFamily: props.assumeStyle.font}}>{item.title}</h4>
                             </div>
                             <div className="resume-position">
-                                <h4 style={{fontFamily: props.assumeStyle.font}}><i>{item.degree}</i></h4>
+                                <h4 style={{fontFamily: props.assumeStyle.font}}><i>{item.subtitle}</i></h4>
                             </div>
                             <ul className="resume-description">
                                 {item.description.map((subItem) => (

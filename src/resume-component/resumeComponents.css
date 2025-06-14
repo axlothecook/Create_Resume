@@ -5,7 +5,6 @@
     width: 210mm;
     height: var(--paper-height);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    padding: 30px;
 }
 
 .resume-view-right {
@@ -76,7 +75,7 @@
 .resume-info-parent-box-left {
     grid-column: 2 / 4;
     /* border: 1px solid blue; */
-    padding: 20px 0;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -143,13 +142,16 @@
     line-height: 0.6;
 }
 
+.link-item {
+    overflow-wrap: break-word;
+}
+
 .resume-skill-lang-box-parent > h4, .resume-place > h4, .resume-project-title > h4 {
     font-weight: bold;
 }
 
 .left-date-location-box {
-    min-width: 170px;
-    width: fit-content;
+    width: 50%;
     display: flex;
     flex-direction: column;
     gap: 5px;

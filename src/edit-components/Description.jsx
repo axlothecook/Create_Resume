@@ -15,21 +15,21 @@ const Description = (props) => {
     function pushBulletPoint(e) {
         setText(e);
     };
-
+    
     return (
         <div className='edit-info-box'>
             <div className='edit-title-box'>
                 <h4>{props.editTitle ? props.editTitle : 'Description'}</h4>
-                <h4 className='important-text'>*recommended style of no more than 3 bullet points</h4>
+                <h4 className='important-text'>{props.subtext ? props.subtext : '*recommended style of no more than 3 bullet points'}</h4>
             </div>
-            <ul className="edit-list">
+            <ul className={props.type === 'skill' ? 'edit-skill-list' : "edit-list"}>
                 {listArr.map((item) => (
                     <li key={item.id}>
-                        <div className='edit-list-item'>
+                        <div className={props.type === 'skill' ? 'edit-skill-list-item' : "edit-list-item"}>
                             <TextareaAutosize 
                                 className='edit-desc-list-item'
                                 minRows={1} 
-                                placeholder='Add a bullet point'
+                                placeholder= {props.placeholder ? props.placeholder : 'Add a bullet point'}
                                 autoFocus 
                                 type='text'
                                 defaultValue={item.text}
@@ -75,7 +75,7 @@ const Description = (props) => {
                 <TextareaAutosize 
                     className='edit-input-description'
                     minRows={1} 
-                    placeholder='Add a bullet point'
+                    placeholder= {props.placeholder ? props.placeholder : 'Add a bullet point'}
                     autoFocus 
                     type='text'
                     onChange={pushBulletPoint}
