@@ -46,6 +46,7 @@
     display: flex;
     flex-direction: column;
     gap: 30px;
+    width: 35%;
 }
 
 .sticky-div {
@@ -163,6 +164,7 @@
     margin-bottom: 10px;
     padding: 0;
     display: flex;
+    flex-wrap: wrap;
     gap: 7px;
 }
 
@@ -199,6 +201,7 @@ li {
 
 .edit-desc-list-item {
     padding: 0;
+    field-sizing: content;
 }
 
 .edit-title-box {

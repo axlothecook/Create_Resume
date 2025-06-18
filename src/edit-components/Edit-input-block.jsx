@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import './resumeEditor.css';
 import DropdownSvg from '../components/Dropdown';
-import AddSvg from '../components/Add-Svg';
-import BottomBar from '../edit-components/BottomBar';
 
 const InputBlock = (props) => {
     const [tracker, setTracker] = useState(false);

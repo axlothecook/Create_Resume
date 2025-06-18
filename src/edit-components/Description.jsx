@@ -20,7 +20,7 @@ const Description = (props) => {
         <div className='edit-info-box'>
             <div className='edit-title-box'>
                 <h4>{props.editTitle ? props.editTitle : 'Description'}</h4>
-                <h4 className='important-text'>{props.subtext ? props.subtext : '*recommended style of no more than 3 bullet points'}</h4>
+                <h4 className='important-text'>{props.subtext ? props.subtext : props.subtext !== null ? '*recommended style of no more than 3 bullet points' : ''}</h4>
             </div>
             <ul className={props.type === 'skill' ? 'edit-skill-list' : "edit-list"}>
                 {listArr.map((item) => (
