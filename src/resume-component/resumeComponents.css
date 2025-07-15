@@ -1,30 +1,30 @@
 /* Resume viewer part */
 .resume-view-top {
-    --paper-height: 297mm;
+    height: 297mm;
+    max-width: 210mm;
     background-color: var(--white);
-    width: 210mm;
-    height: var(--paper-height);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding: 0;
 }
 
 .resume-view-right {
-    --paper-height: 297mm;
     background-color: var(--white);
-    width: 210mm;
-    height: var(--paper-height);
+    height: 297mm;
+    max-width: 210mm;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
+    padding: 30px 20px;
 }
 
 .personal-info-box-no-side-padding {
     grid-column: 1 / 2;
-    padding: 0 0 12px 0; 
     display: flex;
     flex-flow: column wrap;
     align-items: center;
     gap: 15px;
     background-color: var(--dark-blue);
+    /* border: 1px solid red; */
 }
 
 .personal-info-box-left {
@@ -53,7 +53,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    /* align-items: center; */
+    align-items: center;
     gap: 22px;
 }
 
@@ -74,12 +74,9 @@
 
 .resume-info-parent-box-left {
     grid-column: 2 / 4;
-    /* border: 1px solid blue; */
-    padding: 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    /* height: 80%; */
+    gap: 5px;
 }
 
 .resume-info-parent-box-right {
@@ -88,15 +85,14 @@
     padding: 20px 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    /* height: 80%; */
+    gap: 18px;
 }
 
 .resume-info-box {
     /* border: 1px solid red; */
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 9px;
 }
 
 .resume-info-box-lang {
@@ -125,8 +121,9 @@
 }
 
 .resume-details-box {
-    display: flex;
-    gap: 30px;
+    display: grid;
+    grid-template-columns: 30% 65%;
+    gap: 5%;
 }
 
 .resume-skills-n-languages-details-box {
@@ -151,7 +148,6 @@
 }
 
 .left-date-location-box {
-    width: 50%;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -161,7 +157,6 @@
     display: flex;
     flex-direction: column;
     gap: 5px;
-    width: 100%;
 }
 
 .resume-description, .resume-project-purpose {
@@ -228,4 +223,48 @@
     display: flex;
     justify-content: center;
     min-width: 80px;
+}
+
+.personal-info-box-no-side-padding > h1, .personal-info-box-left > h1, .personal-info-box-right > h1 {
+    font-size: 27px;
+}
+
+@media screen and (max-width: 903px) {
+    .personal-info-box-no-side-padding > h1, .personal-info-box-left > h1, .personal-info-box-right > h1 {
+        gap: 6px;
+    }
+
+    .personal-info-box-no-side-padding > h1, .personal-info-box-left > h1, .personal-info-box-right > h1 {
+        font-size: 16px;
+    }
+
+    .details-box > div > h4 {
+        font-size: 11px;
+    }
+
+    .resume-title-box > h3 {
+        font-size: 13px;
+    }
+
+    .resume-date > h4, .resume-location > h4, .resume-location > a, .resume-place > h4, .resume-position > h4, .list-item, .resume-skill-lang-box-parent > h3, .resume-skill-box-child > h4, .resume-language-box-child > h4 {
+        font-size: 11px;
+    }
+
+    .resume-info-parent-box-left, .resume-info-parent-box-right {
+        gap: 15px;
+    }
+}
+
+@media screen and (max-width: 453px) {
+    .personal-info-details-row, .personal-info-details-column {
+        gap: 13px;
+    }
+
+    .personal-info-box-no-side-padding > h1, .personal-info-box-left > h1, .personal-info-box-right > h1 {
+        font-size: 13px;
+    }
+     
+    .details-box > div > h4 {
+        font-size: 9px;
+    }
 }

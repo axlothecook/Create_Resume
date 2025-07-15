@@ -8,7 +8,7 @@ const InputBlock = (props) => {
         <div className= 'edit-info-big-box'>
             <div className={tracker ? 'edit-info-title-with-dropdown-open' : 'edit-info-title-with-dropdown'} onClick={() => {setTracker(!tracker)}}>
               {props.icon}
-              <h2>{props.name}</h2>
+              <h2 style={{fontWeight: 'bold'}}>{props.name}</h2>
               <DropdownSvg rotated={tracker} />
             </div>
             {tracker && props.children}

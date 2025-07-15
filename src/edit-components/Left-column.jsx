@@ -10,7 +10,7 @@ const LeftColumn = (props) => {
   });
   
     return (
-        <div className='left-column'>
+      <div className='left-column'>
         <button className='left-col-box' style={{backgroundColor: tracker.contentBtnClr}} onClick={() => {
           setTracker({
             contentBtnClr: '#eef1f3',
@@ -19,7 +19,7 @@ const LeftColumn = (props) => {
           props.setTab(false);
         }}>
           <DocumentSvg />
-          <h3>Content</h3>
+          <h3 style={{fontWeight: 'bold'}}>Content</h3>
         </button>
         <button className='left-col-box' style={{backgroundColor: tracker.customizeBtnClr}} onClick={() => {
           setTracker({
@@ -29,7 +29,7 @@ const LeftColumn = (props) => {
           props.setTab(true);
         }}>
           <EditSvg width='20px' height='20px' color='#0e374e' />
-          <h3>Customize</h3>
+          <h3 style={{fontWeight: 'bold'}}>Customize</h3>
         </button>
       </div>
     )
