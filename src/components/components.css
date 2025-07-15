@@ -44,3 +44,21 @@
     width: 15px;
     height: 15px;
 }
+
+.download-pdf-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.website-mode, .logout-svg {
+    width: 40px;
+    height: 40px;
+    fill: black;
+}
+
+@media screen and (max-width: 903px) {
+    .details-box-svg {
+        width: 10px;
+        height: 10px;
+    }
+}

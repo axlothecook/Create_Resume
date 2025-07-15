@@ -3,21 +3,17 @@ import './resumeComponents.css';
 const GeneralInfoBox = (props) => {
     const today = new Date();
     const date = `0${today.getDate()}/0${today.getMonth() + 1}/${today.getFullYear()}`;
+
     function ongoingChecker(e) {
+        if(/\d\d\/\d\d\d\d/gm.test(e)) return e;
         const enteredDate = `0${e.$D}/0${(e.$M + 1)}/${e.$y}`;
         if(!e) return '';
-        if(date === enteredDate) {
-            return 'present';
-        } else {
-            return `0${(e.$M + 1)}/${e.$y}`;
-        }
+        if(date === enteredDate) return 'present';
+        else return `0${(e.$M + 1)}/${e.$y}`;
     };
     
     return (
-        <div className='resume-info-box' style={{ 
-                paddingBottom: (props.assumeStyle.underlined ? '2rem' : 'none'), 
-                borderBottom: (props.assumeStyle.underlined ? '1px solid black' : 'none')
-            }}>
+        <div className='resume-info-box'>
             {props.arr.length !== 0 && <div className='resume-title-box' style={{backgroundColor: (props.assumeStyle.underlined ? 'transparent' : props.setTxtClr(props.assumeStyle.color))}}>
                 <h3 style={{
                     fontFamily: props.assumeStyle.font,
@@ -60,6 +56,7 @@ const GeneralInfoBox = (props) => {
                 </div>
                 
             ))}
+             {/* {props.assumeStyle.underlined && <hr style={{width: '100%'}} />} */}
         </div>
     )
 }
