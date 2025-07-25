@@ -17,6 +17,7 @@ import PersonalProjectsSvg from './components/PersonalProjects';
 import TopBarDiv from './edit-components/TopBar';
 
 function App() {
+  const [theme, setTheme] = useState(false);
   const [secondTab, setSecondTab] = useState(false);
   const [personalDetailsArray, setPersonalDetailsArray] = useState([{
     id: '',
@@ -39,11 +40,13 @@ function App() {
     description: [{
       id: -2,
       text: `painted and showcased 'El la vouivre'`
-    },
-    {
-      id: -1,
-      text: `improved efficiency of washing by 20%`
-    }]
+    }
+    // ,
+    // {
+    //   id: -2,
+    //   text: `improved efficiency of washing by 20%`
+    // }
+    ]
   }]);
   const [experienceArray, setExperienceArray] = useState([{
     id: -2,
@@ -57,10 +60,6 @@ function App() {
     description: [{
       id: -2,
       text: `suggested application tecniques and gave inspiration based on historic examples`
-    },
-    {
-      id: -1,
-      text: `helped with paint mixture, surface preparaiton and scaffolding`
     }]
   },
   {
@@ -75,10 +74,6 @@ function App() {
     description: [{
       id: -2,
       text: `expressed delicate summaries of each art piece to visitors`
-    },
-    {
-      id: -1,
-      text: `helped organize art pieces in a specific way`
     }]
   }]);
   const [projectArray, setProjectArray] = useState([{
@@ -90,16 +85,12 @@ function App() {
     startDate: '08/2019',
     endDate: '02/2020',
     links: [{
-      id: -1,
+      id: -2,
       text: `wwww.youngArtistsPaintings.fr`
     }],
     description: [{
       id: -2,
       text: `preacticed the acrylic tecnique mixed with oil on canvas`
-    },
-    {
-      id: -1,
-      text: `did an extensive research on the inspiration for the painting, Paul Cézanne`
     }]
   }]);
   const [skillArray, setSkillArray] = useState([{
@@ -108,24 +99,12 @@ function App() {
     newValue: true,
     title: '',
     skillList: [{
-      id: -3,
-      text: 'painting'
-    },
-    {
       id: -2,
-      text: 'art guide'
-    },
-    {
-      id: -1,
-      text: 'color selection and mixing'
+      text: 'painting'
     }],
     languageList: [{
       id: -2,
       text: `French (native)`
-    },
-    {
-      id: -1,
-      text: `English (fluent)`
     }]
   }]);
 
@@ -200,39 +179,38 @@ function App() {
     description: []
   };
 
-  let educationRequirements =
-    [
-      {
-        type: 'InputField',
-        result: 'title',
-        editTitle: 'School / University / Course',
-        placeholder: 'University of Arts',
-        importantClass: null,
-        subtext: null
-      },
-      {
-        type: 'InputField',
-        result: 'subtitle',
-        editTitle: 'Degree',
-        placeholder: 'Bachelor of Science',
-        importantClass: null,
-        subtext: 'recommended'
-      },
-      {
-        type: 'Dates'
-      },
-      {
-        type: 'InputField',
-        result: 'subtext',
-        editTitle: 'Location',
-        placeholder: 'New York City, US',
-        importantClass: null,
-        subtext: 'type \'Online\' if no location',
-      },
-      {
-        type: 'Description',
-        result: 'description'
-      },
+  let educationRequirements = [
+    {
+      type: 'InputField',
+      result: 'title',
+      editTitle: 'School / University / Course',
+      placeholder: 'University of Arts',
+      importantClass: null,
+      subtext: null
+    },
+    {
+      type: 'InputField',
+      result: 'subtitle',
+      editTitle: 'Degree',
+      placeholder: 'Bachelor of Science',
+      importantClass: null,
+      subtext: 'recommended'
+    },
+    {
+      type: 'Dates'
+    },
+    {
+      type: 'InputField',
+      result: 'subtext',
+      editTitle: 'Location',
+      placeholder: 'New York City, US',
+      importantClass: null,
+      subtext: 'type \'Online\' if no location',
+    },
+    {
+      type: 'Description',
+      result: 'description'
+    },
   ];
 
   let skillRequirements = [
@@ -391,219 +369,226 @@ function App() {
 
   return (
     <>
-      <TopBarDiv onClick={() => {handleDownloadPdf}} />
+      <TopBarDiv onClick={handleDownloadPdf} themeProp = {theme} setThemeProp = {setTheme} />
 
-      <div className='middle-column'>
-        <div className="edit-load-div-parent">
+      <div style={{
+        backgroundColor: !theme ? 'rgba(243,244,246,255)' : '#252432',
+        paddingTop: '10px',
+        display: 'flex'
+        }}>
+        <div className='middle-column'>
+          <div className="edit-load-div-parent">
 
-          <StickyDiv 
-            emptyPersonalDetails={() => {setPersonalDetailsArray([{
-              id: '',
-              hidden: false,
-              newValue: true,
-              fullname: '',
-              email: '',
-              phoneNumber: '',
-              address: ''
-            }])}} 
-            emptyEducation={() => {setEducationArray([])}} 
-            emptyExperience={() => {setExperienceArray([])}} 
-            emptySkills={() => {setSkillArray([{
-              id: '',
-              hidden: false,
-              newValue: true,
-              title: '',
-              skillList: [],
-              languageList: []
-            }])}} 
-            emptyPProject={() => {setProjectArray([])}}  
-
-            fillPersonalDetails={() => {
-              setPersonalDetailsArray([{
-                id: 0,
+            <StickyDiv themeProp = {theme}
+              emptyPersonalDetails={() => {setPersonalDetailsArray([{
+                id: '',
                 hidden: false,
                 newValue: true,
-                fullname: 'Clea Desandre',
-                email: 'clea.desandre@gmail.co.fr',
-                phoneNumber: '33 7807 63 733',
-                address: 'Paris, France'
-              }])
-            }}
-            fillEducation={() => { setEducationArray([{
-              id: -2,
-              hidden: false,
-              newValue: false,
-              title: 'University of Painters', 
-              subtitle: 'Bachelor in Arts',  
-              subtext: 'Paris, France',  
-              startDate: '09/2017',
-              endDate: '06/2021',
-              description: [{
-                id: -2,
-                text: `painted and showcased 'El la vouivre'`
-              },
-              {
-                id: -1,
-                text: `improved efficiency of washing by 20%`
-              }]
-            }])}} 
-            fillExperience={() => { setExperienceArray([{
-              id: -2,
-              hidden: false,
-              newValue: false,
-              title: 'Musée Bourdelle', 
-              subtitle: 'painter assistent',  
-              subtext: 'Paris, France',
-              startDate: '04/2021',
-              endDate: '05/2022',
-              description: [{
-                id: -2,
-                text: `suggested application tecniques and gave inspiration based on historic examples`
-              },
-              {
-                id: -1,
-                text: `helped with paint mixture, surface preparaiton and scaffolding`
-              }]
-            },
-            {
-              id: -1,
-              hidden: false,
-              newValue: false,
-              title: 'Perrotin', 
-              subtitle: 'guide',  
-              subtext: 'Paris, France',
-              startDate: '07/2021',
-              endDate: '11/2021',
-              description: [{
-                id: -2,
-                text: `expressed delicate summaries of each art piece to visitors`
-              },
-              {
-                id: -1,
-                text: `helped organize art pieces in a specific way`
-              }]
-            }])}}
-            fillSkills={() => { setSkillArray([{
-              id: -1,
-              hidden: false,
-              newValue: true,
-              title: '',
-              skillList: [{
-                id: -3,
-                text: 'painting'
-              },
-              {
-                id: -2,
-                text: 'art guide'
-              },
-              {
-                id: -1,
-                text: 'color selection and mixing'
-              }],
-              languageList: [{
-                id: -2,
-                text: `French (native)`
-              },
-              {
-                id: -1,
-                text: `English (fluent)`
-              }]
-            }])}}
-            fillProject={() => { setProjectArray([{
-              id: -1,
-              hidden: false,
-              newValue: false,
-              title: 'El la vouivre',
-              subtitle: 'Creator', 
-              startDate: '08/2019',
-              endDate: '02/2020',
-              links: [{
-                id: -1,
-                text: `wwww.youngArtistsPaintings.fr`
-              }],
-              description: [{
-                id: -2,
-                text: `preacticed the acrylic tecnique mixed with oil on canvas`
-              },
-              {
-                id: -1,
-                text: `did an extensive research on the inspiration for the painting, Paul Cézanne`
-              }]
-            }])}}
-          />
+                fullname: '',
+                email: '',
+                phoneNumber: '',
+                address: ''
+              }])}} 
+              emptyEducation={() => {setEducationArray([])}} 
+              emptyExperience={() => {setExperienceArray([])}} 
+              emptySkills={() => {setSkillArray([{
+                id: '',
+                hidden: false,
+                newValue: true,
+                title: '',
+                skillList: [],
+                languageList: []
+              }])}} 
+              emptyPProject={() => {setProjectArray([])}}  
 
-          <LeftColumn setTab={setSecondTab} />
+              fillPersonalDetails={() => {
+                setPersonalDetailsArray([{
+                  id: 0,
+                  hidden: false,
+                  newValue: true,
+                  fullname: 'Clea Desandre',
+                  email: 'clea.desandre@gmail.co.fr',
+                  phoneNumber: '33 7807 63 733',
+                  address: 'Paris, France'
+                }])
+              }}
+              fillEducation={() => { setEducationArray([{
+                id: -2,
+                hidden: false,
+                newValue: false,
+                title: 'University of Painters', 
+                subtitle: 'Bachelor in Arts',  
+                subtext: 'Paris, France',  
+                startDate: '09/2017',
+                endDate: '06/2021',
+                description: [{
+                  id: -2,
+                  text: `painted and showcased 'El la vouivre'`
+                }]
+              }])}} 
+              fillExperience={() => { setExperienceArray([{
+                id: -2,
+                hidden: false,
+                newValue: false,
+                title: 'Musée Bourdelle', 
+                subtitle: 'painter assistent',  
+                subtext: 'Paris, France',
+                startDate: '04/2021',
+                endDate: '05/2022',
+                description: [{
+                  id: -2,
+                  text: `suggested application tecniques and gave inspiration based on historic examples`
+                },
+                {
+                  id: -1,
+                  text: `helped with paint mixture, surface preparaiton and scaffolding`
+                }]
+              },
+              {
+                id: -1,
+                hidden: false,
+                newValue: false,
+                title: 'Perrotin', 
+                subtitle: 'guide',  
+                subtext: 'Paris, France',
+                startDate: '07/2021',
+                endDate: '11/2021',
+                description: [{
+                  id: -2,
+                  text: `expressed delicate summaries of each art piece to visitors`
+                },
+                {
+                  id: -1,
+                  text: `helped organize art pieces in a specific way`
+                }]
+              }])}}
+              fillSkills={() => { setSkillArray([{
+                id: -1,
+                hidden: false,
+                newValue: true,
+                title: '',
+                skillList: [{
+                  id: -3,
+                  text: 'painting'
+                },
+                {
+                  id: -2,
+                  text: 'art guide'
+                },
+                {
+                  id: -1,
+                  text: 'color selection and mixing'
+                }],
+                languageList: [{
+                  id: -2,
+                  text: `French (native)`
+                },
+                {
+                  id: -1,
+                  text: `English (fluent)`
+                }]
+              }])}}
+              fillProject={() => { setProjectArray([{
+                id: -1,
+                hidden: false,
+                newValue: false,
+                title: 'El la vouivre',
+                subtitle: 'Creator', 
+                startDate: '08/2019',
+                endDate: '02/2020',
+                links: [{
+                  id: -1,
+                  text: `wwww.youngArtistsPaintings.fr`
+                }],
+                description: [{
+                  id: -2,
+                  text: `preacticed the acrylic tecnique mixed with oil on canvas`
+                },
+                {
+                  id: -1,
+                  text: `did an extensive research on the inspiration for the painting, Paul Cézanne`
+                }]
+              }])}}
+            />
 
-          <div className='edit-and-load-div'>
-            { secondTab && <> <CutomizeComponentDiv setTextColor={checkBrightness} styleItself={style} changeStyle={setStyle} /> </> }
-            {!secondTab &&
-              <>
-                <BigComponent 
-                  name='Personal Details' 
-                  array={personalDetailsArray} 
-                  setArray={setPersonalDetailsArray} 
-                  updateFunc={updateObject} 
-                  requirementsArray={personalDetailsRequirements} 
-                  singleObject = {true}
-                />
+            <LeftColumn secondTabProp={secondTab} setTab={setSecondTab} themeProp = {theme} />
 
-                <BigComponent 
-                  name='Education' 
-                  array={educationArray} 
-                  setArray={setEducationArray} 
-                  icon={<EducationSvg />} 
-                  updateFunc={updateObject} 
-                  requirementsArray={educationRequirements} 
-                  addBtnObject={educationObject}
-                />
+            <div className='edit-and-load-div'>
+              { secondTab && <> <CutomizeComponentDiv themeProp={theme} setTextColor={checkBrightness} styleItself={style} changeStyle={setStyle} /> </> }
+              {!secondTab &&
+                <>
+                  <BigComponent 
+                    themeP = {theme}
+                    name='Personal Details' 
+                    array={personalDetailsArray} 
+                    setArray={setPersonalDetailsArray} 
+                    updateFunc={updateObject} 
+                    requirementsArray={personalDetailsRequirements} 
+                    singleObject = {true}
+                  />
 
-                <BigComponent 
-                  name='Skills & Language' 
-                  array={skillArray} 
-                  setArray={setSkillArray} 
-                  icon={<SkillsSvg />} 
-                  updateFunc={updateObject} 
-                  requirementsArray={skillRequirements} 
-                  singleObject = {true}
-                /> 
+                  <BigComponent 
+                    themeP = {theme}
+                    name='Education' 
+                    array={educationArray} 
+                    setArray={setEducationArray} 
+                    icon={<EducationSvg />} 
+                    updateFunc={updateObject} 
+                    requirementsArray={educationRequirements} 
+                    addBtnObject={educationObject}
+                  />
 
-                <BigComponent 
-                  name='Experience' 
-                  array={experienceArray} 
-                  setArray={setExperienceArray} 
-                  icon={<ExperienceSvg />} 
-                  updateFunc={updateObject} 
-                  requirementsArray={experienceRequirements} 
-                  addBtnObject={experienceObject}
-                />
+                  <BigComponent 
+                    themeP = {theme}  
+                    name='Skills & Language' 
+                    array={skillArray} 
+                    setArray={setSkillArray} 
+                    icon={<SkillsSvg />} 
+                    updateFunc={updateObject} 
+                    requirementsArray={skillRequirements} 
+                    singleObject = {true}
+                  /> 
 
-                <BigComponent 
-                  name='Personal Project' 
-                  array={projectArray} 
-                  setArray={setProjectArray} 
-                  icon={<PersonalProjectsSvg />} 
-                  updateFunc={updateObject} 
-                  requirementsArray={personalProjectRequirements} 
-                  addBtnObject={personalProjectObject}
-                />
-              </>
-            }
-          </div> 
-        </div>
-        <div ref={printRef} className={style.resumeView}>
-          <PersonInfoDiv assertStyle={style} setSvgClr={checkBrightness} child={<SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillArray[0].skillList} langArr={skillArray[0].languageList} />} object={personalDetailsArray[0]} />
-          <div className={style.resumeInfoParentBoxLeft} style={{
-            padding: style.underlined ? (style.gridView ? '0 10px' : '0 25px 25px 25px') : '30px',
-            gap: style.underlined ? '5px' : '20px'
+                  <BigComponent 
+                    themeP = {theme}
+                    name='Experience' 
+                    array={experienceArray} 
+                    setArray={setExperienceArray} 
+                    icon={<ExperienceSvg />} 
+                    updateFunc={updateObject} 
+                    requirementsArray={experienceRequirements} 
+                    addBtnObject={experienceObject}
+                  />
+
+                  <BigComponent 
+                    themeP = {theme}
+                    name='Personal Project' 
+                    array={projectArray} 
+                    setArray={setProjectArray} 
+                    icon={<PersonalProjectsSvg />} 
+                    updateFunc={updateObject} 
+                    requirementsArray={personalProjectRequirements} 
+                    addBtnObject={personalProjectObject}
+                  />
+                </>
+              }
+            </div> 
+          </div>
+          <div ref={printRef} className={style.resumeView}>
+            <PersonInfoDiv assertStyle={style} setSvgClr={checkBrightness} child={<SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillArray[0].skillList} langArr={skillArray[0].languageList} />} object={personalDetailsArray[0]} />
+            <div className={style.resumeInfoParentBoxLeft} style={{
+              padding: style.underlined ? (style.gridView ? '20px' : '0 25px 25px 25px') : '30px',
+              gap: style.underlined ? '5px' : '20px'
             }}>
 
-            {educationArray.length !== 0 && <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EDUCATION' arr={educationArray} />}
-            {style.personalInfoBox === 'personal-info-box-no-side-padding' && < hr style={{width: '100%'}} />}
-            {(!style.gridView && (skillArray[0].skillList.length !== 0 || skillArray[0].languageList.length  !== 0)) && <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillArray[0].skillList} langArr={skillArray[0].languageList} />}
-            {style.underlined && < hr style={{width: '100%'}} />}
-            {experienceArray.length !== 0 && <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EXPERIENCE' arr={experienceArray} />}
-            {style.underlined && < hr style={{width: '100%'}} />}
-            {projectArray.length !== 0 && <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='PERSONAL PROJECTS' arr={projectArray} />}
+              {educationArray.length !== 0 && <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EDUCATION' arr={educationArray} />}
+              {(style.personalInfoBox === 'personal-info-box-no-side-padding' && style.underlined) && < hr style={{width: '100%'}} />}
+              {(!style.gridView && (skillArray[0].skillList.length !== 0 || skillArray[0].languageList.length  !== 0)) && <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillArray[0].skillList} langArr={skillArray[0].languageList} />}
+              {style.underlined && < hr style={{width: '100%'}} />}
+              {experienceArray.length !== 0 && <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EXPERIENCE' arr={experienceArray} />}
+              {style.underlined && < hr style={{width: '100%'}} />}
+              {projectArray.length !== 0 && <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='PERSONAL PROJECTS' arr={projectArray} />}
+            </div>
           </div>
         </div>
       </div>

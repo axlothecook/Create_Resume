@@ -16,7 +16,7 @@ const CutomizeComponentDiv = (props) => {
 
     return (
         <>
-            <div className="customize-segment">
+            <div style={{backgroundColor: !props.themeProp ? '#fff' : '#504d75ff'}} className="customize-segment">
                 <h2>Layout</h2>
                 <div className="sub-layout-segments">
                     <div className="layout-segment" onClick={() => {
@@ -90,7 +90,7 @@ const CutomizeComponentDiv = (props) => {
                     </div>
                 </div>
             </div>
-            <div className="customize-segment">
+            <div style={{backgroundColor: !props.themeProp ? '#fff' : '#504d75ff'}} className="customize-segment">
                 <h2>Style</h2>
                 <div className="sub-layout-segments-line">
                     <div className="sub-line-segment" onClick={() => {
@@ -139,7 +139,7 @@ const CutomizeComponentDiv = (props) => {
                     </div>
                 </div>
             </div>
-            <div className="customize-segment">
+            <div style={{backgroundColor: !props.themeProp ? '#fff' : '#504d75ff'}} className="customize-segment">
                 <h2>Color</h2>
                 <div className="sub-color-segment">
                     <h3>Accent Color</h3>
@@ -151,7 +151,7 @@ const CutomizeComponentDiv = (props) => {
                     }} />
                 </div>
             </div>
-            <div className="customize-segment">
+            <div style={{backgroundColor: !props.themeProp ? '#fff' : '#504d75ff'}} className="customize-segment">
                 <h2>Fonts</h2>
                 <div className="sub-fonts-segments">
                     <div className='font-segment-wrapper' onClick={() => {

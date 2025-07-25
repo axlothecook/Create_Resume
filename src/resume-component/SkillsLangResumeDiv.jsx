@@ -2,10 +2,7 @@ import './resumeComponents.css';
 
 const SkillResumeDiv = (props) => {
     return (
-        <div className='resume-info-box-lang' style={{ 
-                // paddingBottom: (props.assumeStyle.underlined ? (props.assumeStyle.gridView ? '0' : '2rem') : 'none'), 
-                // borderBottom: (props.assumeStyle.underlined ?  (props.assumeStyle.gridView ? 'none' : '1px solid black') : 'none')
-            }}>
+        <div className='resume-info-box-lang'>
             <div className='resume-title-box' style={{ 
                 backgroundColor: (props.assumeStyle.underlined ? 'transparent' : props.setTxtClr(props.assumeStyle.color))}}>
                 <h3 style={{
@@ -39,7 +36,6 @@ const SkillResumeDiv = (props) => {
                     </div>
                 </div>
             </div>
-            {/* {props.assumeStyle.underlined && <hr style={{width: '100%'}} />} */}
         </div>
     )
 }

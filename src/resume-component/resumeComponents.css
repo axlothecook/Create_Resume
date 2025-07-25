@@ -2,6 +2,7 @@
 .resume-view-top {
     height: 297mm;
     max-width: 210mm;
+    min-width: 210mm;
     background-color: var(--white);
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     padding: 0;
@@ -11,10 +12,10 @@
     background-color: var(--white);
     height: 297mm;
     max-width: 210mm;
+    min-width: 210mm;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    padding: 30px 20px;
 }
 
 .personal-info-box-no-side-padding {
@@ -24,7 +25,6 @@
     align-items: center;
     gap: 15px;
     background-color: var(--dark-blue);
-    /* border: 1px solid red; */
 }
 
 .personal-info-box-left {
@@ -62,7 +62,6 @@
     flex-direction: column;
     justify-content: center;
     gap: 30px;
-    /* border: 1px solid red; */
     margin-bottom: 3rem;
 }
 
@@ -81,7 +80,6 @@
 
 .resume-info-parent-box-right {
     grid-area: 1 / 1 / 2 / 3;
-    /* border: 1px solid blue; */
     padding: 20px 0;
     display: flex;
     flex-direction: column;
@@ -89,7 +87,6 @@
 }
 
 .resume-info-box {
-    /* border: 1px solid red; */
     display: flex;
     flex-direction: column;
     gap: 9px;
@@ -99,7 +96,6 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    /* border: 1px solid red; */
 }
 
 .resume-title-box {
@@ -229,6 +225,12 @@
     font-size: 27px;
 }
 
+@media screen and (max-width: 1270px) {
+    .resume-view-top, .resume-view-right {
+        min-width: 170mm;
+    }
+}
+
 @media screen and (max-width: 903px) {
     .personal-info-box-no-side-padding > h1, .personal-info-box-left > h1, .personal-info-box-right > h1 {
         gap: 6px;
@@ -255,6 +257,18 @@
     }
 }
 
+@media screen and (max-width: 800px) {
+    .resume-view-top, .resume-view-right {
+        min-width: 150mm;
+    }
+}
+
+@media screen and (max-width: 715px) {
+    .resume-view-top, .resume-view-right {
+        min-width: 120mm;
+    }
+}
+
 @media screen and (max-width: 453px) {
     .personal-info-details-row, .personal-info-details-column {
         gap: 13px;
@@ -266,5 +280,11 @@
      
     .details-box > div > h4 {
         font-size: 9px;
+    }
+}
+
+@media screen and (max-width: 490px) {
+    .resume-view-top, .resume-view-right {
+        min-width: 60mm;
     }
 }

@@ -6,7 +6,7 @@ import EmailSvg from '../components/Email';
 const PersonInfoDiv = (props) => {
     return (
       <div className={props.assertStyle.personalInfoBox} style={{
-          padding: (props.assertStyle.gridView ? '50px 10px' : props.assertStyle.underlined ? '10px 10px 0 10px' : '10px'),
+          padding: (props.assertStyle.gridView ? '50px 20px' : props.assertStyle.underlined ? '10px 10px 0 10px' : '10px'),
           backgroundColor: (props.assertStyle.underlined ? 'transparent' : props.assertStyle.color),
           borderRight: (props.assertStyle.personalInfoBox === 'personal-info-box-left' ? '1px solid black' : 'none'),
           borderLeft: (props.assertStyle.personalInfoBox === 'personal-info-box-right' ? '1px solid black' : 'none')
@@ -18,7 +18,6 @@ const PersonInfoDiv = (props) => {
           </h1>
           <div className={props.assertStyle.personalInfoDetail} style={{ 
             paddingBottom: (props.assertStyle.gridView ? '6rem' : '0'),
-            // borderBottom: (props.assertStyle.underlined ?  (props.assertStyle.gridView ? '1px solid black' : 'none') : 'none')
             }}>
             <div className='details-box'>
               <EmailSvg color={(props.assertStyle.underlined ? 'black' : props.assertStyle.color)} setClr={props.setSvgClr} />

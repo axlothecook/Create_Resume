@@ -7,7 +7,7 @@ const InputField = (props) => {
                 {props.editTitle && <h4>{props.editTitle}</h4>}
                 {props.importantClass ? <h4 className={props.importantClass}> {props.subtext} </h4> : props.subtext && <p>{props.subtext} </p>}
             </div>
-            <input className='edit-input' type={props.type} placeholder={props.placeholder} onChange={props.onChange} defaultValue={props.initial} />
+            <input style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}} className='edit-input' type={props.type} placeholder={props.placeholder} onChange={props.onChange} defaultValue={props.initial} />
         </div>
     )
 }

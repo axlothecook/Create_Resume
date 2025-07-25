@@ -7,10 +7,17 @@ import CancelChangeSvg from '../components/CancelChange';
 import { useState } from 'react';
 
 const Description = (props) => {
+    console.log('desc:');
+    console.log(props.description);
     const [listArr, setListArr] = useState(props.description);
     const [text, setText] = useState();
     const [counter, setCounter] = useState(0);
     const [selectedId, setSelectedId] = useState(-1);
+
+    console.log('listArr:');
+    console.log(listArr);
+    console.log('selectedId:');
+    console.log(selectedId);
 
     function pushBulletPoint(e) {
         setText(e);
@@ -25,8 +32,9 @@ const Description = (props) => {
             <ul className={props.type === 'skill' ? 'edit-skill-list' : "edit-list"}>
                 {listArr.map((item) => (
                     <li key={item.id}>
-                        <div className={props.type === 'skill' ? 'edit-skill-list-item' : "edit-list-item"}>
+                        <div style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}} className={props.type === 'skill' ? 'edit-skill-list-item' : "edit-list-item"}>
                             <TextareaAutosize 
+                                style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}}
                                 className='edit-desc-list-item'
                                 minRows={1} 
                                 placeholder= {props.placeholder ? props.placeholder : 'Add a bullet point'}
@@ -45,10 +53,22 @@ const Description = (props) => {
 
                             {selectedId === item.id && <div onClick={() => {
                                 listArr.filter(thing => {
+                                    console.log(thing);
+                                    console.log('text:');
+                                    console.log(text);
+                                    console.log(selectedId !== item.id);
+                                    console.log(selectedId === item.id);
+                                    console.log(selectedId);
+                                    console.log(item.id);
                                     if(thing.id === item.id) thing.text = text.target.value;
+                                    
                                 });
+                                console.log(item.id);
                                 props.onChange(listArr);
                                 setSelectedId(-1);
+                                console.log(selectedId !== item.id);
+                                console.log(selectedId);
+                                console.log(item.id);
                             }}>
                                 <TickSvg />
                             </div>}
@@ -73,6 +93,7 @@ const Description = (props) => {
             </ul>
             <div className="edit-desc-box">
                 <TextareaAutosize 
+                    style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}}
                     className='edit-input-description'
                     minRows={1} 
                     placeholder= {props.placeholder ? props.placeholder : 'Add a bullet point'}
