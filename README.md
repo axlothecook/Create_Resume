@@ -29,11 +29,11 @@ Only the user who has made an account will have their previous resume data saved
 Of course. The point of having an account here is so that the returning user can continue working where they left off. The feature of account making and data storage will be integrated in or after Version 2. The idea is for the user login data to be stored in a database, along with each resume (up to a limit of 10), the individual information they hold and the style for each one.
 
 ### ***What small features are there?*** ###
-- translate option
-- light / dark website coloring
++ translate option
++ light / dark website coloring
 
 ### ***What framework does the project use?*** ###
-+[React](https://react.dev/learn), as that is the only one I know of so far.
++ [React](https://react.dev/learn), as that is the only one I know of so far.
 
 ### ***What CSS styling does it use?*** ###
 - finish
