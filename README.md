@@ -1,6 +1,6 @@
 # Resume Creator
 
-![image]()
+![image](./readmefiles/titleimage.png)
 
 ## What is it?
 Resume Creator enables forming a resume, styling it and dowloading it. The resulting cv, one or multiple, can be download and used in a real-life job application. Project enables account creation and data storage in a remote DB.
