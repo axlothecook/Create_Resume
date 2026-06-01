@@ -301,6 +301,12 @@ function App() {
     },
   ];
 
+  // Data-driven résumé section order (foundation for drag-and-drop, item #2).
+  // Personal Details / name is always pinned at the top and is NOT in this list.
+  // Default chosen by the user: Projects → Experience → Skills → Education.
+  // Drag-and-drop (#2) will promote this to useState so it can be reordered at runtime.
+  const sectionOrder = ['project', 'experience', 'skill', 'education'];
+
   const [style, setStyle]= useState({
     gridView: false,
     resumeView: 'resume-view-top',
@@ -581,13 +587,46 @@ function App() {
               gap: style.underlined ? '5px' : '20px'
             }}>
 
-              {educationArray.length !== 0 && <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EDUCATION' arr={educationArray} />}
-              {(style.personalInfoBox === 'personal-info-box-no-side-padding' && style.underlined) && < hr style={{width: '100%'}} />}
-              {(!style.gridView && (skillArray[0].skillList.length !== 0 || skillArray[0].languageList.length  !== 0)) && <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillArray[0].skillList} langArr={skillArray[0].languageList} />}
-              {style.underlined && < hr style={{width: '100%'}} />}
-              {experienceArray.length !== 0 && <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EXPERIENCE' arr={experienceArray} />}
-              {style.underlined && < hr style={{width: '100%'}} />}
-              {projectArray.length !== 0 && <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='PERSONAL PROJECTS' arr={projectArray} />}
+              {/* Sections render in the order defined by `sectionOrder` (item #1 / drag-and-drop foundation). */}
+              {(() => {
+                // Build each section's node (or null if it has no content / is hidden in this view).
+                const sectionNode = (key) => {
+                  switch (key) {
+                    case 'education':
+                      return educationArray.length !== 0
+                        ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EDUCATION' arr={educationArray} />
+                        : null;
+                    case 'skill':
+                      // In gridView the skills box lives in the personal-info column instead.
+                      return (!style.gridView && (skillArray[0].skillList.length !== 0 || skillArray[0].languageList.length !== 0))
+                        ? <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillArray[0].skillList} langArr={skillArray[0].languageList} />
+                        : null;
+                    case 'experience':
+                      return experienceArray.length !== 0
+                        ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EXPERIENCE' arr={experienceArray} />
+                        : null;
+                    case 'project':
+                      return projectArray.length !== 0
+                        ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='PERSONAL PROJECTS' arr={projectArray} />
+                        : null;
+                    default:
+                      return null;
+                  }
+                };
+
+                // Only render sections that have content, then interleave the optional
+                // underline separators between consecutive visible sections.
+                const visible = sectionOrder
+                  .map(key => ({ key, node: sectionNode(key) }))
+                  .filter(s => s.node !== null);
+
+                return visible.map((s, i) => (
+                  <div key={s.key} style={{ display: 'contents' }}>
+                    {s.node}
+                    {style.underlined && i < visible.length - 1 && <hr style={{ width: '100%' }} />}
+                  </div>
+                ));
+              })()}
             </div>
           </div>
         </div>
