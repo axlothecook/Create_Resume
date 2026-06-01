@@ -470,6 +470,43 @@ input[type="color"]::-webkit-color-swatch {
     font-size: 15px;
 }
 
+/* --- Reorder mode (drag-and-drop, item #2) --- */
+.reorder-toggle-btn {
+    align-self: flex-start;
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.reorder-toggle-btn:hover {
+    background: rgba(96, 116, 128, 0.12);
+}
+
+.reorder-toggle-btn[aria-pressed="true"] {
+    background: rgba(96, 116, 128, 0.18);
+    font-weight: 600;
+}
+
+.sortable-section {
+    /* The grip sits to the left of the section while reordering. */
+    padding-left: 22px;
+}
+
+.sortable-section .drag-grip {
+    position: absolute;
+    left: 2px;
+    top: 14px;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--red, #888);
+    user-select: none;
+    pointer-events: none;
+}
+
 .calibri {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }

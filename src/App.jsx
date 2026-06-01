@@ -16,6 +16,10 @@ import ExperienceSvg from './components/Experience';
 import PersonalProjectsSvg from './components/PersonalProjects';
 import TopBarDiv from './edit-components/TopBar';
 
+import { DndContext, closestCenter, PointerSensor, KeyboardSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import SortableSection from './edit-components/SortableSection';
+
 function App() {
   const [theme, setTheme] = useState(false);
   const [secondTab, setSecondTab] = useState(false);
@@ -301,11 +305,31 @@ function App() {
     },
   ];
 
-  // Data-driven résumé section order (foundation for drag-and-drop, item #2).
-  // Personal Details / name is always pinned at the top and is NOT in this list.
+  // Data-driven résumé section order (drives both the left editor panel and the
+  // rendered résumé). Personal Details / name is pinned at the top and is NOT here.
   // Default chosen by the user: Projects → Experience → Skills → Education.
-  // Drag-and-drop (#2) will promote this to useState so it can be reordered at runtime.
-  const sectionOrder = ['project', 'experience', 'skill', 'education'];
+  const [sectionOrder, setSectionOrder] = useState(['project', 'experience', 'skill', 'education']);
+  // When on, the left panel enters "reorder mode": sections show a drag handle and can
+  // be dragged to reorder instead of being clicked to edit. See SortableSection.
+  const [reorderMode, setReorderMode] = useState(false);
+
+  // dnd-kit sensors: pointer (mouse/pen), touch (phones) and keyboard (accessibility).
+  // The small activation distance/delay stops an accidental tap from registering as a drag.
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  function handleSectionDragEnd(event) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    setSectionOrder((order) => {
+      const oldIndex = order.indexOf(active.id);
+      const newIndex = order.indexOf(over.id);
+      return arrayMove(order, oldIndex, newIndex);
+    });
+  }
 
   const [style, setStyle]= useState({
     gridView: false,
@@ -523,59 +547,101 @@ function App() {
               { secondTab && <> <CutomizeComponentDiv themeProp={theme} setTextColor={checkBrightness} styleItself={style} changeStyle={setStyle} /> </> }
               {!secondTab &&
                 <>
-                  <BigComponent 
-                    themeP = {theme}
-                    name='Personal Details' 
-                    array={personalDetailsArray} 
-                    setArray={setPersonalDetailsArray} 
-                    updateFunc={updateObject} 
-                    requirementsArray={personalDetailsRequirements} 
-                    singleObject = {true}
-                  />
+                  {/* Config for each reorderable content section, keyed by its sectionOrder id. */}
+                  {(() => {
+                    const sectionConfig = {
+                      education: (
+                        <BigComponent
+                          themeP={theme}
+                          name='Education'
+                          array={educationArray}
+                          setArray={setEducationArray}
+                          icon={<EducationSvg />}
+                          updateFunc={updateObject}
+                          requirementsArray={educationRequirements}
+                          addBtnObject={educationObject}
+                        />
+                      ),
+                      skill: (
+                        <BigComponent
+                          themeP={theme}
+                          name='Skills & Language'
+                          array={skillArray}
+                          setArray={setSkillArray}
+                          icon={<SkillsSvg />}
+                          updateFunc={updateObject}
+                          requirementsArray={skillRequirements}
+                          singleObject={true}
+                        />
+                      ),
+                      experience: (
+                        <BigComponent
+                          themeP={theme}
+                          name='Experience'
+                          array={experienceArray}
+                          setArray={setExperienceArray}
+                          icon={<ExperienceSvg />}
+                          updateFunc={updateObject}
+                          requirementsArray={experienceRequirements}
+                          addBtnObject={experienceObject}
+                        />
+                      ),
+                      project: (
+                        <BigComponent
+                          themeP={theme}
+                          name='Personal Project'
+                          array={projectArray}
+                          setArray={setProjectArray}
+                          icon={<PersonalProjectsSvg />}
+                          updateFunc={updateObject}
+                          requirementsArray={personalProjectRequirements}
+                          addBtnObject={personalProjectObject}
+                        />
+                      ),
+                    };
 
-                  <BigComponent 
-                    themeP = {theme}
-                    name='Education' 
-                    array={educationArray} 
-                    setArray={setEducationArray} 
-                    icon={<EducationSvg />} 
-                    updateFunc={updateObject} 
-                    requirementsArray={educationRequirements} 
-                    addBtnObject={educationObject}
-                  />
+                    return (
+                      <>
+                        {/* Personal Details is pinned at the top and never reorderable. */}
+                        <BigComponent
+                          themeP={theme}
+                          name='Personal Details'
+                          array={personalDetailsArray}
+                          setArray={setPersonalDetailsArray}
+                          updateFunc={updateObject}
+                          requirementsArray={personalDetailsRequirements}
+                          singleObject={true}
+                        />
 
-                  <BigComponent 
-                    themeP = {theme}  
-                    name='Skills & Language' 
-                    array={skillArray} 
-                    setArray={setSkillArray} 
-                    icon={<SkillsSvg />} 
-                    updateFunc={updateObject} 
-                    requirementsArray={skillRequirements} 
-                    singleObject = {true}
-                  /> 
+                        {/* Toggle: start/stop reorder mode for the content sections. */}
+                        <button
+                          type='button'
+                          className='reorder-toggle-btn'
+                          aria-pressed={reorderMode}
+                          onClick={() => setReorderMode(v => !v)}
+                          style={{ color: !theme ? '#252432' : '#eef1f3' }}
+                        >
+                          {reorderMode ? '✓ Done reordering' : '⠿ Reorder sections'}
+                        </button>
 
-                  <BigComponent 
-                    themeP = {theme}
-                    name='Experience' 
-                    array={experienceArray} 
-                    setArray={setExperienceArray} 
-                    icon={<ExperienceSvg />} 
-                    updateFunc={updateObject} 
-                    requirementsArray={experienceRequirements} 
-                    addBtnObject={experienceObject}
-                  />
-
-                  <BigComponent 
-                    themeP = {theme}
-                    name='Personal Project' 
-                    array={projectArray} 
-                    setArray={setProjectArray} 
-                    icon={<PersonalProjectsSvg />} 
-                    updateFunc={updateObject} 
-                    requirementsArray={personalProjectRequirements} 
-                    addBtnObject={personalProjectObject}
-                  />
+                        {reorderMode ? (
+                          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
+                            <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
+                              {sectionOrder.map(id => (
+                                <SortableSection key={id} id={id}>
+                                  {sectionConfig[id]}
+                                </SortableSection>
+                              ))}
+                            </SortableContext>
+                          </DndContext>
+                        ) : (
+                          sectionOrder.map(id => (
+                            <div key={id}>{sectionConfig[id]}</div>
+                          ))
+                        )}
+                      </>
+                    );
+                  })()}
                 </>
               }
             </div> 
