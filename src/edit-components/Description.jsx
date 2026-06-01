@@ -4,25 +4,28 @@ import EditSvg from '../components/Edit';
 import TrashSvg from '../components/Trash';
 import TickSvg from '../components/Tick';
 import CancelChangeSvg from '../components/CancelChange';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const Description = (props) => {
-    console.log('desc:');
-    console.log(props.description);
     const [listArr, setListArr] = useState(props.description);
-    const [text, setText] = useState();
-    const [counter, setCounter] = useState(0);
+    // The text currently typed in the "add new bullet" box. A plain string so the
+    // handlers never crash on `undefined` when Add is clicked before typing.
+    const [newText, setNewText] = useState('');
+    // The text being edited for the currently-selected existing bullet.
+    const [editText, setEditText] = useState('');
     const [selectedId, setSelectedId] = useState(-1);
 
-    console.log('listArr:');
-    console.log(listArr);
-    console.log('selectedId:');
-    console.log(selectedId);
+    // Generate an id larger than any existing bullet's, so re-adds after the
+    // parent has saved (and this component remounted) never collide.
+    const nextId = (arr) => (arr.length ? Math.max(...arr.map(i => Number(i.id) || 0)) + 1 : 0);
 
-    function pushBulletPoint(e) {
-        setText(e);
-    };
-    
+    // Re-sync the local list when the parent swaps in a different entry's
+    // description (e.g. when the user opens a different Experience item).
+    useEffect(() => {
+        setListArr(props.description);
+        setSelectedId(-1);
+    }, [props.description]);
+
     return (
         <div className='edit-info-box'>
             <div className='edit-title-box'>
@@ -33,57 +36,50 @@ const Description = (props) => {
                 {listArr.map((item) => (
                     <li key={item.id}>
                         <div style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}} className={props.type === 'skill' ? 'edit-skill-list-item' : "edit-list-item"}>
-                            <TextareaAutosize 
+                            <TextareaAutosize
                                 style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}}
                                 className='edit-desc-list-item'
-                                minRows={1} 
+                                minRows={1}
                                 placeholder= {props.placeholder ? props.placeholder : 'Add a bullet point'}
-                                autoFocus 
+                                autoFocus
                                 type='text'
                                 defaultValue={item.text}
-                                onChange={pushBulletPoint}
+                                onChange={(e) => setEditText(e.target.value)}
                                 readOnly={selectedId !== item.id}
                             />
 
                             {selectedId !== item.id && <div onClick={() => {
                                 setSelectedId(item.id);
+                                setEditText(item.text);
                             }}>
                                 <EditSvg width={'13px'} height={'13px'} color={'black'}  />
                             </div>}
 
                             {selectedId === item.id && <div onClick={() => {
-                                listArr.filter(thing => {
-                                    console.log(thing);
-                                    console.log('text:');
-                                    console.log(text);
-                                    console.log(selectedId !== item.id);
-                                    console.log(selectedId === item.id);
-                                    console.log(selectedId);
-                                    console.log(item.id);
-                                    if(thing.id === item.id) thing.text = text.target.value;
-                                    
-                                });
-                                console.log(item.id);
-                                props.onChange(listArr);
+                                // Build a NEW array (immutable update) so React re-renders
+                                // and the parent receives a fresh reference.
+                                const updated = listArr.map(thing =>
+                                    thing.id === item.id ? { ...thing, text: editText } : thing
+                                );
+                                setListArr(updated);
+                                props.onChange(updated);
                                 setSelectedId(-1);
-                                console.log(selectedId !== item.id);
-                                console.log(selectedId);
-                                console.log(item.id);
                             }}>
                                 <TickSvg />
                             </div>}
 
                             {selectedId === item.id && <div onClick={() => {
-                                text.target.value = listArr.filter(thing => thing.id === item.id)[0].text;
-                                props.onChange(listArr);
+                                // Cancel: discard the edit, leave the list untouched.
                                 setSelectedId(-1);
+                                setEditText('');
                             }}>
                                 <CancelChangeSvg />
                             </div>}
 
                             <div onClick={() => {
-                                setListArr(listArr.filter(itemToStay => itemToStay.id !== item.id));
-                                props.onChange(listArr.filter(itemToStay => itemToStay.id !== item.id));
+                                const trimmed = listArr.filter(itemToStay => itemToStay.id !== item.id);
+                                setListArr(trimmed);
+                                props.onChange(trimmed);
                             }}>
                                 <TrashSvg color={'black'} width={'15px'} height={'15px'} />
                             </div>
@@ -92,26 +88,22 @@ const Description = (props) => {
                 ))}
             </ul>
             <div className="edit-desc-box">
-                <TextareaAutosize 
+                <TextareaAutosize
                     style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}}
                     className='edit-input-description'
-                    minRows={1} 
+                    minRows={1}
                     placeholder= {props.placeholder ? props.placeholder : 'Add a bullet point'}
-                    autoFocus 
+                    autoFocus
                     type='text'
-                    onChange={pushBulletPoint}
+                    value={newText}
+                    onChange={(e) => setNewText(e.target.value)}
                 />
                 <button className='add-desc-to-list-btn' onClick={() => {
-                    setCounter(counter + 1);
-                    setListArr([
-                        ...listArr,
-                        { id: counter, text: text.target.value }
-                    ]);
-                    props.onChange([
-                        ...listArr,
-                        { id: counter, text: text.target.value }
-                    ]);
-                    text.target.value = '';
+                    if (!newText.trim()) return; // nothing to add
+                    const updated = [...listArr, { id: nextId(listArr), text: newText }];
+                    setListArr(updated);
+                    props.onChange(updated);
+                    setNewText('');
                 }}>Add</button>
             </div>
         </div>

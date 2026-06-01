@@ -12,15 +12,23 @@ import SummaryComponentDiv from '../edit-components/ArraySummary';
 const BigComponent = (props) => {
     const [show, setShow] = useState(props.singleObject ? true : false);
     const [index, setIndex] = useState(props.singleObject ? 0 : -1);
-    const [counter, setCounter] = useState(0);
-    const [tempEd, setTempEd] = useState({}); 
+    const [tempEd, setTempEd] = useState({});
+
+    // Unique id = larger than any existing entry's, so added entries never collide
+    // with each other or the demo data (which prevented React's duplicate-key warning).
+    const nextId = (arr) => (arr.length ? Math.max(...arr.map(i => Number(i.id) || 0)) + 1 : 0);
 
     function addBtnReplacement() {
-      props.addBtnObject.id = counter
-      props.setArray([...props.array, props.addBtnObject]);
+      // Deep-copy the template each time so multiple added entries don't share one
+      // mutable object reference (which made editing one edit all of them). A shallow
+      // spread would still share the nested description/links arrays, so copy those too.
+      const template = props.addBtnObject;
+      const newEntry = { ...template, id: nextId(props.array) };
+      if (Array.isArray(template.description)) newEntry.description = [];
+      if (Array.isArray(template.links)) newEntry.links = [];
+      props.setArray([...props.array, newEntry]);
       setShow(true);
       setIndex(props.array.length);
-      setCounter(counter + 1);
     };
     
     return (

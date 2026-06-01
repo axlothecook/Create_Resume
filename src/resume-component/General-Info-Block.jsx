@@ -1,15 +1,18 @@
 import './resumeComponents.css';
 
 const GeneralInfoBox = (props) => {
+    const pad = (n) => String(n).padStart(2, '0');
     const today = new Date();
-    const date = `0${today.getDate()}/0${today.getMonth() + 1}/${today.getFullYear()}`;
+    const date = `${pad(today.getDate())}/${pad(today.getMonth() + 1)}/${today.getFullYear()}`;
 
     function ongoingChecker(e) {
-        if(/\d\d\/\d\d\d\d/gm.test(e)) return e;
-        const enteredDate = `0${e.$D}/0${(e.$M + 1)}/${e.$y}`;
         if(!e) return '';
+        // Already a stored "MM/YYYY" string — pass through untouched.
+        if(/^\d\d\/\d\d\d\d$/.test(e)) return e;
+        // Otherwise it's a dayjs object from the date picker.
+        const enteredDate = `${pad(e.$D)}/${pad(e.$M + 1)}/${e.$y}`;
         if(date === enteredDate) return 'present';
-        else return `0${(e.$M + 1)}/${e.$y}`;
+        else return `${pad(e.$M + 1)}/${e.$y}`;
     };
     
     return (
@@ -30,7 +33,7 @@ const GeneralInfoBox = (props) => {
                             <div className="resume-location">
                                 {!item.links && <h4 style={{fontFamily: props.assumeStyle.font}}>{item.subtext}</h4>}
                                 {item.links && item.links.map((subItem) => (
-                                    <a key={subItem.id} style={{fontFamily: props.assumeStyle.font}}  target='_blank' href={subItem.text}>
+                                    <a key={subItem.id} style={{fontFamily: props.assumeStyle.font}} target='_blank' rel='noopener noreferrer' href={subItem.text}>
                                         {subItem.text}
                                     </a>
                                 ))}
