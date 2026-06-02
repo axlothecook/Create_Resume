@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { api } from '../api/client';
 import './authScreen.css';
 
-// Shown when logged out. Tabs between Login and Sign up, plus "Browse as guest".
+// Shown when logged out. Defaults to login (email + password + Continue); a "Sign up"
+// switch below Continue reveals the signup fields. Plus "Browse as guest".
 // On success it calls onAuthenticated(user) / onGuest() so App can drop into the editor.
 export default function AuthScreen({ onAuthenticated, onGuest, themeProp }) {
     const [mode, setMode] = useState('login'); // 'login' | 'signup'
@@ -33,19 +34,6 @@ export default function AuthScreen({ onAuthenticated, onGuest, themeProp }) {
             <div className="auth-card">
                 <h1 className="auth-title">Resume Creator</h1>
 
-                <div className="auth-tabs">
-                    <button
-                        type="button"
-                        className={mode === 'login' ? 'auth-tab active' : 'auth-tab'}
-                        onClick={() => { setMode('login'); setError(''); }}
-                    >Log in</button>
-                    <button
-                        type="button"
-                        className={mode === 'signup' ? 'auth-tab active' : 'auth-tab'}
-                        onClick={() => { setMode('signup'); setError(''); }}
-                    >Sign up</button>
-                </div>
-
                 <form className="auth-form" onSubmit={submit}>
                     <label className="auth-label">
                         Email
@@ -70,6 +58,19 @@ export default function AuthScreen({ onAuthenticated, onGuest, themeProp }) {
                     <button type="submit" className="auth-submit" disabled={busy}>
                         {busy ? 'Please wait…' : (mode === 'login' ? 'Continue' : 'Create account')}
                     </button>
+
+                    {/* Mode switch sits BELOW Continue (no top tabs). */}
+                    {mode === 'login' ? (
+                        <p className="auth-switch">
+                            New here?{' '}
+                            <button type="button" className="auth-switch-btn" onClick={() => { setMode('signup'); setError(''); }}>Sign up</button>
+                        </p>
+                    ) : (
+                        <p className="auth-switch">
+                            Already have an account?{' '}
+                            <button type="button" className="auth-switch-btn" onClick={() => { setMode('login'); setError(''); }}>Log in</button>
+                        </p>
+                    )}
                 </form>
 
                 <div className="auth-divider"><span>or</span></div>
