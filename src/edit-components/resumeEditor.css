@@ -5,15 +5,94 @@
 
 .top-bar {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    gap: 30px;
-    padding: 15px;
+    gap: 24px;
+    /* Roomy padding mirroring the reference navbar: generous, symmetric side inset
+       (equal left/right) + taller bar. */
+    padding: 20px 64px;
+    /* Sticky: keep the bar pinned to the top while the page scrolls. */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
-.theme-box {
-    cursor: pointer;
+.top-bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 28px;
 }
+
+/* Brand (logo + wordmark) on the left. */
+.navbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.navbar-logo {
+    width: 28px;
+    height: 28px;
+}
+
+.navbar-title {
+    font-size: 22px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Smaller navbar icons (was 40px) + shorter bar. */
+.top-bar .website-mode,
+.top-bar .logout-svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* --- Theme slider (light/dark pill toggle) --- */
+.theme-slider {
+    position: relative;
+    width: 52px;
+    height: 26px;
+    border-radius: 13px;
+    border: none;
+    background: #1c1c22;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.theme-slider-knob {
+    position: absolute;
+    top: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    transition: left 0.2s ease;
+}
+
+/* DARK active -> knob on the LEFT. LIGHT active -> knob on the RIGHT. */
+.theme-slider.is-dark .theme-slider-knob { left: 3px; }
+.theme-slider.is-light .theme-slider-knob { left: 29px; }
+
+.theme-slider-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+}
+
+/* Sun sits on the right of the track, shown only in dark mode. */
+.theme-slider-sun { right: 6px; opacity: 0; }
+.theme-slider.is-dark .theme-slider-sun { opacity: 1; }
+
+/* Moon sits on the left of the track, shown only in light mode. */
+.theme-slider-moon { left: 6px; opacity: 0; }
+.theme-slider.is-light .theme-slider-moon { opacity: 1; }
 
 .middle-column {
     display: flex;
@@ -534,16 +613,27 @@ input[type="color"]::-webkit-color-swatch {
     cursor: pointer;
 }
 
+/* Inline (icon + label side by side) so the PDF action reads as a peer of the
+   logout icon and theme slider instead of a tall stacked block. */
 .download-pdf-btn {
     background-color: transparent;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 9px;
+    gap: 6px;
+    padding: 4px 6px;
     cursor: pointer;
     transition: .15s ease-in-out all;
+}
+
+.download-pdf-btn > h3 {
+    font-size: 15px;
+}
+
+.download-pdf-btn:hover {
+    background-color: rgba(255, 255, 255, 0.18);
 }
 
 .download-pdf-btn:active {
@@ -573,9 +663,26 @@ input[type="color"]::-webkit-color-swatch {
     }
 }
 
+@media screen and (max-width: 900px) {
+    .top-bar {
+        padding: 18px 32px;
+    }
+}
+
 @media screen and (max-width: 684px) {
     .top-bar {
-        justify-content: space-evenly;
+        gap: 12px;
+        padding: 14px 18px;
+    }
+    .top-bar-actions {
+        gap: 16px;
+    }
+}
+
+/* On very narrow phones, drop the wordmark but keep the logo so the bar stays tidy. */
+@media screen and (max-width: 420px) {
+    .navbar-title {
+        display: none;
     }
 }
 
