@@ -398,11 +398,12 @@ function App() {
   };
 
   return (
-    <>
+    <div className={theme ? 'app-shell theme-dark' : 'app-shell theme-light'} style={{
+      backgroundColor: !theme ? 'rgba(243,244,246,255)' : '#252432'
+      }}>
       <TopBarDiv onClick={handleDownloadPdf} themeProp = {theme} setThemeProp = {setTheme} />
 
-      <div className={theme ? 'app-body theme-dark' : 'app-body theme-light'} style={{
-        backgroundColor: !theme ? 'rgba(243,244,246,255)' : '#252432',
+      <div className='app-body' style={{
         paddingTop: '2rem',
         display: 'flex'
         }}>
@@ -708,7 +709,7 @@ function App() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

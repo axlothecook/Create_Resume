@@ -3,6 +3,12 @@
     font-size: 11px;
 }
 
+/* Shell wraps the navbar + body so the page background fills the navbar's margin
+   gaps (otherwise the body/page-default colour showed through behind the bar). */
+.app-shell {
+    min-height: 100vh;
+}
+
 .top-bar {
     display: flex;
     justify-content: space-between;
@@ -13,11 +19,11 @@
     padding: 20px 64px;
     /* Floating bar: gap from the top and sides so it doesn't touch the edges,
        with rounded corners. */
-    margin: 0.8rem 1rem 0;
+    margin: 1.5rem 2.5rem 0;
     border-radius: 14px;
     /* Sticky: keep the bar pinned (offset by the top gap) while the page scrolls. */
     position: sticky;
-    top: 0.8rem;
+    top: 1.5rem;
     z-index: 10;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
@@ -698,6 +704,7 @@ input[type="color"]::-webkit-color-swatch {
     .top-bar {
         gap: 12px;
         padding: 14px 18px;
+        margin: 1rem 1rem 0;
     }
     .top-bar-actions {
         gap: 16px;
