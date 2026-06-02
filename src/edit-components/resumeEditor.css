@@ -41,6 +41,23 @@
     gap: 8px;
 }
 
+.navbar-user {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.navbar-logout-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: transform 0.15s ease;
+}
+.navbar-logout-btn:active { transform: scale(0.9); }
+
 .navbar-logo {
     width: 28px;
     height: 28px;

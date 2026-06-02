@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRef } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import ResumePdfDocument from './pdf/ResumePdfDocument';
+import AuthScreen from './auth/AuthScreen';
+import { api } from './api/client';
 import LeftColumn from './edit-components/Left-column';
 import StickyDiv from './edit-components/StickyDivComponent';
 import BigComponent from './edit-components/AttemptComponent';
@@ -22,6 +24,28 @@ import SortableSection from './edit-components/SortableSection';
 
 function App() {
   const [theme, setTheme] = useState(false);
+  // Auth: 'loading' until /auth/me resolves, then the editor or the AuthScreen shows.
+  // user = the logged-in account (or null); isGuest = chose "Browse as guest".
+  const [authStatus, setAuthStatus] = useState('loading'); // 'loading' | 'out' | 'in'
+  const [user, setUser] = useState(null);
+  const [isGuest, setIsGuest] = useState(false);
+
+  useEffect(() => {
+    api.me()
+      .then((res) => {
+        if (res.user) { setUser(res.user); setAuthStatus('in'); }
+        else setAuthStatus('out');
+      })
+      .catch(() => setAuthStatus('out')); // backend unreachable → show auth screen
+  }, []);
+
+  const handleLogout = async () => {
+    try { await api.logout(); } catch { /* ignore */ }
+    setUser(null);
+    setIsGuest(false);
+    setAuthStatus('out');
+  };
+
   const [secondTab, setSecondTab] = useState(false);
   const [personalDetailsArray, setPersonalDetailsArray] = useState([{
     id: '',
@@ -391,19 +415,38 @@ function App() {
       />
     ).toBlob();
 
+    // Filename: logged-in users get "<username>-resume.pdf"; guests get "johndoe-resume.pdf".
+    const slug = (user && user.username ? user.username : 'johndoe')
+      .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'johndoe';
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'resume.pdf';
+    a.download = `${slug}-resume.pdf`;
     a.click();
     URL.revokeObjectURL(url);
   };
+
+  // While checking the session, render nothing (brief). When logged out and not a
+  // guest, show the auth screen. Otherwise show the editor.
+  if (authStatus === 'loading') {
+    return <div className={theme ? 'app-shell theme-dark' : 'app-shell theme-light'} style={{ minHeight: '100vh', backgroundColor: !theme ? 'rgba(243,244,246,1)' : '#252432' }} />;
+  }
+  if (authStatus === 'out' && !isGuest) {
+    return (
+      <AuthScreen
+        themeProp={theme}
+        onAuthenticated={(u) => { setUser(u); setIsGuest(false); setAuthStatus('in'); }}
+        onGuest={() => { setIsGuest(true); }}
+      />
+    );
+  }
 
   return (
     <div className={theme ? 'app-shell theme-dark' : 'app-shell theme-light'} style={{
       backgroundColor: !theme ? 'rgba(243,244,246,255)' : '#252432'
       }}>
-      <TopBarDiv onClick={handleDownloadPdf} themeProp = {theme} setThemeProp = {setTheme} />
+      <TopBarDiv onClick={handleDownloadPdf} themeProp = {theme} setThemeProp = {setTheme} onLogout={handleLogout} isGuest={isGuest} user={user} />
 
       <div className='app-body' style={{
         paddingTop: '4rem',

@@ -19,9 +19,20 @@ const TopBarDiv = (props) => {
 
             {/* Right: actions */}
             <div className="top-bar-actions">
+                {!props.isGuest && props.user && <span className="navbar-user" style={{ color: navFg }}>{props.user.username}</span>}
+
                 <ThemeSlider themeProp={props.themeProp} setThemeProp={props.setThemeProp} />
 
-                <LogOutIcon color={navFg} />
+                {/* Logout for a real user; for a guest this returns to the sign-in screen. */}
+                <button
+                    type="button"
+                    className="navbar-logout-btn"
+                    onClick={() => props.onLogout && props.onLogout()}
+                    title={props.isGuest ? 'Sign in' : 'Log out'}
+                    aria-label={props.isGuest ? 'Sign in' : 'Log out'}
+                >
+                    <LogOutIcon color={navFg} />
+                </button>
 
                 <button className="download-pdf-btn" onClick={() => props.onClick()}>
                     <DownloadSvg color={navFg} />
