@@ -39,11 +39,15 @@ function App() {
       .catch(() => setAuthStatus('out')); // backend unreachable → show auth screen
   }, []);
 
-  const handleLogout = async () => {
-    try { await api.logout(); } catch { /* ignore */ }
+  const handleLogout = () => {
+    // Switch to the auth screen immediately — don't block the UI on the network.
+    const wasGuest = isGuest;
     setUser(null);
     setIsGuest(false);
     setAuthStatus('out');
+    // Guests have no server session, so skip the request entirely. For real users,
+    // destroy the session in the background (we already left the editor).
+    if (!wasGuest) api.logout().catch(() => { /* ignore */ });
   };
 
   const [secondTab, setSecondTab] = useState(false);
