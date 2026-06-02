@@ -11,9 +11,13 @@
     /* Roomy padding mirroring the reference navbar: generous, symmetric side inset
        (equal left/right) + taller bar. */
     padding: 20px 64px;
-    /* Sticky: keep the bar pinned to the top while the page scrolls. */
+    /* Floating bar: gap from the top and sides so it doesn't touch the edges,
+       with rounded corners. */
+    margin: 0.8rem 1rem 0;
+    border-radius: 14px;
+    /* Sticky: keep the bar pinned (offset by the top gap) while the page scrolls. */
     position: sticky;
-    top: 0;
+    top: 0.8rem;
     z-index: 10;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }

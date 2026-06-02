@@ -403,7 +403,7 @@ function App() {
 
       <div className={theme ? 'app-body theme-dark' : 'app-body theme-light'} style={{
         backgroundColor: !theme ? 'rgba(243,244,246,255)' : '#252432',
-        paddingTop: '10px',
+        paddingTop: '2rem',
         display: 'flex'
         }}>
         <div className='middle-column'>

@@ -7,10 +7,10 @@ import ThemeSlider from '../components/ThemeSlider';
 const TopBarDiv = (props) => {
     // Navbar uses the section-div colour for its background and the purple for its
     // foreground; dark mode swaps the two.
-    //  - light: bg = #fff (div colour),  fg = #827eaf (purple)
+    //  - light: bg = #fff (div colour),  fg = #5e59a8 (darker purple)
     //  - dark : bg = #827eaf (purple),   fg = #504d75 (dark div colour)
     const navBg = !props.themeProp ? '#fff' : '#827eafff';
-    const navFg = !props.themeProp ? '#827eafff' : '#504d75ff';
+    const navFg = !props.themeProp ? '#5e59a8ff' : '#504d75ff';
 
     return (
         <div className="top-bar" style={{ backgroundColor: navBg }}>
