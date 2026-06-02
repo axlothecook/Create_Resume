@@ -471,24 +471,34 @@ input[type="color"]::-webkit-color-swatch {
 }
 
 /* --- Reorder mode (drag-and-drop, item #2) --- */
+/* The wrapper mirrors .sticky-div / .left-column so the toggle reads as part of the
+   same button family (Content/Customize, Clear/Load Example). */
+.reorder-toggle-wrapper {
+    display: flex;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+}
+
 .reorder-toggle-btn {
-    align-self: flex-start;
-    background: transparent;
-    border: 1px solid currentColor;
-    border-radius: 6px;
-    padding: 8px 14px;
+    padding: 10px 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     font-size: 14px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background 0.15s ease;
 }
 
-.reorder-toggle-btn:hover {
-    background: rgba(96, 116, 128, 0.12);
+.reorder-toggle-btn > h3 {
+    font-size: 14px;
 }
 
-.reorder-toggle-btn[aria-pressed="true"] {
-    background: rgba(96, 116, 128, 0.18);
-    font-weight: 600;
+.reorder-toggle-btn:active {
+    transform: scale(0.9);
 }
 
 .sortable-section {

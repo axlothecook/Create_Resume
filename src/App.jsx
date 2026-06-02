@@ -613,16 +613,27 @@ function App() {
                           singleObject={true}
                         />
 
-                        {/* Toggle: start/stop reorder mode for the content sections. */}
-                        <button
-                          type='button'
-                          className='reorder-toggle-btn'
-                          aria-pressed={reorderMode}
-                          onClick={() => setReorderMode(v => !v)}
-                          style={{ color: !theme ? '#252432' : '#eef1f3' }}
-                        >
-                          {reorderMode ? '✓ Done reordering' : '⠿ Reorder sections'}
-                        </button>
+                        {/* Toggle: start/stop reorder mode for the content sections.
+                            Styled like the Content/Customize + Clear/Load buttons: white
+                            when off ("not in use"), shaded when on ("in use"). */}
+                        <div className='reorder-toggle-wrapper' style={{ backgroundColor: !theme ? '#fff' : '#3c3a58ff' }}>
+                          <button
+                            type='button'
+                            className='reorder-toggle-btn'
+                            aria-pressed={reorderMode}
+                            onClick={() => setReorderMode(v => !v)}
+                            style={{
+                              backgroundColor: !theme
+                                ? (reorderMode ? '#eef1f3' : '#fff')
+                                : (reorderMode ? '#504d75ff' : '#3c3a58ff'),
+                              color: !theme ? '#252432' : '#eef1f3',
+                            }}
+                          >
+                            <h3 style={{ fontWeight: 'bold' }}>
+                              {reorderMode ? 'Done reordering' : 'Reorder sections'}
+                            </h3>
+                          </button>
+                        </div>
 
                         {reorderMode ? (
                           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
