@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRef } from 'react';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { pdf } from '@react-pdf/renderer';
+import ResumePdfDocument from './pdf/ResumePdfDocument';
 import LeftColumn from './edit-components/Left-column';
 import StickyDiv from './edit-components/StickyDivComponent';
 import BigComponent from './edit-components/AttemptComponent';
@@ -370,31 +370,33 @@ function App() {
   };
 
   const printRef = useRef(null);
-  
+
+  // One-click vector PDF download via @react-pdf/renderer. Builds the ordered
+  // sections from the same state that drives the on-screen résumé.
   const handleDownloadPdf = async () => {
-    const element = printRef.current;
-    if (!element) return;
+    const sectionData = {
+      education: { key: 'education', label: 'EDUCATION', items: educationArray },
+      experience: { key: 'experience', label: 'EXPERIENCE', items: experienceArray },
+      project: { key: 'project', label: 'PERSONAL PROJECTS', items: projectArray },
+      skill: { key: 'skill', label: 'SKILLS & LANGUAGES' },
+    };
+    const orderedSections = sectionOrder.map(k => sectionData[k]).filter(Boolean);
 
-    const canvas = await html2canvas(element, {
-      scale: 2,
-    });
+    const blob = await pdf(
+      <ResumePdfDocument
+        personalDetails={personalDetailsArray[0]}
+        skills={{ skillList: skillArray[0].skillList, languageList: skillArray[0].languageList }}
+        orderedSections={orderedSections}
+        style={style}
+      />
+    ).toBlob();
 
-    const data = canvas.toDataURL("image/png");
-
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      format: 'a4',
-      unit: 'px',
-    });
-
-    const imgProperties = pdf.getImageProperties(data);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProperties.height * pdfWidth) / imgProperties.width;
-    console.log('pdf width: ' + pdfWidth);
-    console.log('pdf height: ' + pdfHeight);
-
-    pdf.addImage(data, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`resume.pdf`);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'resume.pdf';
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -404,7 +406,7 @@ function App() {
       <TopBarDiv onClick={handleDownloadPdf} themeProp = {theme} setThemeProp = {setTheme} />
 
       <div className='app-body' style={{
-        paddingTop: '2rem',
+        paddingTop: '4rem',
         display: 'flex'
         }}>
         <div className='middle-column'>

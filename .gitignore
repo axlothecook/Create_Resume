@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 users.json
+
+# Generated PDF samples from scripts/render-samples.jsx
+scripts/sample-*.pdf
