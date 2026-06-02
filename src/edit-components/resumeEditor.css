@@ -14,12 +14,12 @@
     justify-content: space-between;
     align-items: center;
     gap: 24px;
-    /* Compact bar: keep the generous symmetric side inset but trim the vertical
-       padding so the navbar is shorter. */
-    padding: 10px 64px;
-    /* Floating bar: gap from the top and sides so it doesn't touch the edges,
-       with rounded corners. */
-    margin: 1.5rem 2.5rem 0;
+    box-sizing: border-box;
+    /* Roomy padding mirroring the reference navbar. */
+    padding: 20px 40px;
+    /* Floating bar: spans the content width (its side margins match the editor's
+       left edge / résumé's right edge), with a top gap and rounded corners. */
+    margin: 1.5rem 4rem 0;
     border-radius: 14px;
     /* Sticky: keep the bar pinned (offset by the top gap) while the page scrolls. */
     position: sticky;
@@ -42,12 +42,12 @@
 }
 
 .navbar-logo {
-    width: 22px;
-    height: 22px;
+    width: 28px;
+    height: 28px;
 }
 
 .navbar-title {
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 700;
     white-space: nowrap;
 }
@@ -55,8 +55,8 @@
 /* Smaller navbar icons (was 40px) + shorter bar. */
 .top-bar .website-mode,
 .top-bar .logout-svg {
-    width: 20px;
-    height: 20px;
+    width: 24px;
+    height: 24px;
 }
 
 /* --- Theme slider (light/dark pill toggle) --- */
@@ -696,7 +696,7 @@ input[type="color"]::-webkit-color-swatch {
 
 @media screen and (max-width: 900px) {
     .top-bar {
-        padding: 18px 32px;
+        padding: 18px 28px;
     }
 }
 
