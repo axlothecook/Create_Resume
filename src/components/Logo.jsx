@@ -1,9 +1,8 @@
 import './components.css';
 
 // Brand mark (the project's marker/pin logo) + wordmark, shown on the left of the navbar.
-const Logo = ({ themeProp }) => {
-    const color = !themeProp ? '#2b2a3a' : '#ffffff';
-
+// `color` sets both the logo fill and the wordmark (navbar foreground).
+const Logo = ({ color = '#2b2a3a' }) => {
     return (
         <div className='navbar-brand'>
             <svg className='navbar-logo' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 640' fill={color} aria-hidden='true'>

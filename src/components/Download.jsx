@@ -2,8 +2,8 @@ import './components.css';
 
 const DownloadSvg = (props) => {
     return (
-        <svg 
-            fill={!props.themeProp ? 'black' : 'white'}
+        <svg
+            fill={props.color ? props.color : (!props.themeProp ? 'black' : 'white')}
             className='download-pdf-svg'
             xmlns="http://www.w3.org/2000/svg" 
             viewBox="0 0 512 512" 
