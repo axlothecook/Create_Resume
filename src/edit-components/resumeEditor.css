@@ -14,9 +14,9 @@
     justify-content: space-between;
     align-items: center;
     gap: 24px;
-    /* Roomy padding mirroring the reference navbar: generous, symmetric side inset
-       (equal left/right) + taller bar. */
-    padding: 20px 64px;
+    /* Compact bar: keep the generous symmetric side inset but trim the vertical
+       padding so the navbar is shorter. */
+    padding: 10px 64px;
     /* Floating bar: gap from the top and sides so it doesn't touch the edges,
        with rounded corners. */
     margin: 1.5rem 2.5rem 0;
@@ -42,12 +42,12 @@
 }
 
 .navbar-logo {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
 }
 
 .navbar-title {
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 700;
     white-space: nowrap;
 }
@@ -55,8 +55,8 @@
 /* Smaller navbar icons (was 40px) + shorter bar. */
 .top-bar .website-mode,
 .top-bar .logout-svg {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
 }
 
 /* --- Theme slider (light/dark pill toggle) --- */
