@@ -14,7 +14,13 @@ const InputBlock = (props) => {
               <h2 style={{fontWeight: 'bold'}}>{props.name}</h2>
               <DropdownSvg rotated={tracker} />
             </div>
-            {tracker && props.children}
+            {/* Slide open/closed: grid-template-rows animates 0fr -> 1fr so the height
+                transitions smoothly without needing to measure the content (gameshop-style). */}
+            <div className={tracker ? 'dropdown-slide dropdown-slide-open' : 'dropdown-slide'}>
+              <div className='dropdown-slide-inner'>
+                {props.children}
+              </div>
+            </div>
         </div>
     )
 }

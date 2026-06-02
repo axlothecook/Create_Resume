@@ -195,6 +195,23 @@
     gap: 5px;
 }
 
+/* Slide-open/close animation for section content (gameshop-style).
+   grid-template-rows animates 0fr -> 1fr so height transitions without measuring. */
+.dropdown-slide {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s ease;
+}
+
+.dropdown-slide-open {
+    grid-template-rows: 1fr;
+}
+
+.dropdown-slide-inner {
+    overflow: hidden;
+    min-height: 0;
+}
+
 .block-wrapper {
     padding: 16px;
     border-bottom-right-radius: 15px;
