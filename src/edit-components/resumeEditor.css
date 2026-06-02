@@ -152,6 +152,26 @@
     transform: scale(0.9);
 }
 
+/* --- Hover state for the editor buttons ---------------------------------------
+   Industry-standard "state layer" approach (Material Design 3, eBay Playbook):
+   overlay a translucent layer of the content colour so the button "pops" on hover.
+   Direction follows the background — DARKER on light backgrounds, LIGHTER on dark
+   ones. Implemented with an inset box-shadow because the buttons set their
+   background-color via inline styles, which would beat a CSS background override.  */
+.theme-light .clear-resume-btn:hover,
+.theme-light .load-example-btn:hover,
+.theme-light .left-col-box:hover,
+.theme-light .reorder-toggle-btn:hover {
+    box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.06);
+}
+
+.theme-dark .clear-resume-btn:hover,
+.theme-dark .load-example-btn:hover,
+.theme-dark .left-col-box:hover,
+.theme-dark .reorder-toggle-btn:hover {
+    box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.08);
+}
+
 .clear-resume-btn {
     color: var(--red);
     display: flex;
@@ -570,6 +590,7 @@ input[type="color"]::-webkit-color-swatch {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: .15s ease-in-out all;
 }
 
 .reorder-toggle-btn > h3 {

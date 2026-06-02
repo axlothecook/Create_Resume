@@ -401,7 +401,7 @@ function App() {
     <>
       <TopBarDiv onClick={handleDownloadPdf} themeProp = {theme} setThemeProp = {setTheme} />
 
-      <div style={{
+      <div className={theme ? 'app-body theme-dark' : 'app-body theme-light'} style={{
         backgroundColor: !theme ? 'rgba(243,244,246,255)' : '#252432',
         paddingTop: '10px',
         display: 'flex'
