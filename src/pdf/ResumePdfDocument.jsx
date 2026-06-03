@@ -75,22 +75,50 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         : 'top';
     const sidebar = grid || pos === 'left' || pos === 'right'; // panel rendered as a side column
 
-    const headerTextColor = onAccent(accent);
+    // "Underlined" style: no accent fills — transparent header, black name/contacts,
+    // black section titles with a thin rule (the underline). "Filled" (default): accent
+    // header banner + accent section titles.
+    const underlined = !!style.underlined;
+    const panelBg = underlined ? 'transparent' : accent;
+    const headerTextColor = underlined ? '#1a1a1a' : onAccent(accent);
+    const titleColor = underlined ? '#1a1a1a' : accent;
 
     const s = StyleSheet.create({
-        page: { fontFamily: font, fontSize: 7.5, color: '#1a1a1a', lineHeight: 1.3 },
-        // Panel (name + contacts)
-        panel: { backgroundColor: accent, color: headerTextColor, padding: 14, display: 'flex', flexDirection: 'column', gap: 5 },
-        panelTop: { width: '100%', alignItems: 'center', textAlign: 'center' },
-        panelSide: { width: '32%', alignItems: 'flex-start' },
-        name: { fontFamily: bold, fontSize: 14, color: headerTextColor, marginBottom: 3 },
-        contactRow: { flexDirection: sidebar ? 'column' : 'row', flexWrap: 'wrap', gap: sidebar ? 3 : 9, alignItems: sidebar ? 'flex-start' : 'center' },
-        contactItem: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-        contactText: { color: headerTextColor, fontSize: 7 },
+        page: { fontFamily: font, fontSize: 7.5, color: '#1a1a1a', lineHeight: 1.3, display: 'flex', flexDirection: 'column' },
+        // Panel (name + contacts). Horizontal padding of 16 matches the body so the
+        // underlined header rule lines up with the section-title rules below it.
+        panel: {
+            backgroundColor: panelBg,
+            color: headerTextColor,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: sidebar ? 10 : 5, // roomier spacing between name + contacts in the side column
+        },
+        // Top banner: full width, centred. Underlined → top/bottom padding only + a
+        // bottom rule that matches the section rules' width (via the 16 side padding).
+        panelTop: {
+            width: '100%',
+            alignItems: 'center',
+            textAlign: 'center',
+            padding: underlined ? '6 16 8 16' : 14,
+            ...(underlined ? { borderBottomWidth: 1, borderBottomColor: '#1a1a1a' } : {}),
+        },
+        // Side column: narrower, with extra left padding so text sits in from the edge.
+        panelSide: {
+            width: '30%',
+            alignItems: 'flex-start',
+            padding: '18 14 18 18',
+            ...(underlined ? { borderRightWidth: 1, borderRightColor: '#cccccc' } : {}),
+        },
+        name: { fontFamily: bold, fontSize: sidebar ? 15 : 14, color: headerTextColor, marginBottom: 3 },
+        // section title colour switches with the style; underline rule kept in both.
+        contactRow: { flexDirection: sidebar ? 'column' : 'row', flexWrap: 'wrap', gap: sidebar ? 6 : 9, alignItems: sidebar ? 'flex-start' : 'center' },
+        contactItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+        contactText: { color: headerTextColor, fontSize: sidebar ? 8 : 7 },
         // Body
         body: { padding: 16, display: 'flex', flexDirection: 'column', gap: 8 },
         section: { display: 'flex', flexDirection: 'column', gap: 3 },
-        sectionTitle: { fontFamily: bold, fontSize: 9, color: accent, textAlign: 'center', borderBottomWidth: 1, borderBottomColor: accent, paddingBottom: 1.5, marginBottom: 1.5 },
+        sectionTitle: { fontFamily: bold, fontSize: 9, color: titleColor, textAlign: 'center', borderBottomWidth: 1, borderBottomColor: titleColor, paddingBottom: 1.5, marginBottom: 1.5 },
         entry: { flexDirection: 'row', gap: '4%', marginBottom: 3 },
         entryLeft: { width: '30%' },
         entryRight: { width: '66%' },
@@ -104,8 +132,9 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         bulletText: { fontSize: 7.5, flex: 1 },
         skillGroupTitle: { fontFamily: bold, fontSize: 8, marginBottom: 1 },
         skillText: { fontSize: 7.5 },
-        // Layout containers
-        rowLayout: { flexDirection: 'row' },
+        // Layout containers. flexGrow makes the row fill the page height so the side
+        // panel (accent column) stretches all the way down, not just to its content.
+        rowLayout: { flexDirection: 'row', flexGrow: 1, alignItems: 'stretch' },
     });
 
     const ContactItem = ({ kind, value }) => value ? (
@@ -156,18 +185,25 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
     const SkillsBlock = (
         <View style={s.section}>
             <Text style={s.sectionTitle}>SKILLS & LANGUAGES</Text>
-            {(skills.skillList?.length > 0) && (
-                <View style={{ marginBottom: 3 }}>
-                    <Text style={s.skillGroupTitle}>Technical Skills</Text>
-                    <Text style={s.skillText}>{skills.skillList.map(x => x.text).join(', ')}</Text>
+            {/* Indent the skills content to align with the other sections' content column
+                (left spacer matches the entry date column) instead of breaking full-left. */}
+            <View style={s.entry}>
+                <View style={s.entryLeft} />
+                <View style={s.entryRight}>
+                    {(skills.skillList?.length > 0) && (
+                        <View style={{ marginBottom: 4 }}>
+                            <Text style={s.skillGroupTitle}>Technical Skills</Text>
+                            <Text style={s.skillText}>{skills.skillList.map(x => x.text).join(', ')}</Text>
+                        </View>
+                    )}
+                    {(skills.languageList?.length > 0) && (
+                        <View>
+                            <Text style={s.skillGroupTitle}>Languages</Text>
+                            <Text style={s.skillText}>{skills.languageList.map(x => x.text).join(', ')}</Text>
+                        </View>
+                    )}
                 </View>
-            )}
-            {(skills.languageList?.length > 0) && (
-                <View>
-                    <Text style={s.skillGroupTitle}>Languages</Text>
-                    <Text style={s.skillText}>{skills.languageList.map(x => x.text).join(', ')}</Text>
-                </View>
-            )}
+            </View>
         </View>
     );
 
@@ -194,13 +230,13 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
                     <View style={s.rowLayout}>
                         {pos === 'right' ? (
                             <>
-                                <View style={{ width: '68%' }}>{bodyContent}</View>
+                                <View style={{ width: '70%' }}>{bodyContent}</View>
                                 {Panel}
                             </>
                         ) : (
                             <>
                                 {Panel}
-                                <View style={{ width: '68%' }}>{bodyContent}</View>
+                                <View style={{ width: '70%' }}>{bodyContent}</View>
                             </>
                         )}
                     </View>
