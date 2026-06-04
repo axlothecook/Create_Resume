@@ -100,14 +100,22 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
             width: '100%',
             alignItems: 'center',
             textAlign: 'center',
-            padding: underlined ? '6 16 8 16' : 14,
+            // Match the body's horizontal inset (16) so the underlined header rule lines
+            // up exactly with the section rules below it. Longhand to avoid shorthand parsing.
+            paddingTop: underlined ? 6 : 14,
+            paddingBottom: underlined ? 8 : 14,
+            paddingLeft: 16,
+            paddingRight: 16,
             ...(underlined ? { borderBottomWidth: 1, borderBottomColor: '#1a1a1a' } : {}),
         },
         // Side column: narrower, with extra left padding so text sits in from the edge.
         panelSide: {
             width: '30%',
             alignItems: 'flex-start',
-            padding: '18 14 18 18',
+            paddingTop: 18,
+            paddingBottom: 18,
+            paddingLeft: 18,
+            paddingRight: 14,
             ...(underlined ? { borderRightWidth: 1, borderRightColor: '#cccccc' } : {}),
         },
         name: { fontFamily: bold, fontSize: sidebar ? 15 : 14, color: headerTextColor, marginBottom: 3 },
@@ -182,28 +190,35 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         );
     };
 
+    const skillGroups = (
+        <>
+            {(skills.skillList?.length > 0) && (
+                <View style={{ marginBottom: 4 }}>
+                    <Text style={s.skillGroupTitle}>Technical Skills</Text>
+                    <Text style={s.skillText}>{skills.skillList.map(x => x.text).join(', ')}</Text>
+                </View>
+            )}
+            {(skills.languageList?.length > 0) && (
+                <View>
+                    <Text style={s.skillGroupTitle}>Languages</Text>
+                    <Text style={s.skillText}>{skills.languageList.map(x => x.text).join(', ')}</Text>
+                </View>
+            )}
+        </>
+    );
+
     const SkillsBlock = (
         <View style={s.section}>
             <Text style={s.sectionTitle}>SKILLS & LANGUAGES</Text>
-            {/* Indent the skills content to align with the other sections' content column
-                (left spacer matches the entry date column) instead of breaking full-left. */}
-            <View style={s.entry}>
-                <View style={s.entryLeft} />
-                <View style={s.entryRight}>
-                    {(skills.skillList?.length > 0) && (
-                        <View style={{ marginBottom: 4 }}>
-                            <Text style={s.skillGroupTitle}>Technical Skills</Text>
-                            <Text style={s.skillText}>{skills.skillList.map(x => x.text).join(', ')}</Text>
-                        </View>
-                    )}
-                    {(skills.languageList?.length > 0) && (
-                        <View>
-                            <Text style={s.skillGroupTitle}>Languages</Text>
-                            <Text style={s.skillText}>{skills.languageList.map(x => x.text).join(', ')}</Text>
-                        </View>
-                    )}
+            {/* In sidebar (left/right) layouts the content column is narrow, so indent the
+                skills to align with the other sections' content. In TOP layout, keep them
+                left-aligned (full width) like the on-screen demo. */}
+            {sidebar ? (
+                <View style={s.entry}>
+                    <View style={s.entryLeft} />
+                    <View style={s.entryRight}>{skillGroups}</View>
                 </View>
-            </View>
+            ) : skillGroups}
         </View>
     );
 
