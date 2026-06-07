@@ -1,14 +1,37 @@
 .auth-screen {
-    min-height: 100vh;
+    position: relative;
+    /* Exactly the viewport height (no scroll). overflow:hidden clips any overflow so
+       the login page never scrolls. */
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
+    box-sizing: border-box;
     font-family: sans-serif;
+    /* Fill the whole screen with the LED-dot texture. Because it's a repeating
+       pattern, cover's cropping is invisible — it looks right at any screen shape. */
+    background-image: var(--auth-bg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
+/* Fallback colours show if the image is absent / still loading. */
 .auth-screen.theme-light { background-color: rgba(243, 244, 246, 1); }
 .auth-screen.theme-dark { background-color: #252432; }
+
+/* Subtle dim so the card stays legible on the bright texture. */
+.auth-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: rgba(20, 18, 35, 0.35);
+}
+/* Card sits above the photo + overlay. */
+.auth-card { position: relative; z-index: 1; }
 
 .auth-card {
     width: 100%;
@@ -55,23 +78,111 @@
     gap: 0.85rem;
 }
 
-.auth-label {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    font-size: 0.85rem;
-    font-weight: 600;
+/* --- Floating-label field ---
+   Idle (empty, unfocused): the label sits inside the input as placeholder text.
+   Focused OR filled: the label floats up onto the top border. Focused also turns
+   the border + label the highlight colour. When focus leaves, it returns to idle
+   unless text was typed (then it stays floated, just un-highlighted). */
+.auth-field {
+    --field-accent: #5e59a8;     /* highlight colour for the active field */
+    --field-bg: #fff;            /* must match the card bg so the label notches the border */
+    position: relative;
+    display: block;
+}
+.theme-dark .auth-field {
+    --field-accent: #cfcdfa;
+    --field-bg: #3c3a58;
 }
 
-.auth-label input {
-    padding: 0.6rem;
-    border: 1px solid #ccc;
+.auth-field input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.85rem 0.7rem;
+    border: 1.5px solid #c9c9d4;
     border-radius: 8px;
     font-size: 0.95rem;
-    background: #fff;
+    background: transparent;
+    color: inherit;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
-.theme-dark .auth-label input { background: #eef1f3; color: #2b2a3a; }
-.auth-label input:focus { outline: 2px solid #827eaf; border-color: transparent; }
+.auth-field input:focus {
+    outline: none;
+    border-color: var(--field-accent);
+    box-shadow: 0 0 0 1px var(--field-accent);
+}
+
+.auth-field label {
+    position: absolute;
+    left: 0.7rem;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 0 0.3rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #8a8a99;
+    background: transparent;
+    pointer-events: none;            /* clicks pass through to the input */
+    transition: top 0.18s ease, transform 0.18s ease, font-size 0.18s ease, color 0.18s ease;
+}
+
+/* Floated: when the input is focused OR has a value (placeholder no longer shown),
+   the label rises onto the top border. The matching bg notches the border line. */
+.auth-field input:focus + label,
+.auth-field input:not(:placeholder-shown) + label {
+    top: 0;
+    transform: translateY(-50%);
+    font-size: 0.75rem;
+    background: var(--field-bg);
+}
+/* Highlight colour only while actually focused (the "currently active" cue). */
+.auth-field input:focus + label {
+    color: var(--field-accent);
+}
+
+/* --- live validation states (red = invalid, green = valid) --- */
+.auth-field.is-invalid input {
+    border-color: #d1495b;
+}
+.auth-field.is-invalid input:focus {
+    border-color: #d1495b;
+    box-shadow: 0 0 0 1px #d1495b;
+}
+.auth-field.is-invalid input:focus + label { color: #d1495b; }
+
+.auth-field.is-valid input {
+    border-color: #2e9e5b;
+}
+.auth-field.is-valid input:focus {
+    border-color: #2e9e5b;
+    box-shadow: 0 0 0 1px #2e9e5b;
+}
+.auth-field.is-valid input:focus + label { color: #2e9e5b; }
+
+/* --- password requirements checklist --- */
+.auth-pw-checklist {
+    list-style: none;
+    margin: -0.4rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.78rem;
+}
+.auth-pw-checklist li {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #8a8a99;            /* unmet = muted */
+    transition: color 0.15s ease;
+}
+.auth-pw-checklist li.is-passed { color: #2e9e5b; }   /* met = green */
+.auth-pw-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    font-weight: 700;
+}
 
 .auth-hint { font-size: 0.75rem; font-weight: 400; opacity: 0.7; }
 
