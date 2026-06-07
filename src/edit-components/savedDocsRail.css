@@ -1,0 +1,250 @@
+/* Saved-docs rail — CodingLab-style collapsible left sidebar (logged-in users only).
+   Dark full-height column; toggles expanded <-> icons-only via the burger<->X button. */
+
+/* The body reserves a CONSTANT left gutter = rail's EXPANDED width + a gap, so
+   collapsing the rail never shifts the middle content and there's clear space
+   between the rail and the content. */
+.app-body--with-rail {
+    padding-left: calc(230px + 2.5rem);
+}
+
+.docs-rail {
+    /* Fixed rail: OUT of the document flow and pinned to the left, from just under the
+       full-bleed topbar to the bottom of the viewport. Because it's fixed, collapsing
+       it does NOT shift the middle content — the body reserves a constant gutter (see
+       .app-body--with-rail). The navbar is ~68px (20px padding x2 + 28px logo). */
+    --rail-open-w: 230px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 9;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-sizing: border-box;
+    padding: 18px 14px;
+    transition: width 0.22s ease;
+    color: #e6e4f2;
+    background-color: #2f2c44;    /* dark rail regardless of app theme, like the reference */
+}
+
+.docs-rail.is-open { width: var(--rail-open-w); }
+.docs-rail.is-collapsed { width: 76px; }
+
+/* Light app theme: a slightly lighter rail so it doesn't read as a black slab. */
+.docs-rail.theme-light { background-color: #34314c; }
+
+/* --- burger<->X toggle: lives INSIDE the rail (in the brand row), not on the edge --- */
+.docs-rail-toggle {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    color: inherit;
+    background-color: transparent;
+    transition: background-color 0.15s ease;
+}
+.docs-rail-toggle:hover { background-color: rgba(255, 255, 255, 0.08); }
+
+/* Three bars that rotate/fade into an X. The box is tall enough that the bottom
+   bar is never clipped (24px box; bars at 0 / 50% / 100%). */
+.docs-rail-burger {
+    position: relative;
+    width: 24px;
+    height: 18px;
+    display: block;
+}
+.docs-rail-burger span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2.5px;
+    border-radius: 2px;
+    background-color: currentColor;
+    transition: transform 0.25s ease, opacity 0.2s ease;
+}
+.docs-rail-burger span:nth-child(1) { top: 0; }
+.docs-rail-burger span:nth-child(2) { top: 50%; transform: translateY(-50%); }
+.docs-rail-burger span:nth-child(3) { bottom: 0; }
+
+/* Open state → morph to X: top & bottom bars meet in the middle and cross; middle fades. */
+.docs-rail-toggle.is-x .docs-rail-burger span:nth-child(1) {
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+}
+.docs-rail-toggle.is-x .docs-rail-burger span:nth-child(2) { opacity: 0; }
+.docs-rail-toggle.is-x .docs-rail-burger span:nth-child(3) {
+    bottom: auto;
+    top: 50%;
+    transform: translateY(-50%) rotate(-45deg);
+}
+
+/* --- brand row: logo + name (left) ... toggle (far right) --- */
+.docs-rail-brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 6px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.docs-rail-brand-id {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+.docs-rail-logo {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+.docs-rail-logo svg { width: 22px; height: 22px; }
+.docs-rail-brand-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.docs-rail-brand-text strong { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* --- shared item (button row) --- */
+.docs-rail-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 10px;
+    border: none;
+    border-radius: 10px;
+    background-color: transparent;
+    color: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+.docs-rail-item:hover:not(:disabled) { background-color: rgba(255, 255, 255, 0.08); }
+.docs-rail-item:disabled { opacity: 0.5; cursor: default; }
+
+.docs-rail-icon {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.docs-rail-icon svg { width: 18px; height: 18px; }
+.docs-rail-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.docs-rail-actions { display: flex; flex-direction: column; gap: 4px; }
+.docs-rail-add { color: #c9c4f0; }
+
+/* --- list --- */
+.docs-rail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 0;
+}
+.docs-rail-empty,
+.docs-rail-max {
+    font-size: 12px;
+    color: #a9a5c6;
+    padding: 6px 10px;
+    margin: 0;
+}
+
+.docs-rail-row { display: flex; align-items: center; }
+.docs-rail-row .docs-rail-doc { flex: 1 1 auto; min-width: 0; }
+.docs-rail-doc-title { font-size: 13px; }
+
+/* Active (loaded) row highlighted, like "Revenue" in the reference. */
+.docs-rail-row.is-active .docs-rail-doc {
+    background-color: rgba(255, 255, 255, 0.14);
+    font-weight: 600;
+}
+
+.docs-rail-delete {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    background-color: transparent;
+    color: #b6b1d4;
+    cursor: pointer;
+}
+.docs-rail-delete:hover:not(:disabled) { background-color: rgba(255, 80, 80, 0.2); color: #ff8a8a; }
+.docs-rail-delete:disabled { opacity: 0.4; cursor: default; }
+
+/* --- footer (theme toggle + the full-width logout bar) --- pinned to the bottom
+   (margin-top:auto covers the guest case where there's no flex-grow list above). --- */
+.docs-rail-footer {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.docs-rail-theme {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 10px;
+}
+
+/* Full-width coloured Log Out bar at the very bottom: text LEFT, icon RIGHT. The
+   negative margins cancel the rail's 18px/14px padding so it spans edge-to-edge and
+   reaches the rail's bottom corners. */
+.docs-rail-logout-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 -14px -18px;
+    padding: 16px 18px;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+    background-color: #1d1b2e;     /* darker block, like the reference */
+    font-size: 14px;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+}
+.docs-rail-logout-bar:hover { background-color: #15131f; }
+.docs-rail-logout-bar .docs-rail-icon { width: 22px; height: 22px; flex: 0 0 auto; }
+.docs-rail-logout-bar .docs-rail-icon svg { width: 18px; height: 18px; }
+
+/* --- collapsed: icons only; the brand (logo + name) is hidden so the rail is led
+   by just the hamburger toggle at the top, then the action/doc icons. --- */
+.docs-rail.is-collapsed .docs-rail-label,
+.docs-rail.is-collapsed .docs-rail-brand-id,
+.docs-rail.is-collapsed .docs-rail-empty,
+.docs-rail.is-collapsed .docs-rail-max,
+.docs-rail.is-collapsed .docs-rail-delete {
+    display: none;
+}
+.docs-rail.is-collapsed .docs-rail-item { justify-content: center; padding: 10px 0; }
+.docs-rail.is-collapsed .docs-rail-brand { justify-content: center; padding: 4px 0 12px; }
+.docs-rail.is-collapsed .docs-rail-theme { justify-content: center; padding: 0; }
+/* Collapsed logout bar: icon only, centred. */
+.docs-rail.is-collapsed .docs-rail-logout-bar { justify-content: center; padding: 16px 0; }
+
+/* Full responsiveness (the rail's mobile behaviour) is item #8. */
