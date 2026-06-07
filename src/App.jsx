@@ -4,6 +4,7 @@ import { pdf } from '@react-pdf/renderer';
 import ResumePdfDocument from './pdf/ResumePdfDocument';
 import AuthScreen from './auth/AuthScreen';
 import { api } from './api/client';
+import SavedDocsRail from './edit-components/SavedDocsRail';
 import LeftColumn from './edit-components/Left-column';
 import StickyDiv from './edit-components/StickyDivComponent';
 import BigComponent from './edit-components/AttemptComponent';
@@ -16,7 +17,6 @@ import EducationSvg from './components/Education';
 import SkillsSvg from './components/Skills';
 import ExperienceSvg from './components/Experience';
 import PersonalProjectsSvg from './components/PersonalProjects';
-import TopBarDiv from './edit-components/TopBar';
 
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
@@ -30,6 +30,13 @@ function App() {
   const [user, setUser] = useState(null);
   const [isGuest, setIsGuest] = useState(false);
 
+  // Saved-docs (#6): the account's saved résumés (lightweight {id,title,...}), the
+  // currently-loaded doc's id (null = unsaved/new), and a busy flag to block actions
+  // mid-request. Only ever populated for logged-in (non-guest) users.
+  const [savedDocs, setSavedDocs] = useState([]);
+  const [currentDocId, setCurrentDocId] = useState(null);
+  const [docsBusy, setDocsBusy] = useState(false);
+
   useEffect(() => {
     api.me()
       .then((res) => {
@@ -39,12 +46,23 @@ function App() {
       .catch(() => setAuthStatus('out')); // backend unreachable → show auth screen
   }, []);
 
+  // Load the saved-résumé list once a real user is in (guests never call this).
+  useEffect(() => {
+    if (authStatus === 'in' && user && !isGuest) {
+      api.listResumes()
+        .then((res) => setSavedDocs(res.resumes || []))
+        .catch(() => { /* leave the list empty if it fails; rail still works */ });
+    }
+  }, [authStatus, user, isGuest]);
+
   const handleLogout = () => {
     // Switch to the auth screen immediately — don't block the UI on the network.
     const wasGuest = isGuest;
     setUser(null);
     setIsGuest(false);
     setAuthStatus('out');
+    setSavedDocs([]);
+    setCurrentDocId(null);
     // Guests have no server session, so skip the request entirely. For real users,
     // destroy the session in the background (we already left the editor).
     if (!wasGuest) api.logout().catch(() => { /* ignore */ });
@@ -399,6 +417,106 @@ function App() {
 
   const printRef = useRef(null);
 
+  // --- Saved-docs (#6): gather/hydrate the full editor state ---
+  // The backend stores a résumé's `data` as the FULL editor state verbatim, so saving
+  // captures everything and loading restores the session exactly.
+  const gatherState = () => ({
+    personalDetails: personalDetailsArray,
+    education: educationArray,
+    experience: experienceArray,
+    project: projectArray,
+    skill: skillArray,
+    sectionOrder,
+    style,
+  });
+
+  const hydrateState = (data) => {
+    if (!data) return;
+    if (data.personalDetails) setPersonalDetailsArray(data.personalDetails);
+    if (data.education) setEducationArray(data.education);
+    if (data.experience) setExperienceArray(data.experience);
+    if (data.project) setProjectArray(data.project);
+    if (data.skill) setSkillArray(data.skill);
+    if (data.sectionOrder) setSectionOrder(data.sectionOrder);
+    if (data.style) setStyle(data.style);
+  };
+
+  const MAX_DOCS = 10;
+  const maxReached = savedDocs.length >= MAX_DOCS;
+
+  // "+ Add new": prompt for a title, create a blank-titled doc with the CURRENT editor
+  // state (the backend has no "empty" concept — a doc always carries state), select it.
+  const handleAddNew = async () => {
+    if (docsBusy) return;
+    if (maxReached) { alert('You can save up to 10 résumés. Delete one to add another.'); return; }
+    const title = (window.prompt('Name this résumé:', '') || '').trim();
+    if (!title) return;
+    setDocsBusy(true);
+    try {
+      const res = await api.createResume(title, gatherState());
+      setSavedDocs((list) => [res.resume, ...list]);
+      setCurrentDocId(res.resume.id);
+    } catch (err) {
+      alert(err.message || 'Could not create the résumé.');
+    } finally {
+      setDocsBusy(false);
+    }
+  };
+
+  // "Save": update the loaded doc (PUT). If nothing is loaded yet, behave like Add new
+  // (prompt for a title + POST), respecting the max-10 limit.
+  const handleSaveDoc = async () => {
+    if (docsBusy) return;
+    setDocsBusy(true);
+    try {
+      if (currentDocId) {
+        const res = await api.updateResume(currentDocId, { data: gatherState() });
+        setSavedDocs((list) => list.map((d) => (d.id === currentDocId ? res.resume : d)));
+      } else {
+        if (maxReached) { alert('You can save up to 10 résumés. Delete one to add another.'); return; }
+        const title = (window.prompt('Name this résumé:', '') || '').trim();
+        if (!title) return;
+        const res = await api.createResume(title, gatherState());
+        setSavedDocs((list) => [res.resume, ...list]);
+        setCurrentDocId(res.resume.id);
+      }
+    } catch (err) {
+      alert(err.message || 'Could not save the résumé.');
+    } finally {
+      setDocsBusy(false);
+    }
+  };
+
+  // Load a saved résumé into the editor (GET full data → hydrate every state slice).
+  const handleLoadDoc = async (id) => {
+    if (docsBusy) return;
+    setDocsBusy(true);
+    try {
+      const res = await api.getResume(id);
+      hydrateState(res.resume.data);
+      setCurrentDocId(id);
+    } catch (err) {
+      alert(err.message || 'Could not load the résumé.');
+    } finally {
+      setDocsBusy(false);
+    }
+  };
+
+  const handleDeleteDoc = async (id, title) => {
+    if (docsBusy) return;
+    if (!window.confirm(`Delete "${title}"? This can't be undone.`)) return;
+    setDocsBusy(true);
+    try {
+      await api.deleteResume(id);
+      setSavedDocs((list) => list.filter((d) => d.id !== id));
+      if (currentDocId === id) setCurrentDocId(null);
+    } catch (err) {
+      alert(err.message || 'Could not delete the résumé.');
+    } finally {
+      setDocsBusy(false);
+    }
+  };
+
   // One-click vector PDF download via @react-pdf/renderer. Builds the ordered
   // sections from the same state that drives the on-screen résumé.
   const handleDownloadPdf = async () => {
@@ -450,12 +568,27 @@ function App() {
     <div className={theme ? 'app-shell theme-dark' : 'app-shell theme-light'} style={{
       backgroundColor: !theme ? 'rgba(243,244,246,255)' : '#252432'
       }}>
-      <TopBarDiv onClick={handleDownloadPdf} themeProp = {theme} setThemeProp = {setTheme} onLogout={handleLogout} isGuest={isGuest} user={user} />
-
-      <div className='app-body' style={{
-        paddingTop: '4rem',
-        display: 'flex'
+      {/* The rail is now the ONLY chrome (the topbar was removed). It renders for
+          everyone — guests get PDF + theme + sign-in but no saved-docs actions. */}
+      <div className="app-body app-body--with-rail" style={{
+        display: 'flex',
+        paddingTop: '2rem' // breathing room at the top of the content
         }}>
+        <SavedDocsRail
+          isGuest={isGuest}
+          docs={savedDocs}
+          currentDocId={currentDocId}
+          maxReached={maxReached}
+          busy={docsBusy}
+          onAddNew={handleAddNew}
+          onSave={handleSaveDoc}
+          onLoad={handleLoadDoc}
+          onDelete={handleDeleteDoc}
+          onDownloadPdf={handleDownloadPdf}
+          themeProp={theme}
+          setThemeProp={setTheme}
+          onLogout={handleLogout}
+        />
         <div className='middle-column'>
           <div className="edit-load-div-parent">
 

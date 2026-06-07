@@ -5,34 +5,36 @@ import Logo from '../components/Logo';
 import ThemeSlider from '../components/ThemeSlider';
 
 const TopBarDiv = (props) => {
-    // Navbar uses the section-div colour for its background and the purple for its
-    // foreground; dark mode swaps the two.
-    //  - light: bg = #fff (div colour),  fg = #5e59a8 (darker purple)
-    //  - dark : bg = #827eaf (purple),   fg = #504d75 (dark div colour)
-    const navBg = !props.themeProp ? '#fff' : '#827eafff';
-    const navFg = !props.themeProp ? '#5e59a8ff' : '#504d75ff';
+    // Navbar bg/fg are SWAPPED vs before: the bar now carries the purple as its
+    // background and the light div-colour as its foreground; dark mode mirrors it.
+    //  - light: bg = #5e59a8 (darker purple), fg = #fff (div colour)
+    //  - dark : bg = #504d75 (dark div col),  fg = #827eaf (purple)
+    const navBg = !props.themeProp ? '#5e59a8ff' : '#504d75ff';
+    const navFg = !props.themeProp ? '#fff' : '#827eafff';
 
     return (
         <div className="top-bar" style={{ backgroundColor: navBg }}>
-            {/* Left: brand */}
+            {/* Left: brand (logo + website name) — the only branding the bar carries. */}
             <Logo color={navFg} />
 
-            {/* Right: actions */}
+            {/* Right: actions. Logged-in users get only the PDF button here — their theme
+                toggle + logout live on the saved-docs rail. Guests have no rail, so they
+                keep the theme toggle + logout (= "Sign in") in the navbar. */}
             <div className="top-bar-actions">
-                {!props.isGuest && props.user && <span className="navbar-user" style={{ color: navFg }}>{props.user.username}</span>}
-
-                <ThemeSlider themeProp={props.themeProp} setThemeProp={props.setThemeProp} />
-
-                {/* Logout for a real user; for a guest this returns to the sign-in screen. */}
-                <button
-                    type="button"
-                    className="navbar-logout-btn"
-                    onClick={() => props.onLogout && props.onLogout()}
-                    title={props.isGuest ? 'Sign in' : 'Log out'}
-                    aria-label={props.isGuest ? 'Sign in' : 'Log out'}
-                >
-                    <LogOutIcon color={navFg} />
-                </button>
+                {props.isGuest && (
+                    <>
+                        <ThemeSlider themeProp={props.themeProp} setThemeProp={props.setThemeProp} />
+                        <button
+                            type="button"
+                            className="navbar-logout-btn"
+                            onClick={() => props.onLogout && props.onLogout()}
+                            title="Sign in"
+                            aria-label="Sign in"
+                        >
+                            <LogOutIcon color={navFg} />
+                        </button>
+                    </>
+                )}
 
                 <button className="download-pdf-btn" onClick={() => props.onClick()}>
                     <DownloadSvg color={navFg} />
