@@ -44,6 +44,7 @@ const layouts = [
     { name: 'grid', style: { ...baseStyle, personalInfoBox: 'personal-info-box-no-side-padding', gridView: true } },
     { name: 'underlined', style: { ...baseStyle, personalInfoBox: 'personal-info-box-no-side-padding', underlined: true } },
     { name: 'left-underlined', style: { ...baseStyle, personalInfoBox: 'personal-info-box-left', gridView: true, underlined: true } },
+    { name: 'right-underlined', style: { ...baseStyle, personalInfoBox: 'personal-info-box-right', gridView: true, underlined: true } },
 ];
 
 for (const l of layouts) {

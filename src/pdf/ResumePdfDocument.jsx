@@ -109,6 +109,8 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
             ...(underlined ? { borderBottomWidth: 1, borderBottomColor: '#1a1a1a' } : {}),
         },
         // Side column: narrower, with extra left padding so text sits in from the edge.
+        // Underlined divider sits on the edge facing the content column: right edge when
+        // the sidebar is on the left, left edge when the sidebar is on the right.
         panelSide: {
             width: '30%',
             alignItems: 'flex-start',
@@ -116,13 +118,17 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
             paddingBottom: 18,
             paddingLeft: 18,
             paddingRight: 14,
-            ...(underlined ? { borderRightWidth: 1, borderRightColor: '#cccccc' } : {}),
+            ...(underlined
+                ? (pos === 'right'
+                    ? { borderLeftWidth: 1, borderLeftColor: '#cccccc' }
+                    : { borderRightWidth: 1, borderRightColor: '#cccccc' })
+                : {}),
         },
-        name: { fontFamily: bold, fontSize: sidebar ? 15 : 14, color: headerTextColor, marginBottom: 3 },
+        name: { fontFamily: bold, fontSize: sidebar ? 17 : 14, color: headerTextColor, marginBottom: 4 },
         // section title colour switches with the style; underline rule kept in both.
-        contactRow: { flexDirection: sidebar ? 'column' : 'row', flexWrap: 'wrap', gap: sidebar ? 6 : 9, alignItems: sidebar ? 'flex-start' : 'center' },
+        contactRow: { flexDirection: sidebar ? 'column' : 'row', flexWrap: 'wrap', gap: sidebar ? 8 : 9, alignItems: sidebar ? 'flex-start' : 'center' },
         contactItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-        contactText: { color: headerTextColor, fontSize: sidebar ? 8 : 7 },
+        contactText: { color: headerTextColor, fontSize: sidebar ? 9 : 7 },
         // Body
         body: { padding: 16, display: 'flex', flexDirection: 'column', gap: 8 },
         section: { display: 'flex', flexDirection: 'column', gap: 3 },
@@ -147,7 +153,7 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
 
     const ContactItem = ({ kind, value }) => value ? (
         <View style={s.contactItem}>
-            <Icon kind={kind} color={headerTextColor} />
+            <Icon kind={kind} color={headerTextColor} size={sidebar ? 10 : 8} />
             <Text style={s.contactText}>{kind === 'phone' ? `+${value}` : value}</Text>
         </View>
     ) : null;
@@ -210,15 +216,9 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
     const SkillsBlock = (
         <View style={s.section}>
             <Text style={s.sectionTitle}>SKILLS & LANGUAGES</Text>
-            {/* In sidebar (left/right) layouts the content column is narrow, so indent the
-                skills to align with the other sections' content. In TOP layout, keep them
-                left-aligned (full width) like the on-screen demo. */}
-            {sidebar ? (
-                <View style={s.entry}>
-                    <View style={s.entryLeft} />
-                    <View style={s.entryRight}>{skillGroups}</View>
-                </View>
-            ) : skillGroups}
+            {/* Skills content is flush-left in the content column in EVERY layout — aligned
+                with where the other sections' content (and titles) start, not indented. */}
+            {skillGroups}
         </View>
     );
 
