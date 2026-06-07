@@ -55,7 +55,6 @@ const PersonInfoDiv = (props) => {
               </div>
             </div>
           </div>
-        {props.assertStyle.underlined && <hr style={{width: '95%'}} />}
       </div>
     )
 }

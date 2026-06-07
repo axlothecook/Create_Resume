@@ -8,7 +8,7 @@ const SkillResumeDiv = (props) => {
                 <h3 style={{
                     fontFamily: props.assumeStyle.font,
                     color: (props.assumeStyle.underlined ? 'black' : props.assumeStyle.color),
-                    textAlign: (props.assumeStyle.gridView ? (props.assumeStyle.underlined ? 'left' : 'center') : 'center'),
+                    textAlign: 'center', // always centred, matching the other section titles
                 }}>SKILLS & LANGUAGES</h3>
             </div>
             <div className='resume-skills-n-languages-details-box'>
