@@ -17,6 +17,10 @@ body {
   --red: #b91c1c;
   --title-blue: #336075;
   --grey: #bec2d0;
+
+  /* UI font for app chrome (sidebar, login, editor panel). The PDF demo/résumé is
+     NOT affected — its text uses inline fontFamily: style.font, which overrides this. */
+  --ui-font: 'Poppins', sans-serif;
 }
 
 #root {
@@ -24,13 +28,20 @@ body {
   flex-direction: column;
   margin: 0;
   padding: 0;
-  font-family: sans-serif;
+  font-family: var(--ui-font);
 }
 
 h1, h2, h3, h4, p {
   margin: 0;
   padding: 0;
   font-weight: 500;
+}
+
+/* Form controls don't inherit font-family by default (they use a UA font, often
+   Arial). Make them inherit so the UI font (--ui-font) reaches buttons/inputs too
+   — e.g. the sidebar's Save / Add new / Download PDF buttons. */
+button, input, textarea, select {
+  font-family: inherit;
 }
 
 input:focus, textarea:focus {

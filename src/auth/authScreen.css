@@ -10,7 +10,7 @@
     justify-content: center;
     padding: 1.5rem;
     box-sizing: border-box;
-    font-family: sans-serif;
+    font-family: var(--ui-font);
     /* Fill the whole screen with the LED-dot texture. Because it's a repeating
        pattern, cover's cropping is invisible — it looks right at any screen shape. */
     background-image: var(--auth-bg);

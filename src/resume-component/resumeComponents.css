@@ -1,4 +1,12 @@
-/* Resume viewer part */
+/* Resume viewer part.
+   The résumé text sets its own font inline (style.font); this neutral default just
+   stops any non-inline text from inheriting the app's UI font (--ui-font), so the
+   demo/PDF stays independent of the app chrome's font. */
+.resume-view-top,
+.resume-view-right {
+    font-family: 'Roboto', Arial, sans-serif;
+}
+
 .resume-view-top {
     height: 297mm;
     max-width: 210mm;
