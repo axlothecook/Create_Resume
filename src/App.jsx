@@ -5,6 +5,7 @@ import ResumePdfDocument from './pdf/ResumePdfDocument';
 import AuthScreen from './auth/AuthScreen';
 import { api } from './api/client';
 import SavedDocsRail from './edit-components/SavedDocsRail';
+import FloatingActions from './edit-components/FloatingActions';
 import LeftColumn from './edit-components/Left-column';
 import StickyDiv from './edit-components/StickyDivComponent';
 import BigComponent from './edit-components/AttemptComponent';
@@ -581,10 +582,8 @@ function App() {
           maxReached={maxReached}
           busy={docsBusy}
           onAddNew={handleAddNew}
-          onSave={handleSaveDoc}
           onLoad={handleLoadDoc}
           onDelete={handleDeleteDoc}
-          onDownloadPdf={handleDownloadPdf}
           themeProp={theme}
           setThemeProp={setTheme}
           onLogout={handleLogout}
@@ -892,6 +891,14 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* Fixed Save + Download buttons, bottom-right (Save is logged-in only). */}
+      <FloatingActions
+        isGuest={isGuest}
+        busy={docsBusy}
+        onSave={handleSaveDoc}
+        onDownloadPdf={handleDownloadPdf}
+      />
     </div>
   )
 }
