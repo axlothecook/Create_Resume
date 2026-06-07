@@ -2,14 +2,13 @@ import { useState } from 'react';
 import './savedDocsRail.css';
 import ThemeSlider from '../components/ThemeSlider';
 import LogOutIcon from '../components/LogOut';
-import DownloadSvg from '../components/Download';
 
 // Left-side collapsible rail — the app's ONLY chrome (the topbar was removed).
-// Shown for everyone: guests get PDF + theme + sign-in, but NOT the saved-docs
-// actions (Add new / Save / the saved list) — those are logged-in only.
+// Shown for everyone; the saved-docs actions (Add new / the saved list) are
+// logged-in only. Save + Download PDF live as fixed floating buttons (see App).
 //
-//  brand row → toggle (burger<->X) sits at the FAR RIGHT, opposite the logo + name
-//  actions   → "+ Add new", "Save" (logged-in), "PDF" download (everyone)
+//  brand row → toggle (burger<->X) sits at the FAR RIGHT, opposite the name
+//  actions   → "+ Add new" (logged-in)
 //  list      → one row per saved résumé (logged-in)
 //  footer    → log out / sign in + theme toggle
 //
@@ -18,7 +17,7 @@ const SavedDocsRail = (props) => {
     const {
         isGuest,
         docs, currentDocId, maxReached, busy,
-        onAddNew, onSave, onLoad, onDelete, onDownloadPdf,
+        onAddNew, onLoad, onDelete,
         themeProp, setThemeProp, onLogout,
     } = props;
 
@@ -53,55 +52,26 @@ const SavedDocsRail = (props) => {
                 {toggle}
             </div>
 
-            {/* Primary actions */}
-            <div className="docs-rail-actions">
-                {!isGuest && (
-                    <>
-                        <button
-                            type="button"
-                            className="docs-rail-item docs-rail-add"
-                            onClick={onAddNew}
-                            disabled={busy}
-                            title={maxReached ? 'Maximum of 10 saved résumés reached' : 'Start a new résumé'}
-                        >
-                            <span className="docs-rail-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M6 12H12M12 12H18M12 12V18M12 12V6" />
-                                </svg>
-                            </span>
-                            <span className="docs-rail-label">Add new</span>
-                        </button>
-
-                        <button
-                            type="button"
-                            className="docs-rail-item docs-rail-save"
-                            onClick={onSave}
-                            disabled={busy}
-                            title="Save the current résumé"
-                        >
-                            <span className="docs-rail-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M15 20V15H9V20M18 20H6C4.89543 20 4 19.1046 4 18V6C4 4.89543 4.89543 4 6 4H14.1716C14.702 4 15.2107 4.21071 15.5858 4.58579L19.4142 8.41421C19.7893 8.78929 20 9.29799 20 9.82843V18C20 19.1046 19.1046 20 18 20Z" />
-                                </svg>
-                            </span>
-                            <span className="docs-rail-label">Save</span>
-                        </button>
-                    </>
-                )}
-
-                {/* PDF download — available to everyone (replaces the removed topbar button). */}
-                <button
-                    type="button"
-                    className="docs-rail-item docs-rail-pdf"
-                    onClick={onDownloadPdf}
-                    title="Download PDF"
-                >
-                    <span className="docs-rail-icon" aria-hidden="true">
-                        <DownloadSvg color="currentColor" />
-                    </span>
-                    <span className="docs-rail-label">Download PDF</span>
-                </button>
-            </div>
+            {/* Primary action: Add new (logged-in only). Save + Download PDF now live as
+                fixed floating buttons at the bottom-right of the screen (see App). */}
+            {!isGuest && (
+                <div className="docs-rail-actions">
+                    <button
+                        type="button"
+                        className="docs-rail-item docs-rail-add"
+                        onClick={onAddNew}
+                        disabled={busy}
+                        title={maxReached ? 'Maximum of 10 saved résumés reached' : 'Start a new résumé'}
+                    >
+                        <span className="docs-rail-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M6 12H12M12 12H18M12 12V18M12 12V6" />
+                            </svg>
+                        </span>
+                        <span className="docs-rail-label">Add new</span>
+                    </button>
+                </div>
+            )}
 
             {/* Saved-résumé list (logged-in only). */}
             {!isGuest && (
