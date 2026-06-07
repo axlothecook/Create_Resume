@@ -708,7 +708,7 @@ function App() {
             </div> 
           </div>
           <div ref={printRef} className={style.resumeView}>
-            <PersonInfoDiv assertStyle={style} setSvgClr={checkBrightness} child={<SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillArray[0].skillList} langArr={skillArray[0].languageList} />} object={personalDetailsArray[0]} />
+            <PersonInfoDiv assertStyle={style} setSvgClr={checkBrightness} object={personalDetailsArray[0]} />
             <div className={style.resumeInfoParentBoxLeft} style={{
               padding: style.underlined ? (style.gridView ? '20px' : '0 25px 25px 25px') : '30px',
               gap: style.underlined ? '5px' : '20px'
@@ -724,8 +724,9 @@ function App() {
                         ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EDUCATION' arr={educationArray} />
                         : null;
                     case 'skill':
-                      // In gridView the skills box lives in the personal-info column instead.
-                      return (!style.gridView && (skillArray[0].skillList.length !== 0 || skillArray[0].languageList.length !== 0))
+                      // Skills & Languages always renders in the main content column (in
+                      // every layout), matching the downloaded PDF — never in the side panel.
+                      return (skillArray[0].skillList.length !== 0 || skillArray[0].languageList.length !== 0)
                         ? <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillArray[0].skillList} langArr={skillArray[0].languageList} />
                         : null;
                     case 'experience':
