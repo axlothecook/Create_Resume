@@ -44,8 +44,10 @@ const BigComponent = (props) => {
                   className='block-wrapper'
                   style={{backgroundColor: !props.themeP ? '#fff' : '#504d75ff'}}
                 >
-                  {props.requirementsArray.map(obj => (
-                    <div style={{width: 'inherit'}} key={obj.result}>
+                  {props.requirementsArray.map((obj, i) => (
+                    /* `Dates` requirements have no `result`, so fall back to type+index
+                       to keep keys defined + unique (fixes the missing-key warning). */
+                    <div style={{width: 'inherit'}} key={obj.result || `${obj.type}-${i}`}>
                       {obj.type == 'InputField' && <InputField themeProp={props.themeP} initial={props.array[index][obj.result]} onChange={(e) => {props.updateFunc(e.target.value, props.array, props.setArray, index, `${obj.result}`)}} editTitle={obj.editTitle} importantClass={obj.importantClass} subtext={obj.subtext} type='text' placeholder={obj.placeholder} />}
                       {obj.type == 'Dates' && <Dates initialStart={props.array[index].startDate} initialEnd={props.array[index].endDate} startDateonChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, 'startDate')}} endDateonChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, 'endDate')}} />}
                       {obj.type == 'Description' && <Description themeProp={props.themeP} editTitle={obj.editTitle} placeholder={obj.placeholder} subtext={obj.subtext} description={props.array[index][obj.result]} type={obj.descType} onChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, `${obj.result}`)}}/>}
