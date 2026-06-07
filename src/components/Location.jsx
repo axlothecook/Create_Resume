@@ -1,13 +1,15 @@
 import './components.css';
 
 const LocationSvg = (props) => {
+    const color = props.setClr(props.color);
     return (
         <svg className='details-box-svg'
-            fill= {props.setClr(props.color)}
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 384 512" 
+            fill='none'
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
             id="location">
-            <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"></path>
+            <path d="M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
+            <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"></path>
         </svg>
     )
 };

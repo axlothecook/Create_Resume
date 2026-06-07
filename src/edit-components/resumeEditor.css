@@ -542,13 +542,14 @@ li {
 }
 
 .right-example > div:first-of-type {
-    background-color: white;
+    /* Empty half — transparent so it blends like the other layouts (overrides the
+       base .layout-box-example first-of-type red). The colour is on :last-of-type. */
+    background-color: transparent;
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
 }
 
 .right-example > div:last-of-type {
-    background-color: red;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
 }

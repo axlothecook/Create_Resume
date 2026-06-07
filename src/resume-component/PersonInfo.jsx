@@ -55,6 +55,8 @@ const PersonInfoDiv = (props) => {
               </div>
             </div>
           </div>
+        {/* Header/body separator — only in the TOP layout (not the left/right sidebars). */}
+        {props.assertStyle.underlined && !props.assertStyle.gridView && <hr style={{width: '95%'}} />}
       </div>
     )
 }

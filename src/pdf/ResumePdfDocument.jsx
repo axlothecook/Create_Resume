@@ -47,16 +47,36 @@ const onAccent = (hex) => {
 };
 
 // --- Contact icons (vector, recoloured to the panel text colour) -------------------
+// Email is a filled FontAwesome glyph; phone + location are stroked outline icons
+// (24x24 viewBox) supplied by the user.
 const Icon = ({ kind, color, size = 8 }) => {
-    const paths = {
-        email: { vb: '0 0 512 512', d: 'M64 112c-8.8 0-16 7.2-16 16l0 22.1L220.5 291.7c20.7 17 50.4 17 71.1 0L464 150.1l0-22.1c0-8.8-7.2-16-16-16L64 112zM48 212.2L48 384c0 8.8 7.2 16 16 16l384 0c8.8 0 16-7.2 16-16l0-171.8L322 328.8c-38.4 31.5-93.7 31.5-132 0L48 212.2zM0 128C0 92.7 28.7 64 64 64l384 0c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 448c-35.3 0-64-28.7-64-64L0 128z' },
-        phone: { vb: '0 0 512 512', d: 'M164.9 24.6c-7.7-18.6-28-28.5-47.4-23.2l-88 24C12.1 30.2 0 46 0 64C0 311.4 200.6 512 448 512c18 0 33.8-12.1 38.6-29.5l24-88c5.3-19.4-4.6-39.7-23.2-47.4l-96-40c-16.3-6.8-35.2-2.1-46.3 11.6L304.7 368C234.3 334.7 177.3 277.7 144 207.3L193.3 167c13.7-11.2 18.4-30 11.6-46.3l-40-96z' },
-        location: { vb: '0 0 384 512', d: 'M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z' },
+    const icons = {
+        email: {
+            vb: '0 0 512 512',
+            fill: [{ d: 'M64 112c-8.8 0-16 7.2-16 16l0 22.1L220.5 291.7c20.7 17 50.4 17 71.1 0L464 150.1l0-22.1c0-8.8-7.2-16-16-16L64 112zM48 212.2L48 384c0 8.8 7.2 16 16 16l384 0c8.8 0 16-7.2 16-16l0-171.8L322 328.8c-38.4 31.5-93.7 31.5-132 0L48 212.2zM0 128C0 92.7 28.7 64 64 64l384 0c35.3 0 64 28.7 64 64l0 256c0 35.3-28.7 64-64 64L64 448c-35.3 0-64-28.7-64-64L0 128z' }],
+        },
+        phone: {
+            vb: '0 0 24 24',
+            stroke: { width: 1.5 },
+            paths: ['M21.97 18.33C21.97 18.69 21.89 19.06 21.72 19.42C21.55 19.78 21.33 20.12 21.04 20.44C20.55 20.98 20.01 21.37 19.4 21.62C18.8 21.87 18.15 22 17.45 22C16.43 22 15.34 21.76 14.19 21.27C13.04 20.78 11.89 20.12 10.75 19.29C9.6 18.45 8.51 17.52 7.47 16.49C6.44 15.45 5.51 14.36 4.68 13.22C3.86 12.08 3.2 10.94 2.72 9.81C2.24 8.67 2 7.58 2 6.54C2 5.86 2.12 5.21 2.36 4.61C2.6 4 2.98 3.44 3.51 2.94C4.15 2.31 4.85 2 5.59 2C5.87 2 6.15 2.06 6.4 2.18C6.66 2.3 6.89 2.48 7.07 2.74L9.39 6.01C9.57 6.26 9.7 6.49 9.79 6.71C9.88 6.92 9.93 7.13 9.93 7.32C9.93 7.56 9.86 7.8 9.72 8.03C9.59 8.26 9.4 8.5 9.16 8.74L8.4 9.53C8.29 9.64 8.24 9.77 8.24 9.93C8.24 10.01 8.25 10.08 8.27 10.16C8.3 10.24 8.33 10.3 8.35 10.36C8.53 10.69 8.84 11.12 9.28 11.64C9.73 12.16 10.21 12.69 10.73 13.22C11.27 13.75 11.79 14.24 12.32 14.69C12.84 15.13 13.27 15.43 13.61 15.61C13.66 15.63 13.72 15.66 13.79 15.69C13.87 15.72 13.95 15.73 14.04 15.73C14.21 15.73 14.34 15.67 14.45 15.56L15.21 14.81C15.46 14.56 15.7 14.37 15.93 14.25C16.16 14.11 16.39 14.04 16.64 14.04C16.83 14.04 17.03 14.08 17.25 14.17C17.47 14.26 17.7 14.39 17.95 14.56L21.26 16.91C21.52 17.09 21.7 17.3 21.81 17.55C21.91 17.8 21.97 18.05 21.97 18.33Z'],
+        },
+        location: {
+            vb: '0 0 24 24',
+            stroke: { width: 2 },
+            paths: [
+                'M12 21C15.5 17.4 19 14.1764 19 10.2C19 6.22355 15.866 3 12 3C8.13401 3 5 6.22355 5 10.2C5 14.1764 8.5 17.4 12 21Z',
+                'M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z',
+            ],
+        },
     };
-    const p = paths[kind];
+    const ic = icons[kind];
     return (
-        <Svg viewBox={p.vb} width={size} height={size}>
-            <Path d={p.d} fill={color} />
+        <Svg viewBox={ic.vb} width={size} height={size}>
+            {ic.fill
+                ? ic.fill.map((p, i) => <Path key={i} d={p.d} fill={color} />)
+                : ic.paths.map((d, i) => (
+                    <Path key={i} d={d} stroke={color} strokeWidth={ic.stroke.width} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                ))}
         </Svg>
     );
 };
@@ -75,13 +95,16 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         : 'top';
     const sidebar = grid || pos === 'left' || pos === 'right'; // panel rendered as a side column
 
-    // "Underlined" style: no accent fills — transparent header, black name/contacts,
-    // black section titles with a thin rule (the underline). "Filled" (default): accent
-    // header banner + accent section titles.
+    // "Underlined" style: no fills — transparent header, black name/contacts, black
+    // section titles with a thin rule. "Filled" (default): accent header banner + section
+    // titles on a filled background bar (a light tint vs the accent), accent text, NO rule.
     const underlined = !!style.underlined;
     const panelBg = underlined ? 'transparent' : accent;
     const headerTextColor = underlined ? '#1a1a1a' : onAccent(accent);
     const titleColor = underlined ? '#1a1a1a' : accent;
+    // Title-bar background for the filled style (ported from checkBrightnessTab): a dark
+    // accent gets a light bar, a light accent gets a black bar.
+    const titleBarBg = onAccent(accent) === '#ffffff' ? '#eef1f3' : '#000000';
 
     const s = StyleSheet.create({
         page: { fontFamily: font, fontSize: 7.5, color: '#1a1a1a', lineHeight: 1.3, display: 'flex', flexDirection: 'column' },
@@ -128,11 +151,31 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         // section title colour switches with the style; underline rule kept in both.
         contactRow: { flexDirection: sidebar ? 'column' : 'row', flexWrap: 'wrap', gap: sidebar ? 8 : 9, alignItems: sidebar ? 'flex-start' : 'center' },
         contactItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-        contactText: { color: headerTextColor, fontSize: sidebar ? 9 : 7 },
+        // lineHeight:1 strips the text box's extra vertical padding so the glyphs sit at
+        // the box centre, matching the icon (otherwise the icon looks lower than the text).
+        contactText: { color: headerTextColor, fontSize: sidebar ? 9 : 7, lineHeight: 1 },
+        contactSep: { color: headerTextColor, fontSize: sidebar ? 9 : 7, lineHeight: 1, opacity: 0.6 },
         // Body
         body: { padding: 16, display: 'flex', flexDirection: 'column', gap: 8 },
+        // Underlined-top header rendered inside the body: centred, bottom rule identical
+        // in width to the section-title rules (same body inset), so all 5 lines match.
+        topHeaderInBody: {
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: 6, // space between the name and the email/phone/location row
+            paddingBottom: 2, // tight gap between the contacts and the separator line
+            marginBottom: 8, // extra space between the header rule and the first section
+            borderBottomWidth: 1,
+            borderBottomColor: '#1a1a1a',
+        },
         section: { display: 'flex', flexDirection: 'column', gap: 3 },
-        sectionTitle: { fontFamily: bold, fontSize: 9, color: titleColor, textAlign: 'center', borderBottomWidth: 1, borderBottomColor: titleColor, paddingBottom: 1.5, marginBottom: 1.5 },
+        // Filled → title sits on a filled background bar (no rule). Underlined → black
+        // title with a bottom rule (the underline), no bar.
+        sectionTitle: underlined
+            ? { fontFamily: bold, fontSize: 9, color: titleColor, textAlign: 'center', borderBottomWidth: 1, borderBottomColor: titleColor, paddingBottom: 1.5, marginBottom: 1.5 }
+            : { fontFamily: bold, fontSize: 9, color: titleColor, textAlign: 'center', backgroundColor: titleBarBg, paddingTop: 2.5, paddingBottom: 2.5, marginBottom: 1.5 },
         entry: { flexDirection: 'row', gap: '4%', marginBottom: 3 },
         entryLeft: { width: '30%' },
         entryRight: { width: '66%' },
@@ -151,21 +194,31 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         rowLayout: { flexDirection: 'row', flexGrow: 1, alignItems: 'stretch' },
     });
 
-    const ContactItem = ({ kind, value }) => value ? (
-        <View style={s.contactItem}>
-            <Icon kind={kind} color={headerTextColor} size={sidebar ? 10 : 8} />
-            <Text style={s.contactText}>{kind === 'phone' ? `+${value}` : value}</Text>
-        </View>
-    ) : null;
+    // The contact row, with " | " separators between items in the horizontal (top)
+    // layout — matching the on-screen demo. The sidebar stacks them vertically (no sep).
+    const ContactRow = () => {
+        const items = [
+            { kind: 'email', value: personalDetails.email },
+            { kind: 'phone', value: personalDetails.phoneNumber },
+            { kind: 'location', value: personalDetails.address },
+        ].filter(it => it.value);
+        return (
+            <View style={s.contactRow}>
+                {items.map((it, i) => (
+                    <View key={it.kind} style={s.contactItem}>
+                        <Icon kind={it.kind} color={headerTextColor} size={sidebar ? 10 : 8} />
+                        <Text style={s.contactText}>{it.kind === 'phone' ? `+${it.value}` : it.value}</Text>
+                        {!sidebar && i < items.length - 1 && <Text style={s.contactSep}>  |  </Text>}
+                    </View>
+                ))}
+            </View>
+        );
+    };
 
     const Panel = (
         <View style={[s.panel, sidebar ? s.panelSide : s.panelTop]}>
             <Text style={s.name}>{personalDetails.fullname || ''}</Text>
-            <View style={s.contactRow}>
-                <ContactItem kind="email" value={personalDetails.email} />
-                <ContactItem kind="phone" value={personalDetails.phoneNumber} />
-                <ContactItem kind="location" value={personalDetails.address} />
-            </View>
+            <ContactRow />
         </View>
     );
 
@@ -236,7 +289,20 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         );
     };
 
-    const bodyContent = <View style={s.body}>{orderedSections.map(renderSection)}</View>;
+    // In the underlined TOP layout the header lives INSIDE the body, so its bottom rule
+    // shares the exact same horizontal inset as the section-title rules (all equal width).
+    const topUnderlinedInBody = underlined && !sidebar;
+    const bodyContent = (
+        <View style={s.body}>
+            {topUnderlinedInBody && (
+                <View style={s.topHeaderInBody}>
+                    <Text style={s.name}>{personalDetails.fullname || ''}</Text>
+                    <ContactRow />
+                </View>
+            )}
+            {orderedSections.map(renderSection)}
+        </View>
+    );
 
     return (
         <Document>
@@ -257,7 +323,9 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
                     </View>
                 ) : (
                     <>
-                        {Panel}
+                        {/* Filled top → accent banner above the body. Underlined top → the header
+                            is rendered inside the body (so its rule matches the section rules). */}
+                        {!topUnderlinedInBody && Panel}
                         {bodyContent}
                     </>
                 )}

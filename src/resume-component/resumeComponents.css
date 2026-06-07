@@ -225,6 +225,15 @@
     font-size: 27px;
 }
 
+/* Left/right sidebar layouts: larger personal-info text (name + contacts) since the
+   side column has the room and benefits from the bigger, more readable header. */
+.personal-info-box-left > h1, .personal-info-box-right > h1 {
+    font-size: 32px;
+}
+.personal-info-box-left .details-box h4, .personal-info-box-right .details-box h4 {
+    font-size: 15px;
+}
+
 @media screen and (max-width: 1270px) {
     .resume-view-top, .resume-view-right {
         min-width: 170mm;
