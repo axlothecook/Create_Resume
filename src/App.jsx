@@ -6,6 +6,7 @@ import AuthScreen from './auth/AuthScreen';
 import { api } from './api/client';
 import SavedDocsRail from './edit-components/SavedDocsRail';
 import FloatingActions from './edit-components/FloatingActions';
+import NameModal from './edit-components/NameModal';
 import LeftColumn from './edit-components/Left-column';
 import StickyDiv from './edit-components/StickyDivComponent';
 import BigComponent from './edit-components/AttemptComponent';
@@ -38,6 +39,21 @@ function App() {
   const [currentDocId, setCurrentDocId] = useState(null);
   const [docsBusy, setDocsBusy] = useState(false);
 
+  // Name-résumé modal (replaces window.prompt). promptForName() opens it and returns a
+  // promise that resolves to the trimmed title, or null if cancelled.
+  const [nameModalOpen, setNameModalOpen] = useState(false);
+  const nameResolverRef = useRef(null);
+  const promptForName = () => new Promise((resolve) => {
+    nameResolverRef.current = resolve;
+    setNameModalOpen(true);
+  });
+  const resolveName = (value) => {
+    setNameModalOpen(false);
+    const resolve = nameResolverRef.current;
+    nameResolverRef.current = null;
+    if (resolve) resolve(value);
+  };
+
   useEffect(() => {
     api.me()
       .then((res) => {
@@ -50,11 +66,29 @@ function App() {
   // Load the saved-résumé list once a real user is in (guests never call this).
   useEffect(() => {
     if (authStatus === 'in' && user && !isGuest) {
-      api.listResumes()
-        .then((res) => setSavedDocs(res.resumes || []))
-        .catch(() => { /* leave the list empty if it fails; rail still works */ });
+      refreshSavedDocs();
     }
   }, [authStatus, user, isGuest]);
+
+  // Load the saved list AND each résumé's full data (so the rail can render a live
+  // preview thumbnail per card). Max is 5, so fetching every doc's data is cheap.
+  const refreshSavedDocs = async () => {
+    try {
+      const res = await api.listResumes();
+      const list = res.resumes || [];
+      const withData = await Promise.all(list.map(async (d) => {
+        try {
+          const full = await api.getResume(d.id);
+          return { ...d, data: full.resume.data };
+        } catch {
+          return { ...d, data: null };
+        }
+      }));
+      setSavedDocs(withData);
+    } catch {
+      /* leave the list empty if it fails; rail still works */
+    }
+  };
 
   const handleLogout = () => {
     // Switch to the auth screen immediately — don't block the UI on the network.
@@ -442,21 +476,21 @@ function App() {
     if (data.style) setStyle(data.style);
   };
 
-  const MAX_DOCS = 10;
+  const MAX_DOCS = 5;
   const maxReached = savedDocs.length >= MAX_DOCS;
 
-  // "+ Add new": prompt for a title, create a blank-titled doc with the CURRENT editor
-  // state (the backend has no "empty" concept — a doc always carries state), select it.
+  // "+ Add new": prompt for a title, create a doc with the CURRENT editor state
+  // (the backend has no "empty" concept — a doc always carries state), select it.
   const handleAddNew = async () => {
     if (docsBusy) return;
-    if (maxReached) { alert('You can save up to 10 résumés. Delete one to add another.'); return; }
-    const title = (window.prompt('Name this résumé:', '') || '').trim();
+    if (maxReached) { alert(`You can save up to ${MAX_DOCS} résumés. Delete one to add another.`); return; }
+    const title = await promptForName();
     if (!title) return;
     setDocsBusy(true);
     try {
       const res = await api.createResume(title, gatherState());
-      setSavedDocs((list) => [res.resume, ...list]);
       setCurrentDocId(res.resume.id);
+      await refreshSavedDocs();
     } catch (err) {
       alert(err.message || 'Could not create the résumé.');
     } finally {
@@ -465,22 +499,21 @@ function App() {
   };
 
   // "Save": update the loaded doc (PUT). If nothing is loaded yet, behave like Add new
-  // (prompt for a title + POST), respecting the max-10 limit.
+  // (prompt for a title + POST), respecting the max limit.
   const handleSaveDoc = async () => {
     if (docsBusy) return;
     setDocsBusy(true);
     try {
       if (currentDocId) {
-        const res = await api.updateResume(currentDocId, { data: gatherState() });
-        setSavedDocs((list) => list.map((d) => (d.id === currentDocId ? res.resume : d)));
+        await api.updateResume(currentDocId, { data: gatherState() });
       } else {
-        if (maxReached) { alert('You can save up to 10 résumés. Delete one to add another.'); return; }
-        const title = (window.prompt('Name this résumé:', '') || '').trim();
+        if (maxReached) { alert(`You can save up to ${MAX_DOCS} résumés. Delete one to add another.`); return; }
+        const title = await promptForName();
         if (!title) return;
         const res = await api.createResume(title, gatherState());
-        setSavedDocs((list) => [res.resume, ...list]);
         setCurrentDocId(res.resume.id);
       }
+      await refreshSavedDocs();
     } catch (err) {
       alert(err.message || 'Could not save the résumé.');
     } finally {
@@ -581,6 +614,8 @@ function App() {
           currentDocId={currentDocId}
           maxReached={maxReached}
           busy={docsBusy}
+          setSvgClr={checkBrightness}
+          setTxtClr={checkBrightnessTab}
           onAddNew={handleAddNew}
           onLoad={handleLoadDoc}
           onDelete={handleDeleteDoc}
@@ -898,6 +933,14 @@ function App() {
         busy={docsBusy}
         onSave={handleSaveDoc}
         onDownloadPdf={handleDownloadPdf}
+      />
+
+      {/* Name-résumé modal (replaces window.prompt for Add new / first Save). */}
+      <NameModal
+        open={nameModalOpen}
+        themeProp={theme}
+        onSubmit={(title) => resolveName(title)}
+        onCancel={() => resolveName(null)}
       />
     </div>
   )

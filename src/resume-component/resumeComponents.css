@@ -134,6 +134,10 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    /* Keep the skills/languages content left-aligned regardless of inherited
+       text-align (the title box is centred; the content must stay left, matching the
+       other sections in both the live demo and the saved-card previews). */
+    text-align: left;
 }
 
 .resume-skill-lang-box-parent {

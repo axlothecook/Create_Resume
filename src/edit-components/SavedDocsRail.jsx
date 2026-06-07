@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './savedDocsRail.css';
 import ThemeSlider from '../components/ThemeSlider';
 import LogOutIcon from '../components/LogOut';
+import ResumePreview from '../resume-component/ResumePreview';
 
 // Left-side collapsible rail — the app's ONLY chrome (the topbar was removed).
 // Shown for everyone; the saved-docs actions (Add new / the saved list) are
@@ -17,6 +18,7 @@ const SavedDocsRail = (props) => {
     const {
         isGuest,
         docs, currentDocId, maxReached, busy,
+        setSvgClr, setTxtClr,
         onAddNew, onLoad, onDelete,
         themeProp, setThemeProp, onLogout,
     } = props;
@@ -52,69 +54,74 @@ const SavedDocsRail = (props) => {
                 {toggle}
             </div>
 
-            {/* Primary action: Add new (logged-in only). Save + Download PDF now live as
-                fixed floating buttons at the bottom-right of the screen (see App). */}
+            {/* Saved-docs area (logged-in only): an A4-shaped dashed "Add new" card,
+                then either an empty note or a scrollable column of saved-CV cards that
+                each show a live, scaled-down preview of the whole résumé. */}
             {!isGuest && (
-                <div className="docs-rail-actions">
+                <div className="docs-rail-saved">
                     <button
                         type="button"
-                        className="docs-rail-item docs-rail-add"
+                        className="docs-add-card"
                         onClick={onAddNew}
-                        disabled={busy}
-                        title={maxReached ? 'Maximum of 10 saved résumés reached' : 'Start a new résumé'}
+                        disabled={maxReached}
+                        title={maxReached ? `Maximum of saved résumés reached — delete one to add another` : 'Start a new résumé'}
                     >
-                        <span className="docs-rail-icon" aria-hidden="true">
+                        <span className="docs-add-card-inner">
+                            <span className="docs-add-card-label">Add New</span>
                             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M6 12H12M12 12H18M12 12V18M12 12V6" />
                             </svg>
                         </span>
-                        <span className="docs-rail-label">Add new</span>
                     </button>
-                </div>
-            )}
 
-            {/* Saved-résumé list (logged-in only). */}
-            {!isGuest && (
-                <div className="docs-rail-list">
-                    {docs.length === 0 && (
+                    {docs.length === 0 ? (
                         <p className="docs-rail-empty">No saved résumés yet.</p>
+                    ) : (
+                        <div className="docs-cards">
+                            {docs.map((doc) => {
+                                const active = doc.id === currentDocId;
+                                return (
+                                    <div
+                                        key={doc.id}
+                                        className={`docs-card ${active ? 'is-active' : ''}`}
+                                    >
+                                        <button
+                                            type="button"
+                                            className="docs-card-load"
+                                            onClick={() => onLoad(doc.id)}
+                                            disabled={busy}
+                                            title={doc.title}
+                                            aria-label={`Load ${doc.title}`}
+                                        >
+                                            {/* Scaled-down live render of the whole résumé. */}
+                                            <span className="docs-card-preview" aria-hidden="true">
+                                                {doc.data
+                                                    ? <span className="docs-card-scale">
+                                                        <ResumePreview data={doc.data} setSvgClr={setSvgClr} setTxtClr={setTxtClr} />
+                                                      </span>
+                                                    : <span className="docs-card-noprev">Preview unavailable</span>}
+                                            </span>
+                                            {/* CV name overlaid in the middle, with a shadow scrim. */}
+                                            <span className="docs-card-name">{doc.title}</span>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className="docs-card-delete"
+                                            onClick={() => onDelete(doc.id, doc.title)}
+                                            disabled={busy}
+                                            aria-label={`Delete ${doc.title}`}
+                                            title="Delete"
+                                        >
+                                            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="3 6 5 6 21 6" />
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     )}
-                    {docs.map((doc) => {
-                        const active = doc.id === currentDocId;
-                        return (
-                            <div key={doc.id} className={`docs-rail-row ${active ? 'is-active' : ''}`}>
-                                <button
-                                    type="button"
-                                    className="docs-rail-item docs-rail-doc"
-                                    onClick={() => onLoad(doc.id)}
-                                    disabled={busy}
-                                    title={doc.title}
-                                >
-                                    <span className="docs-rail-icon" aria-hidden="true">
-                                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                            <polyline points="14 2 14 8 20 8" />
-                                        </svg>
-                                    </span>
-                                    <span className="docs-rail-label docs-rail-doc-title">{doc.title}</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    className="docs-rail-delete"
-                                    onClick={() => onDelete(doc.id, doc.title)}
-                                    disabled={busy}
-                                    aria-label={`Delete ${doc.title}`}
-                                    title="Delete"
-                                >
-                                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <polyline points="3 6 5 6 21 6" />
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                    </svg>
-                                </button>
-                            </div>
-                        );
-                    })}
-                    {maxReached && <p className="docs-rail-max">Limit of 10 reached.</p>}
                 </div>
             )}
 

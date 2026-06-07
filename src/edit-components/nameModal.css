@@ -1,0 +1,104 @@
+/* Centered name-résumé modal over a dimmed backdrop. Fades in on open and out on
+   close over 0.6s (the is-closing class reverses the animations). */
+.name-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background-color: rgba(20, 18, 35, 0.55);
+    animation: name-modal-fade-in 0.6s ease forwards;
+}
+.name-modal-backdrop.is-closing {
+    animation: name-modal-fade-out 0.6s ease forwards;
+}
+
+.name-modal {
+    width: 100%;
+    max-width: 420px;
+    box-sizing: border-box;
+    padding: 1.6rem;
+    border-radius: 14px;
+    background: #fff;
+    color: #2b2a3a;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    animation: name-modal-pop-in 0.6s ease forwards;
+}
+.name-modal-backdrop.is-closing .name-modal {
+    animation: name-modal-pop-out 0.6s ease forwards;
+}
+
+@keyframes name-modal-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes name-modal-fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+@keyframes name-modal-pop-in {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes name-modal-pop-out {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.96); }
+}
+.theme-dark .name-modal { background: #3c3a58; color: #eef1f3; }
+
+.name-modal-title {
+    margin: 0 0 1rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.name-modal-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.7rem 0.8rem;
+    font-size: 0.95rem;
+    border: 1.5px solid #c9c9d4;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+}
+.name-modal-input:focus {
+    outline: none;
+    border-color: #5e59a8;
+    box-shadow: 0 0 0 1px #5e59a8;
+}
+.theme-dark .name-modal-input:focus { border-color: #cfcdfa; box-shadow: 0 0 0 1px #cfcdfa; }
+
+.name-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+}
+
+.name-modal-btn {
+    padding: 0.55rem 1.1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+.name-modal-cancel {
+    background: transparent;
+    color: inherit;
+    border: 1.5px solid #c9c9d4;
+}
+.name-modal-cancel:hover { background: rgba(0, 0, 0, 0.05); }
+.theme-dark .name-modal-cancel { border-color: #5a5780; }
+.theme-dark .name-modal-cancel:hover { background: rgba(255, 255, 255, 0.08); }
+
+.name-modal-save {
+    background: #5e59a8;
+    color: #fff;
+}
+.name-modal-save:hover:not(:disabled) { background: #4b478a; }
+.name-modal-save:disabled { opacity: 0.5; cursor: default; }
