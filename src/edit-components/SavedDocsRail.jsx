@@ -66,8 +66,7 @@ const SavedDocsRail = (props) => {
                         >
                             <span className="docs-rail-icon" aria-hidden="true">
                                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="12" y1="5" x2="12" y2="19" />
-                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                    <path d="M6 12H12M12 12H18M12 12V18M12 12V6" />
                                 </svg>
                             </span>
                             <span className="docs-rail-label">Add new</span>
@@ -81,10 +80,8 @@ const SavedDocsRail = (props) => {
                             title="Save the current résumé"
                         >
                             <span className="docs-rail-icon" aria-hidden="true">
-                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                                    <polyline points="17 21 17 13 7 13 7 21" />
-                                    <polyline points="7 3 7 8 15 8" />
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M15 20V15H9V20M18 20H6C4.89543 20 4 19.1046 4 18V6C4 4.89543 4.89543 4 6 4H14.1716C14.702 4 15.2107 4.21071 15.5858 4.58579L19.4142 8.41421C19.7893 8.78929 20 9.29799 20 9.82843V18C20 19.1046 19.1046 20 18 20Z" />
                                 </svg>
                             </span>
                             <span className="docs-rail-label">Save</span>
@@ -151,11 +148,26 @@ const SavedDocsRail = (props) => {
                 </div>
             )}
 
-            {/* Footer: theme toggle, then a full-width coloured Log Out bar pinned at the
-                very bottom — "Log Out" text on the LEFT, icon on the RIGHT (per the
-                reference). Collapsed → icon only. margin-top:auto pushes it down. */}
+            {/* Footer: a theme-toggle PILL (moon/sun icon + label + switch), then a
+                full-width Log Out bar (icon sits next to the text). Collapsed → icons
+                only. margin-top:auto pushes the footer to the bottom. */}
             <div className="docs-rail-footer">
                 <div className="docs-rail-theme">
+                    <span className="docs-rail-theme-icon" aria-hidden="true">
+                        {themeProp ? (
+                            // Moon (dark mode active)
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                                <path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z" />
+                            </svg>
+                        ) : (
+                            // Sun (light mode active)
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="12" cy="12" r="4" />
+                                <path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4" />
+                            </svg>
+                        )}
+                    </span>
+                    <span className="docs-rail-theme-label">{themeProp ? 'Dark mode' : 'Light mode'}</span>
                     <ThemeSlider themeProp={themeProp} setThemeProp={setThemeProp} />
                 </div>
 
