@@ -44,6 +44,11 @@ button, input, textarea, select {
   font-family: inherit;
 }
 
+/* All buttons get a pointer cursor (skip disabled ones, which shouldn't look clickable). */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 input:focus, textarea:focus {
   outline: none;
   border: none;
