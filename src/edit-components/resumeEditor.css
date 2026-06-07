@@ -347,13 +347,17 @@ li {
     color: var(--grey);
 }
 
-.edit-info-title-with-dropdown {
+.edit-info-title-with-dropdown,
+.edit-info-title-with-dropdown-open {
     display: flex;
     align-items: baseline;
     gap: 13px;
-    
+
 }
-.edit-info-title-with-dropdown > h2 {
+/* Keep the title pushed to the LEFT in BOTH states (the -open variant previously
+   lacked this, so the title drifted to centre when the section was expanded). */
+.edit-info-title-with-dropdown > h2,
+.edit-info-title-with-dropdown-open > h2 {
     margin-right: auto;
 }
 

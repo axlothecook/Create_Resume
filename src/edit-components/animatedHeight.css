@@ -1,0 +1,15 @@
+/* Container that animates its height to fit its content (the section's item list or
+   the edit form), transitioning smoothly when they swap. Overflow is hidden so the
+   content is clipped during the height transition rather than spilling. */
+.animated-height {
+    overflow: hidden;
+}
+.animated-height-inner {
+    /* The measured content. A subtle fade smooths the list<->form swap. */
+    animation: animated-height-fade 0.6s ease;
+}
+
+@keyframes animated-height-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
