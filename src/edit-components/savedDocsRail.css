@@ -3,9 +3,9 @@
 
 /* The body reserves a CONSTANT left gutter = rail's EXPANDED width + a gap, so
    collapsing the rail never shifts the middle content and there's clear space
-   between the rail and the content. */
+   between the rail and the content. Keep this in sync with --rail-open-w below. */
 .app-body--with-rail {
-    padding-left: calc(230px + 2.5rem);
+    padding-left: calc(270px + 2.5rem);
 }
 
 .docs-rail {
@@ -13,7 +13,7 @@
        full-bleed topbar to the bottom of the viewport. Because it's fixed, collapsing
        it does NOT shift the middle content — the body reserves a constant gutter (see
        .app-body--with-rail). The navbar is ~68px (20px padding x2 + 28px logo). */
-    --rail-open-w: 230px;
+    --rail-open-w: 270px;
     position: fixed;
     top: 0;
     left: 0;
@@ -54,18 +54,19 @@
 .docs-rail-toggle:hover { background-color: rgba(255, 255, 255, 0.08); }
 
 /* Three bars that rotate/fade into an X. The box is tall enough that the bottom
-   bar is never clipped (24px box; bars at 0 / 50% / 100%). */
+   bar is never clipped (24px box; bars at 0 / 50% / 100%). Bars are 3px so all
+   three read clearly and distinctly when collapsed. */
 .docs-rail-burger {
     position: relative;
-    width: 24px;
-    height: 18px;
+    width: 26px;
+    height: 20px;
     display: block;
 }
 .docs-rail-burger span {
     position: absolute;
     left: 0;
     width: 100%;
-    height: 2.5px;
+    height: 3px;
     border-radius: 2px;
     background-color: currentColor;
     transition: transform 0.25s ease, opacity 0.2s ease;
@@ -113,7 +114,7 @@
 }
 .docs-rail-logo svg { width: 22px; height: 22px; }
 .docs-rail-brand-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
-.docs-rail-brand-text strong { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.docs-rail-brand-text strong { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* --- shared item (button row) --- */
 .docs-rail-item {
@@ -127,7 +128,7 @@
     border-radius: 10px;
     background-color: transparent;
     color: inherit;
-    font-size: 14px;
+    font-size: 15px;
     text-align: left;
     cursor: pointer;
     transition: background-color 0.15s ease;
@@ -137,17 +138,16 @@
 
 .docs-rail-icon {
     flex: 0 0 auto;
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
-.docs-rail-icon svg { width: 18px; height: 18px; }
+.docs-rail-icon svg { width: 20px; height: 20px; }
 .docs-rail-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .docs-rail-actions { display: flex; flex-direction: column; gap: 4px; }
-.docs-rail-add { color: #c9c4f0; }
 
 /* --- list --- */
 .docs-rail-list {
@@ -168,7 +168,7 @@
 
 .docs-rail-row { display: flex; align-items: center; }
 .docs-rail-row .docs-rail-doc { flex: 1 1 auto; min-width: 0; }
-.docs-rail-doc-title { font-size: 13px; }
+.docs-rail-doc-title { font-size: 14px; }
 
 /* Active (loaded) row highlighted, like "Revenue" in the reference. */
 .docs-rail-row.is-active .docs-rail-doc {
@@ -202,11 +202,26 @@
     gap: 10px;
     padding-top: 12px;
 }
+/* Theme toggle as a rounded pill: moon/sun icon + label + the sliding switch. */
 .docs-rail-theme {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    padding: 0 10px;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background-color: rgba(255, 255, 255, 0.06);
+}
+.docs-rail-theme-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.docs-rail-theme-label {
+    flex: 1 1 auto;
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
 /* Full-width coloured Log Out bar at the very bottom: text LEFT, icon RIGHT. The
@@ -215,7 +230,7 @@
 .docs-rail-logout-bar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 12px;
     margin: 0 -14px -18px;
     padding: 16px 18px;
@@ -223,17 +238,19 @@
     cursor: pointer;
     color: #fff;
     background-color: #1d1b2e;     /* darker block, like the reference */
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     transition: background-color 0.15s ease;
 }
 .docs-rail-logout-bar:hover { background-color: #15131f; }
-.docs-rail-logout-bar .docs-rail-icon { width: 22px; height: 22px; flex: 0 0 auto; }
-.docs-rail-logout-bar .docs-rail-icon svg { width: 18px; height: 18px; }
+.docs-rail-logout-bar .docs-rail-icon { width: 24px; height: 24px; flex: 0 0 auto; }
+.docs-rail-logout-bar .docs-rail-icon svg { width: 20px; height: 20px; }
 
 /* --- collapsed: icons only; the brand (logo + name) is hidden so the rail is led
    by just the hamburger toggle at the top, then the action/doc icons. --- */
 .docs-rail.is-collapsed .docs-rail-label,
+.docs-rail.is-collapsed .docs-rail-theme-label,
+.docs-rail.is-collapsed .docs-rail-theme-icon,
 .docs-rail.is-collapsed .docs-rail-brand-id,
 .docs-rail.is-collapsed .docs-rail-empty,
 .docs-rail.is-collapsed .docs-rail-max,
@@ -242,7 +259,8 @@
 }
 .docs-rail.is-collapsed .docs-rail-item { justify-content: center; padding: 10px 0; }
 .docs-rail.is-collapsed .docs-rail-brand { justify-content: center; padding: 4px 0 12px; }
-.docs-rail.is-collapsed .docs-rail-theme { justify-content: center; padding: 0; }
+/* Collapsed: pill shrinks to just the slider switch, centred. */
+.docs-rail.is-collapsed .docs-rail-theme { justify-content: center; gap: 0; padding: 8px 0; background-color: transparent; }
 /* Collapsed logout bar: icon only, centred. */
 .docs-rail.is-collapsed .docs-rail-logout-bar { justify-content: center; padding: 16px 0; }
 
