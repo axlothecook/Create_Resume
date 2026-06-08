@@ -2,6 +2,12 @@
     width: 20px;
     height: 20px;
 }
+/* The document glyph has a tall (384:512) viewBox, so at 20px it reads larger than
+   the "Content" text beside it — size it to match the text's height. */
+.document-svg {
+    width: 17px;
+    height: 17px;
+}
 
 .dropdown-svg {
     transition: transform 0.25s;
@@ -24,6 +30,10 @@
     width: 20px;
     height: 20px;
     fill: var(--title-blue);
+}
+/* Dark mode: white visibility (eye) icon so it stays visible on the dark info div. */
+.theme-dark .tab-open-svg, .theme-dark .tab-closed-svg {
+    fill: #fff;
 }
 
 .tick-svg, .delete-svg {

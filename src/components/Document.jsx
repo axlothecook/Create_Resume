@@ -3,11 +3,11 @@ import './components.css';
 const DocumentSvg = () => {
     return (
         <svg className="document-svg"
-            xmlns="http://www.w3.org/2000/svg" 
-            viewBox="0 0 384 512" 
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
             id="documentSvg" >
-            <path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 288c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128z"></path>
-
+            {/* fill inherited from .document-svg (var(--dark-blue)) so the colour matches. */}
+            <path fillRule="evenodd" clipRule="evenodd" d="M6 1C4.34315 1 3 2.34315 3 4V20C3 21.6569 4.34315 23 6 23H18C19.6569 23 21 21.6569 21 20V8.82843C21 8.03278 20.6839 7.26972 20.1213 6.70711L15.2929 1.87868C14.7303 1.31607 13.9672 1 13.1716 1H6ZM5 4C5 3.44772 5.44772 3 6 3H12V8C12 9.10457 12.8954 10 14 10H19V20C19 20.5523 18.5523 21 18 21H6C5.44772 21 5 20.5523 5 20V4ZM18.5858 8L14 3.41421V8H18.5858Z" />
         </svg>
     )
 }
