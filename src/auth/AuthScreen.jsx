@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { api } from '../api/client';
 import authBg from '../assets/auth-bg.jpg'; // LED-dot texture; fills the screen via cover
 import { evaluatePassword, isPasswordValid } from './passwordRules';
+import TabOpenSvg from '../components/TabOpen';
+import TabClosedSvg from '../components/TabClosedSvg';
 import './authScreen.css';
 
 // Shown when logged out. Defaults to login (email + password + Continue); a "Sign up"
@@ -12,6 +14,8 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false); // eye toggle (both modes)
+    const [rememberMe, setRememberMe] = useState(false);     // login only
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
 
@@ -33,8 +37,20 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
         setBusy(true);
         try {
             const res = mode === 'login'
-                ? await api.login(email, password)
+                ? await api.login(email, password, rememberMe)
                 : await api.signup(email, username, password);
+            // Confirm the session cookie actually STUCK: re-ask the server who we are.
+            // If login succeeded but /auth/me comes back empty, the browser is dropping
+            // the cookie (privacy/tracking protection, or the site was opened over plain
+            // http where a Secure cookie can't be stored). Tell the user plainly instead
+            // of dropping them into the editor where every save would silently fail.
+            const check = await api.me();
+            if (!check.user) {
+                setError(
+                    "You're signed in, but your browser is blocking cookies for this site, so it won't stay logged in (saving won't work). Make sure you're on the https:// site, allow cookies / disable privacy protection for it, and avoid private/incognito mode — then try again."
+                );
+                return;
+            }
             onAuthenticated(res.user);
         } catch (err) {
             setError(err.message || 'Something went wrong.');
@@ -71,10 +87,30 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
                         </div>
                     )}
 
-                    <div className={`auth-field ${mode === 'signup' ? passwordState : ''}`}>
-                        <input id="auth-password" type="password" placeholder=" " value={password} onChange={(e) => setPassword(e.target.value)} required minLength={mode === 'signup' ? 8 : undefined} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} aria-invalid={mode === 'signup' && passwordState === 'is-invalid'} />
+                    <div className={`auth-field auth-field-password ${mode === 'signup' ? passwordState : ''}`}>
+                        <input id="auth-password" type={showPassword ? 'text' : 'password'} placeholder=" " value={password} onChange={(e) => setPassword(e.target.value)} required minLength={mode === 'signup' ? 8 : undefined} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} aria-invalid={mode === 'signup' && passwordState === 'is-invalid'} />
                         <label htmlFor="auth-password">Password</label>
+                        {/* Show/hide password eye (both login + signup). */}
+                        <button
+                            type="button"
+                            className="auth-pw-toggle"
+                            onClick={() => setShowPassword((v) => !v)}
+                            aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            aria-pressed={showPassword}
+                            tabIndex={-1}
+                        >
+                            {showPassword ? <TabClosedSvg /> : <TabOpenSvg />}
+                        </button>
                     </div>
+
+                    {/* "Remember me" — login only. Checked = 30-day session; unchecked =
+                        a browser-session cookie that ends when the browser closes. */}
+                    {mode === 'login' && (
+                        <label className="auth-remember">
+                            <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
+                            <span>Remember me</span>
+                        </label>
+                    )}
 
                     {/* Live requirements checklist — signup only. Each rule ticks green
                         as it's met (icon + text, not colour alone, for accessibility). */}

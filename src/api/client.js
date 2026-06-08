@@ -37,7 +37,7 @@ export const api = {
     // --- auth ---
     me: () => request('/auth/me'),
     signup: (email, username, password) => request('/auth/signup', { method: 'POST', body: { email, username, password } }),
-    login: (email, password) => request('/auth/login', { method: 'POST', body: { email, password } }),
+    login: (email, password, rememberMe = false) => request('/auth/login', { method: 'POST', body: { email, password, rememberMe } }),
     logout: () => request('/auth/logout', { method: 'POST' }),
 
     // --- résumés (used in the saved-docs slice) ---
