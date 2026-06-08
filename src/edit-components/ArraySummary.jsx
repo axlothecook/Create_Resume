@@ -11,7 +11,7 @@ const SummaryComponentDiv = (props) => {
             <div className='clickable-summary-div-child-for-expansion' onClick={props.onClick}>
                 <h3 style={{color: !props.themeProp ? 'black' : '#ccc'}}>{props.name}</h3>
             </div>
-            {toggle && 
+            {toggle &&
             <div className='overlaying-visibility-svg-wrapper' onClick={() => {
                 props.onHide(false);
                 setToggle(false);
@@ -19,7 +19,7 @@ const SummaryComponentDiv = (props) => {
                 <TabClosedSvg />
             </div>}
 
-            {!toggle && 
+            {!toggle &&
             <div className='overlaying-visibility-svg-wrapper' onClick={() => {
                 props.onHide(true);
                 setToggle(true);

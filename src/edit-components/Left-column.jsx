@@ -22,7 +22,7 @@ const LeftColumn = (props) => {
           onClick={() => {
             props.setTab(true);
         }}>
-          <EditSvg width='20px' height='20px' color='#0e374e' />
+          <EditSvg width='17px' height='17px' color='#0e374e' />
           <h3 style={{fontWeight: 'bold'}}>Customize</h3>
         </button>
       </div>

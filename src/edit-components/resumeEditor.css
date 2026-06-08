@@ -2,6 +2,11 @@
     color: var(--red);
     font-size: 11px;
 }
+/* Dark mode: the default red (#b91c1c) is too dark on the dark editor bg — use a
+   mid red (between the dark default and a bright red) so the hints stay legible. */
+.theme-dark .important-text {
+    color: #e85d5d;
+}
 
 /* Shell wraps the navbar + body so the page background fills the navbar's margin
    gaps (otherwise the body/page-default colour showed through behind the bar). */
@@ -160,6 +165,7 @@
     background-color: var(--input);
     display: flex;
     justify-content: center;
+    align-items: center;   /* vertically centre each button's icon with its text */
     gap: 8px;
     font-size: 14px;
     border: none;
@@ -200,6 +206,7 @@
 .clear-resume-btn {
     color: var(--red);
     display: flex;
+    align-items: center;   /* vertically centre the trash icon with the text */
     gap: 8px;
 }
 
@@ -434,6 +441,7 @@ li {
 .delete-btn {
     color: grey;
     display: flex;
+    align-items: center;   /* vertically centre the trash icon with the "Delete" text */
     gap: 8px;
 }
 

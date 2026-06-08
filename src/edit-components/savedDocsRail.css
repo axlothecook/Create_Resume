@@ -184,7 +184,7 @@
 }
 .docs-add-card:hover:not(:disabled) { background-color: rgba(125, 181, 232, 0.16); } /* darken on hover */
 .docs-add-card:disabled { opacity: 0.5; cursor: default; }
-.docs-add-card-inner { display: inline-flex; align-items: center; gap: 8px; }
+.docs-add-card-inner { display: inline-flex; align-items: center; gap: 5px; }
 .docs-add-card-label { font-size: 15px; font-weight: 600; }
 
 .docs-rail-empty {

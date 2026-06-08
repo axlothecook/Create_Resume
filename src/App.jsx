@@ -104,6 +104,10 @@ function App() {
   };
 
   const [secondTab, setSecondTab] = useState(false);
+  // Which of the Clear-Resume / Load-Example buttons is "selected": whichever was
+  // clicked last (default 'load' since the app starts with the example loaded). Drives
+  // the selected-highlight on those two buttons.
+  const [clearLoadSelection, setClearLoadSelection] = useState('load'); // 'clear' | 'load'
   const [personalDetailsArray, setPersonalDetailsArray] = useState([{
     id: '',
     hidden: false,
@@ -627,6 +631,8 @@ function App() {
           <div className="edit-load-div-parent">
 
             <StickyDiv themeProp = {theme}
+              selection={clearLoadSelection}
+              setSelection={setClearLoadSelection}
               emptyPersonalDetails={() => {setPersonalDetailsArray([{
                 id: '',
                 hidden: false,
