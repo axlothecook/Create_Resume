@@ -1,0 +1,78 @@
+# Build the Create_Resume frontend Docker image, publish it to GHCR, then deploy to
+# the Pi. Runs on every push to main:
+#   1. build-and-push — build the arm64 image and push it to GHCR.
+#   2. deploy-to-pi    — join the tailnet, SSH to the Pi, pull + restart the stack.
+# The Pi is reached privately over Tailscale (no public SSH); the public site itself
+# is served via the Cloudflare Tunnel (resume.axlothecook.com).
+name: Build, publish, and deploy frontend
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # QEMU lets the amd64 runner emulate arm64 (the Pi's CPU).
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: true
+          tags: ghcr.io/axlothecook/create-resume-frontend:latest
+          # VITE_API_URL is baked into the SPA at build time — point it at the
+          # production API subdomain.
+          build-args: |
+            VITE_API_URL=https://api.resume.axlothecook.com
+
+  # --- Deploy the freshly-built stack onto the Raspberry Pi ------------------
+  # Reaches the Pi privately over Tailscale (the runner joins the tailnet as an
+  # ephemeral node that auto-removes after the run), then SSHes in and rolls the
+  # whole compose stack. Only runs if build-and-push succeeded.
+  deploy-to-pi:
+    needs: build-and-push          # don't deploy unless the new image actually pushed
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Join the private Tailscale network as a throwaway ("ephemeral") node.
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v3
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
+
+      # 2. SSH to the Pi over its private tailnet IP and roll the stack.
+      - name: Deploy on the Pi
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PI_TAILSCALE_IP }}   # the Pi's 100.x.y.z tailnet IP
+          username: ${{ secrets.PI_USER }}       # axel
+          key: ${{ secrets.PI_SSH_KEY }}         # CI's PRIVATE deploy key
+          script: |
+            cd ~/create-resume-deploy
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
