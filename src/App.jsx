@@ -688,7 +688,6 @@ function App() {
           isGuest={isGuest}
           docs={savedDocs}
           currentDocId={currentDocId}
-          maxReached={maxReached}
           busy={docsBusy}
           setSvgClr={checkBrightness}
           setTxtClr={checkBrightnessTab}
