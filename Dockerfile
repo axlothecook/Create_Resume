@@ -21,11 +21,11 @@ RUN npm ci
 COPY . .
 
 # The API base URL is read via import.meta.env.VITE_API_URL, so Vite bakes its value
-# into the build output at BUILD time — it must be supplied here (mirrors the
-# gaming-shop frontend's LINK build arg). ARG = build-time var; ENV exposes it to the
-# build. Defaults to the production API subdomain (a ONE-level subdomain so it's
-# covered by Cloudflare's free *.axlothecook.com SSL cert).
-ARG VITE_API_URL=https://resume-api.axlothecook.com
+# into the build output at BUILD time. It is a RELATIVE path "/api" so the SPA calls
+# the API on its OWN origin (resume.axlothecook.com/api), which nginx then proxies to
+# the backend container. Same-origin → first-party session cookie (SameSite=Lax) that
+# strict browsers don't block. (Was a separate resume-api.* subdomain → cross-site.)
+ARG VITE_API_URL=/api
 ENV VITE_API_URL=$VITE_API_URL
 
 # Compile the SPA → produces /app/dist.

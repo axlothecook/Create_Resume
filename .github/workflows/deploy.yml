@@ -44,13 +44,13 @@ jobs:
           platforms: linux/arm64
           push: true
           tags: ghcr.io/axlothecook/create-resume-frontend:latest
-          # VITE_API_URL is baked into the SPA at build time — point it at the
-          # production API subdomain. NOTE: a ONE-level subdomain (resume-api.*) so it
-          # is covered by Cloudflare's free Universal SSL cert (*.axlothecook.com);
-          # a two-level name like api.resume.* would have no edge cert → TLS handshake
-          # failures.
+          # VITE_API_URL is baked into the SPA at build time. It is the RELATIVE path
+          # "/api" so the SPA calls the API on its own origin (resume.axlothecook.com/api);
+          # nginx proxies /api -> backend:3006. Same-origin → first-party (SameSite=Lax)
+          # session cookie that strict browsers don't block. (Was the separate
+          # resume-api.* subdomain, which made the cookie cross-site and droppable.)
           build-args: |
-            VITE_API_URL=https://resume-api.axlothecook.com
+            VITE_API_URL=/api
 
   # --- Deploy the freshly-built stack onto the Raspberry Pi ------------------
   # Reaches the Pi privately over Tailscale (the runner joins the tailnet as an
