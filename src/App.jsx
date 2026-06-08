@@ -995,7 +995,7 @@ function App() {
                               }}
                             >
                               <h3 style={{ fontWeight: 'bold' }}>
-                                {style.showCredit ? 'Hide credit footer' : 'Show credit footer'}
+                                {style.showCredit ? 'Hide credit' : 'Show credit'}
                               </h3>
                             </button>
                           </div>

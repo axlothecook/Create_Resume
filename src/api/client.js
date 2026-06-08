@@ -3,12 +3,25 @@
 const BASE = import.meta.env.VITE_API_URL || 'http://localhost:3006';
 
 async function request(path, { method = 'GET', body } = {}) {
-    const res = await fetch(`${BASE}${path}`, {
-        method,
-        credentials: 'include',
-        headers: body ? { 'Content-Type': 'application/json' } : undefined,
-        body: body ? JSON.stringify(body) : undefined,
-    });
+    let res;
+    try {
+        res = await fetch(`${BASE}${path}`, {
+            method,
+            credentials: 'include',
+            headers: body ? { 'Content-Type': 'application/json' } : undefined,
+            body: body ? JSON.stringify(body) : undefined,
+        });
+    } catch {
+        // fetch() rejects (TypeError "Failed to fetch") when the request never reached
+        // the server — no connection, or a VPN / ad-blocker / privacy-DNS / strict
+        // cross-site-tracking setting blocked it. Replace the cryptic browser message
+        // with something the user can act on.
+        const err = new Error(
+            "Couldn't reach the server. Check your internet connection, and if you're using a VPN, ad-blocker, or private DNS, try turning it off."
+        );
+        err.network = true;
+        throw err;
+    }
     let data = null;
     try { data = await res.json(); } catch { /* empty body */ }
     if (!res.ok) {

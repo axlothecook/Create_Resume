@@ -1,0 +1,89 @@
+/* Self-hosted résumé fonts (so the demo + downloaded résumé look IDENTICAL on every
+   device, not a per-device system fallback).
+
+   The app stores style.font as one of: "Roboto", "Calibri", "Arial", "Times New Roman".
+   - Roboto is loaded directly below (real Roboto).
+   - Calibri / Arial are proprietary and NOT on the open web, so we load close
+     metric-compatible open-source equivalents (Carlito ≈ Calibri, Arimo ≈ Arial)
+     and ALIAS them under the names the app already uses. This keeps every existing
+     stored value + every visible label unchanged — fontFamily:"Calibri" simply now
+     resolves to the loaded Carlito glyphs instead of an arbitrary system fallback.
+   - Times New Roman is left to the system serif (ubiquitous; also maps to a real PDF
+     family). */
+
+/* Real Roboto (the default font). */
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/700.css';
+@import '@fontsource/roboto/400-italic.css';
+@import '@fontsource/roboto/700-italic.css';
+
+/* Carlito (Calibri-metric) + Arimo (Arial-metric) loaded under their own names, then
+   re-registered as "Calibri"/"Arial" via the alias @font-face rules below. */
+@import '@fontsource/carlito/400.css';
+@import '@fontsource/carlito/700.css';
+@import '@fontsource/carlito/400-italic.css';
+@import '@fontsource/carlito/700-italic.css';
+@import '@fontsource/arimo/400.css';
+@import '@fontsource/arimo/700.css';
+@import '@fontsource/arimo/400-italic.css';
+@import '@fontsource/arimo/700-italic.css';
+
+/* --- Calibri alias -> Carlito files (latin subset, the 4 combos the résumé uses) --- */
+@font-face {
+  font-family: 'Calibri';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/carlito/files/carlito-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Calibri';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('@fontsource/carlito/files/carlito-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Calibri';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/carlito/files/carlito-latin-400-italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Calibri';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('@fontsource/carlito/files/carlito-latin-700-italic.woff2') format('woff2');
+}
+
+/* --- Arial alias -> Arimo files --- */
+@font-face {
+  font-family: 'Arial';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/arimo/files/arimo-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Arial';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('@fontsource/arimo/files/arimo-latin-700-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Arial';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('@fontsource/arimo/files/arimo-latin-400-italic.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Arial';
+  font-style: italic;
+  font-weight: 700;
+  font-display: swap;
+  src: url('@fontsource/arimo/files/arimo-latin-700-italic.woff2') format('woff2');
+}

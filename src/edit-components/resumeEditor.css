@@ -155,9 +155,16 @@
 
 .left-column, .sticky-div  {
     display: flex;
+    gap: 0.5rem;   /* space between the two buttons (Clear/Load, Content/Customize) */
     padding: 15px;
     border: none;
     border-radius: 10px;
+}
+
+/* The Content/Customize toggle gets the same elevated card shadow as the
+   Clear-Resume / Load-Example bar above it, so both read as raised panels. */
+.left-column {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .sticky-div {
@@ -222,7 +229,11 @@
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    /* No inner gap so the title + body sit flush, letting the card's box-shadow
+       trace one clean rounded outline (matching the customize segments below). */
+    gap: 0;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 /* Slide-open/close animation for section content (gameshop-style).
@@ -495,6 +506,8 @@ li {
     display: flex;
     flex-direction: column;
     gap: 25px;
+    /* Same elevated card shadow as the panels above (Clear/Load + Content/Customize). */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .customize-segment > h2 {
@@ -640,6 +653,8 @@ input[type="color"]::-webkit-color-swatch {
     padding: 15px;
     border: none;
     border-radius: 10px;
+    /* Same elevated card shadow as the other panels (Clear/Load, Content/Customize). */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .reorder-toggle-btn {
@@ -782,9 +797,13 @@ input[type="color"]::-webkit-color-swatch {
     }
 }
 
-/* Small phones: tighten the side margins further. */
+/* Small phones: tighten the side margins further. Keep the column CENTRED — narrow the
+   width to leave a 0.5rem gutter on each side and auto-centre, instead of a left-only
+   margin (which, combined with the inherited width, pushed the cards toward the left). */
 @media screen and (max-width: 480px) {
     .middle-column {
-        margin: 0 0.5rem;
+        margin: 0 auto;
+        width: calc(100vw - 1rem);
+        max-width: calc(100vw - 1rem);
     }
 }
