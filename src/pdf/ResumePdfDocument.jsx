@@ -1,4 +1,4 @@
-import { Document, Page, View, Text, StyleSheet, Svg, Path } from '@react-pdf/renderer';
+import { Document, Page, View, Text, Link, StyleSheet, Svg, Path } from '@react-pdf/renderer';
 
 /*
  * Vector PDF rendering of the résumé. Mirrors the on-screen content + the `style`
@@ -108,6 +108,9 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
 
     const s = StyleSheet.create({
         page: { fontFamily: font, fontSize: 7.5, color: '#1a1a1a', lineHeight: 1.3, display: 'flex', flexDirection: 'column' },
+        // "Made with Resume Creator" credit, centred near the bottom of the page.
+        credit: { position: 'absolute', bottom: 16, left: 0, right: 0, textAlign: 'center', fontSize: 7, color: '#9aa0a6' },
+        creditLink: { color: '#9aa0a6', textDecoration: 'underline' },
         // Panel (name + contacts). Horizontal padding of 16 matches the body so the
         // underlined header rule lines up with the section-title rules below it.
         panel: {
@@ -328,6 +331,13 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
                         {!topUnderlinedInBody && Panel}
                         {bodyContent}
                     </>
+                )}
+
+                {/* Optional "Made with Resume Creator" credit, centred at the page bottom. */}
+                {style.showCredit && (
+                    <Text style={s.credit} fixed>
+                        Made with <Link style={s.creditLink} src="https://github.com/axlothecook/Create_Resume">Resume Creator</Link>
+                    </Text>
                 )}
             </Page>
         </Document>

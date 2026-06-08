@@ -458,7 +458,8 @@ function App() {
     color: '#607480',
     font: `Roboto`,
     filledOut: true,
-    underlined: false
+    underlined: false,
+    showCredit: false   // "Made with Resume Creator" footer (off by default)
   });
 
   function updateObject (value, array, func, index, property) {
@@ -977,12 +978,35 @@ function App() {
                             <div key={id}>{sectionConfig[id]}</div>
                           ))
                         )}
+
+                        {/* Optional "Made with Resume Creator" credit — toggle sits below
+                            all sections; shows the credit in the demo + downloaded PDF. */}
+                        {!reorderMode && (
+                          <div className='reorder-toggle-wrapper' style={{ backgroundColor: !theme ? '#fff' : '#3c3a58ff' }}>
+                            <button
+                              type='button'
+                              className='reorder-toggle-btn'
+                              aria-pressed={style.showCredit}
+                              onClick={() => setStyle(s => ({ ...s, showCredit: !s.showCredit }))}
+                              style={{
+                                backgroundColor: !theme
+                                  ? (style.showCredit ? '#eef1f3' : '#fff')
+                                  : (style.showCredit ? '#504d75ff' : '#3c3a58ff'),
+                                color: !theme ? '#252432' : '#eef1f3',
+                              }}
+                            >
+                              <h3 style={{ fontWeight: 'bold' }}>
+                                {style.showCredit ? 'Hide credit footer' : 'Show credit footer'}
+                              </h3>
+                            </button>
+                          </div>
+                        )}
                       </>
                     );
                   })()}
                 </>
               }
-            </div> 
+            </div>
           </div>
           <div ref={printRef} className={style.resumeView}>
             <PersonInfoDiv assertStyle={style} setSvgClr={checkBrightness} object={personalDetailsArray[0]} />
@@ -1041,6 +1065,13 @@ function App() {
                 ));
               })()}
             </div>
+            {/* Optional credit footer at the bottom of the résumé (demo + PDF). */}
+            {style.showCredit && (
+              <p className='resume-credit'>
+                Made with{' '}
+                <a href='https://github.com/axlothecook/Create_Resume' target='_blank' rel='noopener noreferrer'>Resume Creator</a>
+              </p>
+            )}
           </div>
         </div>
       </div>

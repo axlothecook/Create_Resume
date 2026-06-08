@@ -5,6 +5,23 @@
 .resume-view-top,
 .resume-view-right {
     font-family: 'Roboto', Arial, sans-serif;
+    position: relative;   /* anchor the credit footer to the page bottom */
+}
+
+/* "Made with Resume Creator" credit, centred at the very bottom of the résumé. */
+.resume-credit {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.9rem;
+    margin: 0;
+    text-align: center;
+    font-size: 10px;
+    color: #9aa0a6;
+}
+.resume-credit a {
+    color: #9aa0a6;
+    text-decoration: underline;
 }
 
 .resume-view-top {

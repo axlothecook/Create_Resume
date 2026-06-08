@@ -39,6 +39,7 @@ const orderedSections = [
 const baseStyle = { color: '#607480', font: 'Roboto', underlined: false, gridView: false };
 const layouts = [
     { name: 'top', style: { ...baseStyle, personalInfoBox: 'personal-info-box-no-side-padding' } },
+    { name: 'credit', style: { ...baseStyle, personalInfoBox: 'personal-info-box-no-side-padding', showCredit: true } },
     { name: 'left', style: { ...baseStyle, personalInfoBox: 'personal-info-box-left' } },
     { name: 'right', style: { ...baseStyle, personalInfoBox: 'personal-info-box-right' } },
     { name: 'grid', style: { ...baseStyle, personalInfoBox: 'personal-info-box-no-side-padding', gridView: true } },
