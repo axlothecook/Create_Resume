@@ -410,4 +410,120 @@
 /* Collapsed logout bar: icon only, centred. */
 .docs-rail.is-collapsed .docs-rail-logout-bar { justify-content: center; padding: 16px 0; }
 
-/* Full responsiveness (the rail's mobile behaviour) is item #8. */
+/* --- Mobile: full-screen overlay menu (item #8) ------------------------------
+   On phones/tablets (<=768px) the rail stops being a permanent sidebar and becomes
+   a full-screen overlay menu (the gaming-shop pattern): hidden off-screen by
+   default, slid in over the content when opened via the floating burger, and
+   closed by the in-rail X or by tapping the backdrop. The desktop sidebar styles
+   above are untouched. */
+
+/* Floating burger + backdrop are desktop-hidden; only the mobile query reveals them. */
+.docs-rail-mobile-burger,
+.docs-rail-backdrop {
+    display: none;
+}
+
+/* Scroll-lock the page while the mobile overlay menu is open (set from the rail via
+   a body class) — stops the content behind the menu from scrolling through. */
+body.menu-open {
+    overflow: hidden;
+    touch-action: none;
+}
+
+@media screen and (max-width: 768px) {
+    /* The rail covers the ENTIRE screen and slides in from the left — a true
+       full-screen menu (not a partial drawer). 100vw/100dvh fill the viewport; the
+       menu's own content never scrolls (the saved CVs fit as a grid below), and the
+       page behind it is scroll-locked via body.menu-open. */
+    .docs-rail {
+        width: 100vw !important;          /* override the desktop 270px / 76px widths */
+        max-width: 100vw;
+        height: 100vh;                    /* fallback for browsers without dvh */
+        height: 100dvh;                   /* dynamic vh: accounts for mobile URL bar */
+        transform: translateX(-100%);     /* hidden off-screen to the left by default */
+        transition: transform 0.28s ease;
+        z-index: 60;                      /* above the backdrop + floating buttons */
+        overflow: hidden;                 /* the menu itself never scrolls */
+    }
+    /* is-open == overlay shown (slid in); is-collapsed == hidden off-screen. */
+    .docs-rail.is-open { transform: translateX(0); }
+    .docs-rail.is-collapsed { transform: translateX(-100%); }
+
+    /* Saved CVs: the WHOLE saved area is one 3-column grid — "Add New" is the first
+       cell (top-left), then the saved CVs flow after it, max 3 per row. No scrolling.
+       .docs-cards is display:contents so its card children join the parent grid
+       directly (Add New + cards share one grid track set).
+       --card-w is computed in px (not %), so the A4 preview's scale math still works:
+       full overlay width is 100vw; the rail's own horizontal padding is 14px each
+       side (28px) and the two inter-column gaps are 12px each (24px). */
+    .docs-rail-saved {
+        --gap: 12px;
+        --card-w: calc((100vw - 28px - 2 * var(--gap)) / 3);
+        --card-h: calc(var(--card-w) * 297 / 210);
+        --preview-scale: calc(var(--card-w) / var(--resume-w));
+        display: grid;
+        grid-template-columns: repeat(3, var(--card-w));
+        justify-content: center;          /* centre the 3-col grid in the overlay */
+        align-items: start;
+        gap: var(--gap);
+        overflow: hidden;
+    }
+    .docs-cards {
+        display: contents;                /* cards flow into the parent 3-col grid */
+    }
+    /* Add New label can shrink so it fits the narrower (1/3-width) card. */
+    .docs-add-card-label { font-size: 12px; }
+    .docs-add-card-inner { gap: 3px; }
+
+    /* Floating burger: fixed top-left, always reachable when the menu is closed. */
+    .docs-rail-mobile-burger {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        z-index: 55;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        color: #fff;
+        background-color: #2f2c44;       /* matches the rail so it reads as its handle */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+        transition: opacity 0.2s ease;
+    }
+    /* When the overlay is open the in-rail X takes over, so hide the floating burger
+       (aria-hidden is set in JSX; this also removes it visually + from hit-testing). */
+    .docs-rail-mobile-burger[aria-hidden="true"] {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    /* Dim backdrop behind the open overlay. */
+    .docs-rail-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: block;
+        background-color: rgba(20, 18, 35, 0.5);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.28s ease;
+    }
+    .docs-rail-backdrop.is-shown {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Drop the reserved sidebar gutter — the overlay floats over the content, so the
+       editor + demo use the FULL width (this fixes the right-edge clipping on phones).
+       Top padding gives the floating burger its OWN row at the top so it never sits on
+       top of the first editor card (burger = 12px top + 44px tall ≈ 56px; +breathing). */
+    .app-body--with-rail {
+        padding-left: 0;
+        padding-top: 4.5rem;
+    }
+}

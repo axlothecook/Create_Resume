@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './savedDocsRail.css';
 import ThemeSlider from '../components/ThemeSlider';
 import LogOutIcon from '../components/LogOut';
@@ -23,7 +23,33 @@ const SavedDocsRail = (props) => {
         themeProp, setThemeProp, onLogout,
     } = props;
 
-    const [open, setOpen] = useState(true);
+    // On desktop the rail is open by default (it's a fixed sidebar). On mobile
+    // (<=768px) it acts as a full-screen overlay menu that starts CLOSED — a floating
+    // burger (rendered below) opens it; the in-rail X closes it.
+    const isMobile = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
+    const [open, setOpen] = useState(() => !isMobile());
+
+    // If the viewport crosses the mobile threshold, reset the rail to that mode's
+    // default (desktop = open sidebar, mobile = closed overlay).
+    useEffect(() => {
+        const mq = window.matchMedia('(max-width: 768px)');
+        const sync = (e) => setOpen(!e.matches);
+        mq.addEventListener('change', sync);
+        return () => mq.removeEventListener('change', sync);
+    }, []);
+
+    // Lock page scroll while the full-screen overlay menu is open ON MOBILE, so the
+    // page behind it can't accidentally scroll and the menu itself stays put. (On
+    // desktop the rail is a permanent sidebar, so only lock when actually mobile.)
+    useEffect(() => {
+        const isMobileNow = window.matchMedia('(max-width: 768px)').matches;
+        if (open && isMobileNow) {
+            document.body.classList.add('menu-open');
+        } else {
+            document.body.classList.remove('menu-open');
+        }
+        return () => document.body.classList.remove('menu-open');
+    }, [open]);
 
     // The morphing burger<->X toggle (used at the top of the rail in both states).
     const toggle = (
@@ -44,6 +70,31 @@ const SavedDocsRail = (props) => {
     );
 
     return (
+        <>
+        {/* Mobile-only floating burger: opens the full-screen overlay menu. It's hidden
+            on desktop (the rail is a permanent sidebar there) and hidden while the
+            overlay is open (the in-rail X takes over). */}
+        <button
+            type="button"
+            className="docs-rail-mobile-burger"
+            onClick={() => setOpen(true)}
+            aria-label="Open menu"
+            aria-hidden={open}
+        >
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+        </button>
+
+        {/* Mobile-only backdrop behind the open overlay; tap to close. */}
+        <div
+            className={`docs-rail-backdrop ${open ? 'is-shown' : ''}`}
+            onClick={() => setOpen(false)}
+            aria-hidden="true"
+        />
+
         <aside className={`docs-rail ${open ? 'is-open' : 'is-collapsed'} ${themeProp ? 'theme-dark' : 'theme-light'}`}>
             {/* Brand block: the "Resume Creator" row (title + toggle) and, for logged-in
                 users, a "Hello {username}!" greeting — both sit above the divider line. */}
@@ -160,6 +211,7 @@ const SavedDocsRail = (props) => {
                 </button>
             </div>
         </aside>
+        </>
     );
 };
 

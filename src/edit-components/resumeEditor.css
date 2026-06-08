@@ -724,7 +724,13 @@ input[type="color"]::-webkit-color-swatch {
     transform: scale(0.9);
 }
 
-@media screen and (max-width: 1519px) {
+/* --- Responsive layout (item #8) — consolidated to the industry-standard
+   breakpoints 1280 / 1024 / 768 / 480 (mobile-first set; see the rail's overlay
+   styles in savedDocsRail.css for the <=768 menu). The old .top-bar media queries
+   were removed — the topbar no longer exists (the rail replaced it). --- */
+
+/* Large laptops: pull the two columns in from the screen edges. */
+@media screen and (max-width: 1280px) {
     .middle-column {
         margin: 0 4rem;
     }
@@ -733,51 +739,52 @@ input[type="color"]::-webkit-color-swatch {
     }
 }
 
-@media screen and (max-width: 1336px) {
+/* Tablets: stack the editor above the centred résumé demo (no longer side-by-side). */
+@media screen and (max-width: 1024px) {
     .middle-column {
         flex-direction: column;
+        align-items: center;
     }
-
     .middle-column > div:first-child {
         width: auto;
     }
-
     .middle-column > div:last-child {
         margin: 0 auto;
     }
 }
 
-@media screen and (max-width: 900px) {
-    .top-bar {
-        padding: 18px 28px;
-    }
-}
-
-@media screen and (max-width: 684px) {
-    .top-bar {
-        gap: 12px;
-        padding: 14px 18px;
-    }
-    .top-bar-actions {
-        gap: 16px;
-    }
-}
-
-/* On very narrow phones, drop the wordmark but keep the logo so the bar stays tidy. */
-@media screen and (max-width: 420px) {
-    .navbar-title {
-        display: none;
-    }
-}
-
-@media screen and (max-width: 615px) {
-    .clear-resume-btn {
-        align-items: center;
-    }
-}
-
-@media screen and (max-width: 575px) {
+/* Phones: the editor column should fill the width (it was a fixed 35rem). The column
+   must not exceed the viewport — otherwise the A4 demo's true 794px box would force a
+   horizontal scroll and push the editor off-screen. Everything is CENTRED. */
+@media screen and (max-width: 768px) {
     .middle-column {
-        margin: 0 1rem;
+        margin: 0 auto 4rem;            /* centre the column; keep bottom breathing room */
+        width: calc(100vw - 2rem);
+        max-width: calc(100vw - 2rem);
+        box-sizing: border-box;
+        align-items: center;            /* centre the editor + demo within the column */
+        /* Clear the fixed burger (44px + 12px top + gap) so the first card starts on
+           its own row BELOW the burger, never under it. */
+        padding-top: 1rem;
+        /* Breathing room below the PDF demo before the screen bottom. */
+        padding-bottom: 1rem;
+    }
+    /* The editor card stack fills the width and centres. */
+    .edit-load-div-parent {
+        width: 100%;
+        max-width: 35rem;
+        margin: 0 auto;
+    }
+    /* When the Clear/Load bar sticks while scrolling, park it BELOW the burger row so
+       the burger never overlaps it. */
+    .sticky-div {
+        top: 64px;
+    }
+}
+
+/* Small phones: tighten the side margins further. */
+@media screen and (max-width: 480px) {
+    .middle-column {
+        margin: 0 0.5rem;
     }
 }

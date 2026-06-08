@@ -1007,6 +1007,10 @@ function App() {
               }
             </div>
           </div>
+          {/* Wrapper lets the A4 page scale down to fit narrow (mobile) widths without
+              overflowing — the inner .resume-view-* keeps its true 210mm size + ref so
+              the PDF/print render is unaffected; CSS transform shrinks it on phones. */}
+          <div className='resume-demo-wrap'>
           <div ref={printRef} className={style.resumeView}>
             <PersonInfoDiv assertStyle={style} setSvgClr={checkBrightness} object={personalDetailsArray[0]} />
             <div className={style.resumeInfoParentBoxLeft} style={{
@@ -1071,6 +1075,7 @@ function App() {
                 <a href='https://github.com/axlothecook/Create_Resume' target='_blank' rel='noopener noreferrer'>Resume Creator</a>
               </p>
             )}
+          </div>
           </div>
         </div>
       </div>

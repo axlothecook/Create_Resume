@@ -263,66 +263,62 @@
     font-size: 15px;
 }
 
-@media screen and (max-width: 1270px) {
+/* The demo wrapper is transparent / full-flow on desktop — it only does work on
+   mobile (below), where it scales the A4 page down to fit the viewport width. */
+.resume-demo-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+/* --- Tablet: gently narrow the A4 page so it shares the row with the editor. The
+   middle-column stacks to one column at 1024px (see resumeEditor.css), after which
+   the page is centred on its own. --- */
+@media screen and (max-width: 1280px) {
     .resume-view-top, .resume-view-right {
         min-width: 170mm;
+        max-width: 170mm;
     }
 }
 
-@media screen and (max-width: 903px) {
-    .personal-info-box-no-side-padding > h1, .personal-info-box-left > h1, .personal-info-box-right > h1 {
-        gap: 6px;
-    }
-
-    .personal-info-box-no-side-padding > h1, .personal-info-box-left > h1, .personal-info-box-right > h1 {
-        font-size: 16px;
-    }
-
-    .details-box > div > h4 {
-        font-size: 11px;
-    }
-
-    .resume-title-box > h3 {
-        font-size: 13px;
-    }
-
-    .resume-date > h4, .resume-location > h4, .resume-location > a, .resume-place > h4, .resume-position > h4, .list-item, .resume-skill-lang-box-parent > h3, .resume-skill-box-child > h4, .resume-language-box-child > h4 {
-        font-size: 11px;
-    }
-
-    .resume-info-parent-box-left, .resume-info-parent-box-right {
-        gap: 15px;
-    }
-}
-
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 1024px) {
     .resume-view-top, .resume-view-right {
-        min-width: 150mm;
+        min-width: 190mm;
+        max-width: 190mm;
     }
 }
 
-@media screen and (max-width: 715px) {
+/* --- Mobile (<=768px): scale-to-fit. The A4 page keeps its TRUE 210mm width (so the
+   layout/PDF render is identical), and we shrink the whole thing with a CSS transform
+   to fit the phone width. transform leaves the original box size behind, so the
+   wrapper is given the SCALED height (true height * scale) to remove the gap. The
+   page is 210mm wide; at 96dpi that's ~793.7px, and 210:297 gives the height. --- */
+@media screen and (max-width: 768px) {
+    .resume-demo-wrap {
+        /* scale = available width / true A4 width. The available width is the viewport
+           minus a small side margin. */
+        --a4-w: 793.7px;
+        --a4-scale: calc((100vw - 2rem) / var(--a4-w));
+        /* IMPORTANT: block (not flex) on mobile. The A4's layout box stays 794px wide
+           even after transform:scale; if the parent CENTRES it, the box overflows
+           equally both sides (left ≈ -163px) and overflow:hidden then clips the right
+           HALF of the page. As a block, the box starts at the wrap's left edge (0), so
+           transform-origin:top-left scales it neatly into view with nothing cut off. */
+        display: block;
+        width: calc(100vw - 2rem);
+        max-width: calc(100vw - 2rem);
+        overflow: hidden;
+        /* Reserve the SCALED height so the page doesn't leave a tall empty gap below
+           (297mm ~= 1122.5px true height). */
+        height: calc(1122.5px * var(--a4-scale));
+        /* Breathing room between the bottom of the A4 page and the screen bottom. */
+        margin-bottom: 1rem;
+    }
+
     .resume-view-top, .resume-view-right {
-        min-width: 120mm;
-    }
-}
-
-@media screen and (max-width: 453px) {
-    .personal-info-details-row, .personal-info-details-column {
-        gap: 13px;
-    }
-
-    .personal-info-box-no-side-padding > h1, .personal-info-box-left > h1, .personal-info-box-right > h1 {
-        font-size: 13px;
-    }
-     
-    .details-box > div > h4 {
-        font-size: 9px;
-    }
-}
-
-@media screen and (max-width: 490px) {
-    .resume-view-top, .resume-view-right {
-        min-width: 60mm;
+        min-width: var(--a4-w);
+        max-width: var(--a4-w);
+        transform: scale(var(--a4-scale));
+        /* Scale from the TOP-LEFT so the shrunk page hugs the wrapper's left edge. */
+        transform-origin: top left;
     }
 }
