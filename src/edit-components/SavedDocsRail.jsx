@@ -17,7 +17,7 @@ import ResumePreview from '../resume-component/ResumePreview';
 const SavedDocsRail = (props) => {
     const {
         isGuest,
-        docs, currentDocId, maxReached, busy,
+        docs, currentDocId, busy,
         setSvgClr, setTxtClr,
         onAddNew, onLoad, onDelete,
         themeProp, setThemeProp, onLogout,
@@ -63,8 +63,7 @@ const SavedDocsRail = (props) => {
                         type="button"
                         className="docs-add-card"
                         onClick={onAddNew}
-                        disabled={maxReached}
-                        title={maxReached ? `Maximum of saved résumés reached — delete one to add another` : 'Start a new résumé'}
+                        title="Start a new résumé"
                     >
                         <span className="docs-add-card-inner">
                             <span className="docs-add-card-label">Add New</span>
