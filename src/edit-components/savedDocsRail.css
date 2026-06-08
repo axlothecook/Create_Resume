@@ -90,11 +90,26 @@
 /* --- brand row: logo + name (left) ... toggle (far right) --- */
 .docs-rail-brand {
     display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 4px 6px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+/* The title + toggle stay on one row; the greeting sits below it. */
+.docs-rail-brand-row {
+    display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    padding: 4px 6px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.docs-rail-greeting {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: #c9c4f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .docs-rail-brand-id {
     display: flex;
@@ -384,10 +399,12 @@
 .docs-rail.is-collapsed .docs-rail-theme-label,
 .docs-rail.is-collapsed .docs-rail-theme-icon,
 .docs-rail.is-collapsed .docs-rail-brand-id,
+.docs-rail.is-collapsed .docs-rail-greeting,
 .docs-rail.is-collapsed .docs-rail-saved {
     display: none;
 }
-.docs-rail.is-collapsed .docs-rail-brand { justify-content: center; padding: 4px 0 12px; }
+.docs-rail.is-collapsed .docs-rail-brand { align-items: center; padding: 4px 0 12px; }
+.docs-rail.is-collapsed .docs-rail-brand-row { justify-content: center; }
 /* Collapsed: pill shrinks to just the slider switch, centred. */
 .docs-rail.is-collapsed .docs-rail-theme { justify-content: center; gap: 0; padding: 8px 0; background-color: transparent; }
 /* Collapsed logout bar: icon only, centred. */

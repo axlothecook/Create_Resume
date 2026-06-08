@@ -1,0 +1,78 @@
+/* Top-right toast stack. Each toast slides in from the right and is colour-coded. */
+.toast-stack {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    pointer-events: none; /* the container ignores clicks; individual toasts re-enable */
+}
+
+.toast {
+    pointer-events: auto;
+    position: relative;            /* anchor the bottom progress bar */
+    overflow: hidden;              /* clip the progress bar to the rounded corners */
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 220px;
+    max-width: 360px;
+    padding: 0.75rem 0.95rem;
+    border: none;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+    animation: toast-slide-in 0.28s ease;
+}
+
+/* Exit: retract the same way it came in (slide back out to the right + fade). */
+.toast.is-exiting {
+    animation: toast-slide-out 0.28s ease forwards;
+}
+
+.toast-success { background-color: #2e9e5b; }
+.toast-error { background-color: #d1495b; }
+
+.toast-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.toast-message { flex: 1 1 auto; line-height: 1.3; }
+
+/* Countdown bar: a thin 2px white bar pinned to the bottom, full width, shrinking
+   from right to left over the toast's duration (animation-duration set inline). */
+.toast-progress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 2px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.9);
+    transform-origin: left center;
+    animation-name: toast-progress-tick;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+@keyframes toast-slide-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes toast-slide-out {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(20px); }
+}
+/* Shrink the bar from full width down to nothing — the visible edge recedes
+   right -> left as the countdown elapses. */
+@keyframes toast-progress-tick {
+    from { transform: scaleX(1); }
+    to { transform: scaleX(0); }
+}

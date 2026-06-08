@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import './nameModal.css';
 
 const FADE_MS = 600; // keep in sync with nameModal.css
@@ -28,7 +29,10 @@ const ConfirmModal = ({ open, title, message, proceedLabel = 'Proceed', cancelLa
 
     if (!render) return null;
 
-    return (
+    // Portal to <body> so the modal sits in the root stacking context, above the
+    // editor's transform/animation stacking contexts (prevents the section arrow / eye
+    // SVGs punching through the backdrop during the fade-in).
+    return createPortal(
         <div
             className={`name-modal-backdrop ${closing ? 'is-closing' : ''} ${themeProp ? 'theme-dark' : 'theme-light'}`}
             onMouseDown={onCancel}
@@ -41,7 +45,8 @@ const ConfirmModal = ({ open, title, message, proceedLabel = 'Proceed', cancelLa
                     <button type="button" className="name-modal-btn name-modal-save" onClick={onProceed}>{proceedLabel}</button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

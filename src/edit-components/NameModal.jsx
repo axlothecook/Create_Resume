@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import './nameModal.css';
 
 // Centered modal for naming a résumé (replaces window.prompt). Controlled by App:
@@ -54,7 +55,10 @@ const NameModal = ({ open, initialValue = '', themeProp, onSubmit, onCancel }) =
         onSubmit(trimmed);
     };
 
-    return (
+    // Portal to <body> so the modal sits in the root stacking context, above the
+    // editor's transform/animation stacking contexts (otherwise the section arrow / eye
+    // SVGs punched through the backdrop during the fade-in).
+    return createPortal(
         <div
             className={`name-modal-backdrop ${closing ? 'is-closing' : ''} ${themeProp ? 'theme-dark' : 'theme-light'}`}
             onMouseDown={onCancel}
@@ -78,7 +82,8 @@ const NameModal = ({ open, initialValue = '', themeProp, onSubmit, onCancel }) =
                     </div>
                 </form>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

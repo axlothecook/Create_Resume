@@ -8,6 +8,7 @@ import SavedDocsRail from './edit-components/SavedDocsRail';
 import FloatingActions from './edit-components/FloatingActions';
 import NameModal from './edit-components/NameModal';
 import ConfirmModal from './edit-components/ConfirmModal';
+import Toasts from './edit-components/Toasts';
 import LeftColumn from './edit-components/Left-column';
 import StickyDiv from './edit-components/StickyDivComponent';
 import BigComponent from './edit-components/AttemptComponent';
@@ -55,12 +56,14 @@ function App() {
     if (resolve) resolve(value);
   };
 
-  // Unsaved-changes confirm modal (Proceed / Cancel). confirmProceed() opens it and
-  // resolves true on Proceed, false on Cancel.
+  // Generic confirm modal (Proceed / Cancel). confirm({title, message, ...}) opens it
+  // and resolves true on Proceed, false on Cancel. Replaces window.confirm.
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmContent, setConfirmContent] = useState({});
   const confirmResolverRef = useRef(null);
-  const confirmProceed = () => new Promise((resolve) => {
+  const confirm = (content) => new Promise((resolve) => {
     confirmResolverRef.current = resolve;
+    setConfirmContent(content || {});
     setConfirmOpen(true);
   });
   const resolveConfirm = (ok) => {
@@ -68,6 +71,16 @@ function App() {
     const resolve = confirmResolverRef.current;
     confirmResolverRef.current = null;
     if (resolve) resolve(ok);
+  };
+
+  // Toast notifications (top-right). showToast adds one; the Toast component owns its
+  // 4s lifecycle + exit animation and calls dismissToast to remove itself.
+  const [toasts, setToasts] = useState([]);
+  const toastIdRef = useRef(0);
+  const dismissToast = (id) => setToasts((list) => list.filter((t) => t.id !== id));
+  const showToast = (type, message) => {
+    const id = ++toastIdRef.current;
+    setToasts((list) => [...list, { id, type, message }]);
   };
 
   useEffect(() => {
@@ -537,7 +550,12 @@ function App() {
   const handleAddNew = async () => {
     if (docsBusy) return;
     if (hasUnsavedChanges()) {
-      const ok = await confirmProceed();
+      const ok = await confirm({
+        title: 'Unsaved changes',
+        message: 'You have unsaved changes. Starting a new résumé will discard them. Do you want to proceed?',
+        proceedLabel: 'Proceed',
+        cancelLabel: 'Cancel',
+      });
       if (!ok) return;
     }
     clearToBlank();
@@ -552,7 +570,10 @@ function App() {
       if (currentDocId) {
         await api.updateResume(currentDocId, { data: gatherState() });
       } else {
-        if (maxReached) { alert(`You can save up to ${MAX_DOCS} résumés. Delete one to add another.`); return; }
+        if (maxReached) {
+          showToast('error', `You can save up to ${MAX_DOCS} résumés — delete one to save a new one.`);
+          return;
+        }
         const title = await promptForName();
         if (!title) return;
         const res = await api.createResume(title, gatherState());
@@ -561,8 +582,11 @@ function App() {
       }
       markSaved(); // current state is now the saved baseline
       await refreshSavedDocs();
+      showToast('success', 'Résumé saved.');
     } catch (err) {
-      alert(err.message || 'Could not save the résumé.');
+      // A 409 from the server is the max-limit case; everything else is a generic error.
+      if (err.status === 409) showToast('error', err.message || `You can save up to ${MAX_DOCS} résumés — delete one first.`);
+      else showToast('error', err.message || 'Could not save the résumé.');
     } finally {
       setDocsBusy(false);
     }
@@ -590,7 +614,7 @@ function App() {
         style: data.style,
       });
     } catch (err) {
-      alert(err.message || 'Could not load the résumé.');
+      showToast('error', err.message || 'Could not load the résumé.');
     } finally {
       setDocsBusy(false);
     }
@@ -598,14 +622,21 @@ function App() {
 
   const handleDeleteDoc = async (id, title) => {
     if (docsBusy) return;
-    if (!window.confirm(`Delete "${title}"? This can't be undone.`)) return;
+    const ok = await confirm({
+      title: 'Delete résumé',
+      message: `Delete "${title}"? This can't be undone.`,
+      proceedLabel: 'Delete',
+      cancelLabel: 'Cancel',
+    });
+    if (!ok) return;
     setDocsBusy(true);
     try {
       await api.deleteResume(id);
       setSavedDocs((list) => list.filter((d) => d.id !== id));
       if (currentDocId === id) setCurrentDocId(null);
+      showToast('success', 'Résumé deleted.');
     } catch (err) {
-      alert(err.message || 'Could not delete the résumé.');
+      showToast('error', err.message || 'Could not delete the résumé.');
     } finally {
       setDocsBusy(false);
     }
@@ -657,6 +688,7 @@ function App() {
     a.download = `${slug}-resume.pdf`;
     a.click();
     URL.revokeObjectURL(url);
+    showToast('success', 'PDF downloaded.');
   };
 
   // While checking the session, render nothing (brief). When logged out and not a
@@ -686,6 +718,7 @@ function App() {
         }}>
         <SavedDocsRail
           isGuest={isGuest}
+          user={user}
           docs={savedDocs}
           currentDocId={currentDocId}
           busy={docsBusy}
@@ -1028,17 +1061,20 @@ function App() {
         onCancel={() => resolveName(null)}
       />
 
-      {/* Unsaved-changes warning before Add New discards the current editor. */}
+      {/* Generic confirm modal (unsaved-changes warning, delete confirmation, …). */}
       <ConfirmModal
         open={confirmOpen}
         themeProp={theme}
-        title="Unsaved changes"
-        message="You have unsaved changes. Starting a new résumé will discard them. Do you want to proceed?"
-        proceedLabel="Proceed"
-        cancelLabel="Cancel"
+        title={confirmContent.title}
+        message={confirmContent.message}
+        proceedLabel={confirmContent.proceedLabel}
+        cancelLabel={confirmContent.cancelLabel}
         onProceed={() => resolveConfirm(true)}
         onCancel={() => resolveConfirm(false)}
       />
+
+      {/* Top-right toast notifications (saved / PDF downloaded / errors). */}
+      <Toasts toasts={toasts} onDismiss={dismissToast} />
     </div>
   )
 }

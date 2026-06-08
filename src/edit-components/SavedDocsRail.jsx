@@ -16,7 +16,7 @@ import ResumePreview from '../resume-component/ResumePreview';
 // Collapsed → icons only, led by the hamburger toggle (no logo / user image).
 const SavedDocsRail = (props) => {
     const {
-        isGuest,
+        isGuest, user,
         docs, currentDocId, busy,
         setSvgClr, setTxtClr,
         onAddNew, onLoad, onDelete,
@@ -45,13 +45,18 @@ const SavedDocsRail = (props) => {
 
     return (
         <aside className={`docs-rail ${open ? 'is-open' : 'is-collapsed'} ${themeProp ? 'theme-dark' : 'theme-light'}`}>
-            {/* Brand row: name on the left, toggle on the FAR RIGHT (no logo box).
-                Collapsed → only the toggle shows (name hidden). */}
+            {/* Brand block: the "Resume Creator" row (title + toggle) and, for logged-in
+                users, a "Hello {username}!" greeting — both sit above the divider line. */}
             <div className="docs-rail-brand">
-                <div className="docs-rail-brand-id">
-                    <span className="docs-rail-brand-text"><strong>Resume Creator</strong></span>
+                <div className="docs-rail-brand-row">
+                    <div className="docs-rail-brand-id">
+                        <span className="docs-rail-brand-text"><strong>Resume Creator</strong></span>
+                    </div>
+                    {toggle}
                 </div>
-                {toggle}
+                {!isGuest && user && (
+                    <h3 className="docs-rail-greeting">Hello {user.username}!</h3>
+                )}
             </div>
 
             {/* Saved-docs area (logged-in only): an A4-shaped dashed "Add new" card,
