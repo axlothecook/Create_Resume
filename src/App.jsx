@@ -7,6 +7,7 @@ import { api } from './api/client';
 import SavedDocsRail from './edit-components/SavedDocsRail';
 import FloatingActions from './edit-components/FloatingActions';
 import NameModal from './edit-components/NameModal';
+import ConfirmModal from './edit-components/ConfirmModal';
 import LeftColumn from './edit-components/Left-column';
 import StickyDiv from './edit-components/StickyDivComponent';
 import BigComponent from './edit-components/AttemptComponent';
@@ -52,6 +53,21 @@ function App() {
     const resolve = nameResolverRef.current;
     nameResolverRef.current = null;
     if (resolve) resolve(value);
+  };
+
+  // Unsaved-changes confirm modal (Proceed / Cancel). confirmProceed() opens it and
+  // resolves true on Proceed, false on Cancel.
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const confirmResolverRef = useRef(null);
+  const confirmProceed = () => new Promise((resolve) => {
+    confirmResolverRef.current = resolve;
+    setConfirmOpen(true);
+  });
+  const resolveConfirm = (ok) => {
+    setConfirmOpen(false);
+    const resolve = confirmResolverRef.current;
+    confirmResolverRef.current = null;
+    if (resolve) resolve(ok);
   };
 
   useEffect(() => {
@@ -484,26 +500,47 @@ function App() {
     if (data.style) setStyle(data.style);
   };
 
+  // --- Unsaved-changes guard (#6) ---
+  // Baseline snapshot of the editor at the last save / load (and first mount). The
+  // editor is "dirty" when the current state differs from this baseline.
+  const savedSnapshotRef = useRef(JSON.stringify(gatherState()));
+  const markSaved = () => { savedSnapshotRef.current = JSON.stringify(gatherState()); };
+  const hasUnsavedChanges = () => JSON.stringify(gatherState()) !== savedSnapshotRef.current;
+
+  // Reset the editor to a blank résumé (same as "Clear Resume"), drop the loaded doc,
+  // and re-baseline so the blank slate isn't immediately "dirty".
+  const clearToBlank = () => {
+    const blankPersonal = [{ id: '', hidden: false, newValue: true, fullname: '', email: '', phoneNumber: '', address: '' }];
+    const blankSkill = [{ id: '', hidden: false, newValue: true, title: '', skillHidden: false, langHidden: false, skillList: [], languageList: [] }];
+    setPersonalDetailsArray(blankPersonal);
+    setEducationArray([]);
+    setExperienceArray([]);
+    setProjectArray([]);
+    setSkillArray(blankSkill);
+    setCurrentDocId(null);
+    setClearLoadSelection('clear');
+    // Re-baseline to the blank state (built explicitly so it doesn't depend on the
+    // async state setters above having flushed).
+    savedSnapshotRef.current = JSON.stringify({
+      personalDetails: blankPersonal,
+      education: [], experience: [], project: [],
+      skill: blankSkill, sectionOrder, style,
+    });
+  };
+
   const MAX_DOCS = 5;
   const maxReached = savedDocs.length >= MAX_DOCS;
 
-  // "+ Add new": prompt for a title, create a doc with the CURRENT editor state
-  // (the backend has no "empty" concept — a doc always carries state), select it.
+  // "+ Add new": start a fresh blank résumé. If there are unsaved changes, warn first
+  // (Proceed discards them); then reset the editor to a clean slate. The user builds the
+  // new CV and saves it later via Save. (Industry-standard "New document" behaviour.)
   const handleAddNew = async () => {
     if (docsBusy) return;
-    if (maxReached) { alert(`You can save up to ${MAX_DOCS} résumés. Delete one to add another.`); return; }
-    const title = await promptForName();
-    if (!title) return;
-    setDocsBusy(true);
-    try {
-      const res = await api.createResume(title, gatherState());
-      setCurrentDocId(res.resume.id);
-      await refreshSavedDocs();
-    } catch (err) {
-      alert(err.message || 'Could not create the résumé.');
-    } finally {
-      setDocsBusy(false);
+    if (hasUnsavedChanges()) {
+      const ok = await confirmProceed();
+      if (!ok) return;
     }
+    clearToBlank();
   };
 
   // "Save": update the loaded doc (PUT). If nothing is loaded yet, behave like Add new
@@ -520,7 +557,9 @@ function App() {
         if (!title) return;
         const res = await api.createResume(title, gatherState());
         setCurrentDocId(res.resume.id);
+        setClearLoadSelection('load');
       }
+      markSaved(); // current state is now the saved baseline
       await refreshSavedDocs();
     } catch (err) {
       alert(err.message || 'Could not save the résumé.');
@@ -535,8 +574,21 @@ function App() {
     setDocsBusy(true);
     try {
       const res = await api.getResume(id);
-      hydrateState(res.resume.data);
+      const data = res.resume.data;
+      hydrateState(data);
       setCurrentDocId(id);
+      setClearLoadSelection('load');
+      // Baseline to the just-loaded data (built from `data` so it doesn't depend on
+      // the async state setters having flushed) — a freshly loaded CV isn't "dirty".
+      savedSnapshotRef.current = JSON.stringify({
+        personalDetails: data.personalDetails,
+        education: data.education,
+        experience: data.experience,
+        project: data.project,
+        skill: data.skill,
+        sectionOrder: data.sectionOrder,
+        style: data.style,
+      });
     } catch (err) {
       alert(err.message || 'Could not load the résumé.');
     } finally {
@@ -975,6 +1027,18 @@ function App() {
         themeProp={theme}
         onSubmit={(title) => resolveName(title)}
         onCancel={() => resolveName(null)}
+      />
+
+      {/* Unsaved-changes warning before Add New discards the current editor. */}
+      <ConfirmModal
+        open={confirmOpen}
+        themeProp={theme}
+        title="Unsaved changes"
+        message="You have unsaved changes. Starting a new résumé will discard them. Do you want to proceed?"
+        proceedLabel="Proceed"
+        cancelLabel="Cancel"
+        onProceed={() => resolveConfirm(true)}
+        onCancel={() => resolveConfirm(false)}
       />
     </div>
   )
