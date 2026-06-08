@@ -1,10 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './resumeEditor.css';
 import TabOpenSvg from '../components/TabOpen';
 import TabClosedSvg from '../components/TabClosedSvg';
 
 const SummaryComponentDiv = (props) => {
     const [toggle, setToggle] = useState(props.initial);
+
+    // Re-sync the eye with the item's hidden flag when a different CV is loaded in
+    // (otherwise the local toggle keeps its first-mount value and the icon lies).
+    useEffect(() => {
+        setToggle(props.initial);
+    }, [props.initial]);
 
     return (
         <div className='summary-div' style={{backgroundColor: !props.themeProp ? '#fff' : '#504d75ff'}}>

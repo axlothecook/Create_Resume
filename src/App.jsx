@@ -187,6 +187,8 @@ function App() {
     hidden: false,
     newValue: true,
     title: '',
+    skillHidden: false,   // visibility of the Technical Skills sub-group
+    langHidden: false,    // visibility of the Languages sub-group
     skillList: [{
       id: -2,
       text: 'painting'
@@ -307,6 +309,7 @@ function App() {
       type: 'Description',
       descType: 'skill',
       result: 'skillList',
+      hideField: 'skillHidden',   // visibility flag toggled by the group's eye
       editTitle: 'Technical Skills',
       placeholder: 'C++, Excel, Figma, Qt, React JS',
       subtext: null
@@ -315,6 +318,7 @@ function App() {
       type: 'Description',
       descType: 'skill',
       result: 'languageList',
+      hideField: 'langHidden',
       editTitle: 'Languages',
       placeholder: 'Spanish (native), English(fluent), French(beginner)',
       subtext: null
@@ -564,12 +568,28 @@ function App() {
       project: { key: 'project', label: 'PERSONAL PROJECTS', items: projectArray },
       skill: { key: 'skill', label: 'SKILLS & LANGUAGES' },
     };
-    const orderedSections = sectionOrder.map(k => sectionData[k]).filter(Boolean);
+    // Skills sub-groups respect their visibility flags (a hidden group is omitted).
+    const skill = skillArray[0];
+    const pdfSkills = {
+      skillList: skill.skillHidden ? [] : skill.skillList,
+      languageList: skill.langHidden ? [] : skill.languageList,
+    };
+    // Drop sections with no visible content (all items hidden, or both skill groups
+    // hidden) so the printed PDF matches the on-screen demo.
+    const sectionHasContent = (key) => {
+      if (key === 'skill') return pdfSkills.skillList.length !== 0 || pdfSkills.languageList.length !== 0;
+      const items = sectionData[key].items || [];
+      return items.some(item => !item.hidden);
+    };
+    const orderedSections = sectionOrder
+      .map(k => sectionData[k])
+      .filter(Boolean)
+      .filter(sec => sectionHasContent(sec.key));
 
     const blob = await pdf(
       <ResumePdfDocument
         personalDetails={personalDetailsArray[0]}
-        skills={{ skillList: skillArray[0].skillList, languageList: skillArray[0].languageList }}
+        skills={pdfSkills}
         orderedSections={orderedSections}
         style={style}
       />
@@ -890,24 +910,32 @@ function App() {
               {/* Sections render in the order defined by `sectionOrder` (item #1 / drag-and-drop foundation). */}
               {(() => {
                 // Build each section's node (or null if it has no content / is hidden in this view).
+                // A section renders only if it has at least one VISIBLE (non-hidden)
+                // item — so toggling every item's eye off removes the whole section
+                // (title included) from the demo + PDF.
                 const sectionNode = (key) => {
                   switch (key) {
                     case 'education':
-                      return educationArray.length !== 0
+                      return educationArray.some(item => !item.hidden)
                         ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EDUCATION' arr={educationArray} />
                         : null;
-                    case 'skill':
-                      // Skills & Languages always renders in the main content column (in
-                      // every layout), matching the downloaded PDF — never in the side panel.
-                      return (skillArray[0].skillList.length !== 0 || skillArray[0].languageList.length !== 0)
-                        ? <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillArray[0].skillList} langArr={skillArray[0].languageList} />
+                    case 'skill': {
+                      // Skills & Languages renders in the main content column (every
+                      // layout). It hides only when BOTH sub-groups (skills + languages)
+                      // are toggled off (skillHidden + langHidden).
+                      const s = skillArray[0];
+                      const skillsVisible = s.skillList.length !== 0 && !s.skillHidden;
+                      const langVisible = s.languageList.length !== 0 && !s.langHidden;
+                      return (skillsVisible || langVisible)
+                        ? <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillsVisible ? s.skillList : []} langArr={langVisible ? s.languageList : []} />
                         : null;
+                    }
                     case 'experience':
-                      return experienceArray.length !== 0
+                      return experienceArray.some(item => !item.hidden)
                         ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EXPERIENCE' arr={experienceArray} />
                         : null;
                     case 'project':
-                      return projectArray.length !== 0
+                      return projectArray.some(item => !item.hidden)
                         ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='PERSONAL PROJECTS' arr={projectArray} />
                         : null;
                     default:

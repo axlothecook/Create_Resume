@@ -12,6 +12,9 @@ const SkillResumeDiv = (props) => {
                 }}>SKILLS & LANGUAGES</h3>
             </div>
             <div className='resume-skills-n-languages-details-box'>
+                {/* Each sub-group only shows when it has entries — so a hidden group
+                    (passed as an empty array) drops out, heading and all. */}
+                {props.skillArr.length !== 0 &&
                 <div className='resume-skill-lang-box-parent'>
                     <h3 style={{
                             fontFamily: props.assumeStyle.font,
@@ -23,7 +26,8 @@ const SkillResumeDiv = (props) => {
                                 return item.text;
                             }).join(', ')}</h4>
                     </div>
-                </div>
+                </div>}
+                {props.langArr.length !== 0 &&
                 <div className='resume-skill-lang-box-parent'>
                     <h3 style={{
                             fontFamily: props.assumeStyle.font,
@@ -34,7 +38,7 @@ const SkillResumeDiv = (props) => {
                             return item.text;
                         }).join(', ')}</h4>
                     </div>
-                </div>
+                </div>}
             </div>
         </div>
     )

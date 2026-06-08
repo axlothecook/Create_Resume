@@ -4,6 +4,8 @@ import EditSvg from '../components/Edit';
 import TrashSvg from '../components/Trash';
 import TickSvg from '../components/Tick';
 import CancelChangeSvg from '../components/CancelChange';
+import TabOpenSvg from '../components/TabOpen';
+import TabClosedSvg from '../components/TabClosedSvg';
 import { useEffect, useState } from 'react';
 
 const Description = (props) => {
@@ -31,6 +33,12 @@ const Description = (props) => {
             <div className='edit-title-box'>
                 <h4>{props.editTitle ? props.editTitle : 'Description'}</h4>
                 <h4 className='important-text'>{props.subtext ? props.subtext : props.subtext !== null ? '*recommended style of no more than 3 bullet points' : ''}</h4>
+                {/* Optional visibility eye (used by the Skills sub-groups) — toggles
+                    whether this group shows in the résumé. */}
+                {props.onToggleHide &&
+                <div className='desc-visibility-toggle' onClick={() => props.onToggleHide(!props.hidden)}>
+                    {props.hidden ? <TabClosedSvg /> : <TabOpenSvg />}
+                </div>}
             </div>
             <ul className={props.type === 'skill' ? 'edit-skill-list' : "edit-list"}>
                 {listArr.map((item) => (

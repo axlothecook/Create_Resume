@@ -19,22 +19,27 @@ const ResumePreview = ({ data, setSvgClr, setTxtClr }) => {
     const skill = (data.skill && data.skill[0]) || { skillList: [], languageList: [] };
     const sectionOrder = data.sectionOrder || ['project', 'experience', 'skill', 'education'];
 
+    // A section renders only if it has a visible (non-hidden) item — so the card
+    // preview matches the live demo + PDF (fully-hidden sections drop out).
     const sectionNode = (key) => {
         switch (key) {
             case 'education':
-                return education.length !== 0
+                return education.some(item => !item.hidden)
                     ? <GeneralInfoBox assumeStyle={style} setTxtClr={setTxtClr} resumeTitle='EDUCATION' arr={education} />
                     : null;
-            case 'skill':
-                return (skill.skillList.length !== 0 || skill.languageList.length !== 0)
-                    ? <SkillResumeDiv assumeStyle={style} setTxtClr={setTxtClr} skillArr={skill.skillList} langArr={skill.languageList} />
+            case 'skill': {
+                const skillsVisible = skill.skillList.length !== 0 && !skill.skillHidden;
+                const langVisible = skill.languageList.length !== 0 && !skill.langHidden;
+                return (skillsVisible || langVisible)
+                    ? <SkillResumeDiv assumeStyle={style} setTxtClr={setTxtClr} skillArr={skillsVisible ? skill.skillList : []} langArr={langVisible ? skill.languageList : []} />
                     : null;
+            }
             case 'experience':
-                return experience.length !== 0
+                return experience.some(item => !item.hidden)
                     ? <GeneralInfoBox assumeStyle={style} setTxtClr={setTxtClr} resumeTitle='EXPERIENCE' arr={experience} />
                     : null;
             case 'project':
-                return project.length !== 0
+                return project.some(item => !item.hidden)
                     ? <GeneralInfoBox assumeStyle={style} setTxtClr={setTxtClr} resumeTitle='PERSONAL PROJECTS' arr={project} />
                     : null;
             default:
