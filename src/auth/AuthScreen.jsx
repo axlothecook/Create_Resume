@@ -7,7 +7,7 @@ import './authScreen.css';
 // Shown when logged out. Defaults to login (email + password + Continue); a "Sign up"
 // switch below Continue reveals the signup fields. Plus "Browse as guest".
 // On success it calls onAuthenticated(user) / onGuest() so App can drop into the editor.
-export default function AuthScreen({ onAuthenticated, onGuest, themeProp }) {
+export default function AuthScreen({ onAuthenticated, onGuest }) {
     const [mode, setMode] = useState('login'); // 'login' | 'signup'
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
@@ -44,8 +44,9 @@ export default function AuthScreen({ onAuthenticated, onGuest, themeProp }) {
     };
 
     return (
+        // The auth screen is ALWAYS light — it never follows the app's dark/light theme.
         <div
-            className={`auth-screen ${themeProp ? 'theme-dark' : 'theme-light'}`}
+            className="auth-screen theme-light"
             style={{ '--auth-bg': `url(${authBg})` }}
         >
             {/* Dim overlay so the card reads clearly on top of the photo. */}

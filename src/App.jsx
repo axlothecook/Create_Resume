@@ -700,7 +700,6 @@ function App() {
   if (authStatus === 'out' && !isGuest) {
     return (
       <AuthScreen
-        themeProp={theme}
         onAuthenticated={(u) => { setUser(u); setIsGuest(false); setAuthStatus('in'); }}
         onGuest={() => { setIsGuest(true); }}
       />
