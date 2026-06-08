@@ -8,6 +8,14 @@
     color: #e85d5d;
 }
 
+/* Visibility eye on the Skills sub-group titles (Technical Skills / Languages). */
+.desc-visibility-toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
 /* Shell wraps the navbar + body so the page background fills the navbar's margin
    gaps (otherwise the body/page-default colour showed through behind the bar). */
 .app-shell {

@@ -50,7 +50,10 @@ const BigComponent = (props) => {
                     <div style={{width: 'inherit'}} key={obj.result || `${obj.type}-${i}`}>
                       {obj.type == 'InputField' && <InputField themeProp={props.themeP} initial={props.array[index][obj.result]} onChange={(e) => {props.updateFunc(e.target.value, props.array, props.setArray, index, `${obj.result}`)}} editTitle={obj.editTitle} importantClass={obj.importantClass} subtext={obj.subtext} type='text' placeholder={obj.placeholder} />}
                       {obj.type == 'Dates' && <Dates initialStart={props.array[index].startDate} initialEnd={props.array[index].endDate} startDateonChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, 'startDate')}} endDateonChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, 'endDate')}} />}
-                      {obj.type == 'Description' && <Description themeProp={props.themeP} editTitle={obj.editTitle} placeholder={obj.placeholder} subtext={obj.subtext} description={props.array[index][obj.result]} type={obj.descType} onChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, `${obj.result}`)}}/>}
+                      {obj.type == 'Description' && <Description themeProp={props.themeP} editTitle={obj.editTitle} placeholder={obj.placeholder} subtext={obj.subtext} description={props.array[index][obj.result]} type={obj.descType} onChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, `${obj.result}`)}}
+                        hidden={obj.hideField ? !!props.array[index][obj.hideField] : undefined}
+                        onToggleHide={obj.hideField ? (val) => props.updateFunc(val, props.array, props.setArray, index, obj.hideField) : undefined}
+                      />}
                     </div>
                   ))}
                  {!props.singleObject &&  <BottomBar
