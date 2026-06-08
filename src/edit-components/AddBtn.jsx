@@ -11,7 +11,9 @@ const AddBtnDiv = (props) => {
                 className="add-btn" 
                 style={{
                     backgroundColor: !props.themeProp ? '#fff' : '#5951adff',
-                    border: !props.themeProp ? '3px solid #eef1f3' : '3px solid grey'
+                    // Dark mode: white border (on the purple bg); light mode keeps the
+                    // subtle grey ring.
+                    border: !props.themeProp ? '3px solid #eef1f3' : '3px solid #fff'
                 }}
                 onClick={props.onClick}>
                 <AddSvg />

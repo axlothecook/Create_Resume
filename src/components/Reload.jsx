@@ -1,16 +1,18 @@
 import './components.css';
 
-// Loading/reload glyph shown beside the "Load Example" button label.
+// Reload glyph shown beside the "Load Example" button label. Naturally bold (solid
+// filled paths, no stroke), so it reads thick without a stroke hack. The fill follows
+// the `color` prop, and the dark-theme CSS override (.reload-svg fill:#fff) wins
+// because no per-path fill is set.
 const ReloadSvg = ({ color = '#000', width = '15px', height = '15px' }) => {
     return (
         <svg className="reload-svg"
             fill={color}
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 367.136 367.136"
+            viewBox="0 0 24 24"
             style={{ width, height }}
-            id="loading-svgrepo-com">
-            {/* A matching stroke thickens the fill-based glyph slightly. */}
-            <path stroke={color} strokeWidth="14" d="M336.954,87.494C318.821,59.1,293.251,36.318,263.01,21.613l-13.119,26.979c52.77,25.661,85.551,78.029,85.551,136.669c0,83.744-68.131,151.874-151.874,151.874S31.694,269.005,31.694,185.262c0-49.847,24.899-96.439,65.042-124.571L149.7,113.91V0H36.335l38.953,39.14C57.727,52.164,42.557,68.287,30.582,86.871c-18.898,29.33-28.888,63.352-28.888,98.391c0,100.286,81.588,181.874,181.874,181.874s181.874-81.588,181.874-181.874C365.442,150.485,355.59,116.678,336.954,87.494z" />
+            id="reload-svgrepo-com">
+            <path d="M4,12a1,1,0,0,1-2,0A9.983,9.983,0,0,1,18.242,4.206V2.758a1,1,0,1,1,2,0v4a1,1,0,0,1-1,1h-4a1,1,0,0,1,0-2h1.743A7.986,7.986,0,0,0,4,12Zm17-1a1,1,0,0,0-1,1A7.986,7.986,0,0,1,7.015,18.242H8.757a1,1,0,1,0,0-2h-4a1,1,0,0,0-1,1v4a1,1,0,0,0,2,0V19.794A9.984,9.984,0,0,0,22,12,1,1,0,0,0,21,11Z"></path>
         </svg>
     );
 };

@@ -233,6 +233,10 @@
        trace one clean rounded outline (matching the customize segments below). */
     gap: 0;
     border-radius: 15px;
+    /* Clip the inner content (the expanded body, its eye + Add button) to the card's
+       rounded corners — otherwise the body's edges poke past the rounding and look cut
+       off at the sides. */
+    overflow: hidden;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
@@ -267,9 +271,15 @@
     font-size: 16px;
     display: flex;
     align-items: baseline;
-    justify-content: space-between; 
+    justify-content: space-between;
     background-color: var(--white);
     border-radius: 15px;
+    /* CLOSING: keep the bottom corners SQUARE for most of the collapse, then round them
+       smoothly over the last ~0.12s once the body is nearly gone (delay 0.22s, body
+       collapse = 0.35s). This stops the rounded bottom from showing while the body is
+       still tall, but rounds gently (not an abrupt snap), finishing with the body. */
+    transition: border-bottom-left-radius 0.12s ease 0.22s,
+                border-bottom-right-radius 0.12s ease 0.22s;
 }
 
 .edit-info-title-with-dropdown-open {
@@ -277,10 +287,17 @@
     font-size: 16px;
     display: flex;
     align-items: baseline;
-    justify-content: space-between; 
+    justify-content: space-between;
     background-color: var(--white);
     border-top-right-radius: 20px;
     border-top-left-radius: 20px;
+    /* OPENING: flatten the bottom corners quickly so the header joins the opening body.
+       A short 0.12s ease (vs the 0.35s close) keeps opening feeling snappy while the
+       close stays gentle. */
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    transition: border-bottom-left-radius 0.12s ease,
+                border-bottom-right-radius 0.12s ease;
 }
 
 .edit-info-box {
@@ -806,4 +823,64 @@ input[type="color"]::-webkit-color-swatch {
         width: calc(100vw - 1rem);
         max-width: calc(100vw - 1rem);
     }
+}
+
+/* --- Dark-theme legibility: white text + icons on the dark editor surfaces ---------
+   Only in dark theme (these areas have dark backgrounds there). In LIGHT theme the
+   backgrounds are white/light, so the text/icons keep their original dark colours. */
+
+/* Section header labels (Personal Details, Personal Project, Education, …) and the
+   Content / Customize / Load Example button labels. (Clear Resume keeps its red.) */
+.theme-dark .edit-info-title-with-dropdown h2,
+.theme-dark .edit-info-title-with-dropdown-open h2,
+.theme-dark .load-example-btn h3,
+.theme-dark .left-col-box h3 {
+    color: #fff;
+}
+
+/* Icons beside Content (document), Customize (pencil), Load Example (reload) → white.
+   CSS presentation overrides win over the SVGs' inline fill/stroke attributes.
+   The Clear-Resume trash icon is left out on purpose (stays red). */
+.theme-dark .left-col-box .document-svg { fill: #fff; }
+.theme-dark .left-col-box #edit { stroke: #fff; }
+.theme-dark .load-example-btn .reload-svg { fill: #fff; }
+
+/* Customize panel: make ALL its text white in dark theme. */
+.theme-dark .customize-segment,
+.theme-dark .customize-segment h2,
+.theme-dark .customize-segment h3,
+.theme-dark .customize-segment h4 {
+    color: #fff;
+}
+
+/* Each content section's logo (Education / Skills / Experience / Projects) and its
+   open/close dropdown arrow → white in dark theme. (CSS fill overrides the SVGs'
+   inherited fill.) */
+.theme-dark .education-svg,
+.theme-dark .skills-svg,
+.theme-dark .experiences-svg,
+.theme-dark .personal-projects-svg,
+.theme-dark .dropdown-svg {
+    fill: #fff;
+}
+
+/* Layout-section preview boxes (Top / Left / Right): white outline in dark theme
+   (was a black border that vanished on the dark surface). */
+.theme-dark .layout-box-example {
+    border-color: #fff;
+}
+
+/* "Add X" buttons (Add Education, Add Experience, …): white label + plus icon in dark
+   theme (on the purple button bg). Light theme keeps the default dark colour. */
+.theme-dark .add-btn {
+    color: #fff;
+}
+.theme-dark .add-btn .add-svg {
+    fill: #fff;
+}
+
+/* Kill the mobile tap-highlight flash (the translucent blue box browsers paint over a
+   tapped element) — it flashed over whole sections when opening one on a phone. */
+* {
+    -webkit-tap-highlight-color: transparent;
 }

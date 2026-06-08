@@ -54,6 +54,13 @@ input:focus, textarea:focus {
   border: none;
 }
 
+/* Remove the blue focus ring on every element (buttons, clickable divs, links, …) —
+   no focus outline anywhere in the app, in any browser. */
+*:focus,
+*:focus-visible {
+  outline: none;
+}
+
 a {
   overflow-wrap: break-word;
 }

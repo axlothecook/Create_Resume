@@ -15,7 +15,7 @@ const SummaryComponentDiv = (props) => {
     return (
         <div className='summary-div' style={{backgroundColor: !props.themeProp ? '#fff' : '#504d75ff'}}>
             <div className='clickable-summary-div-child-for-expansion' onClick={props.onClick}>
-                <h3 style={{color: !props.themeProp ? 'black' : '#ccc'}}>{props.name}</h3>
+                <h3 style={{color: !props.themeProp ? 'black' : '#fff'}}>{props.name}</h3>
             </div>
             {toggle &&
             <div className='overlaying-visibility-svg-wrapper' onClick={() => {

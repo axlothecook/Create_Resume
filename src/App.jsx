@@ -585,8 +585,16 @@ function App() {
       await refreshSavedDocs();
       showToast('success', 'Résumé saved.');
     } catch (err) {
+      // 401 = the session was lost (cookie expired, or the browser is blocking cookies
+      // for the site) — the save can't go through. Tell the user plainly and send them
+      // back to the login screen to re-authenticate, instead of a cryptic "Not
+      // authenticated." toast that leaves them stuck.
+      if (err.status === 401) {
+        showToast('error', 'Your session has expired or your browser is blocking cookies for this site. Please log in again.');
+        handleLogout();
+      }
       // A 409 from the server is the max-limit case; everything else is a generic error.
-      if (err.status === 409) showToast('error', err.message || `You can save up to ${MAX_DOCS} résumés — delete one first.`);
+      else if (err.status === 409) showToast('error', err.message || `You can save up to ${MAX_DOCS} résumés — delete one first.`);
       else showToast('error', err.message || 'Could not save the résumé.');
     } finally {
       setDocsBusy(false);
