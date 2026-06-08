@@ -8,6 +8,7 @@ import SavedDocsRail from './edit-components/SavedDocsRail';
 import FloatingActions from './edit-components/FloatingActions';
 import NameModal from './edit-components/NameModal';
 import ConfirmModal from './edit-components/ConfirmModal';
+import Toasts from './edit-components/Toasts';
 import LeftColumn from './edit-components/Left-column';
 import StickyDiv from './edit-components/StickyDivComponent';
 import BigComponent from './edit-components/AttemptComponent';
@@ -68,6 +69,17 @@ function App() {
     const resolve = confirmResolverRef.current;
     confirmResolverRef.current = null;
     if (resolve) resolve(ok);
+  };
+
+  // Toast notifications (top-right). showToast(type, message) adds one that auto-
+  // dismisses after 5s; toasts can also be clicked to dismiss early.
+  const [toasts, setToasts] = useState([]);
+  const toastIdRef = useRef(0);
+  const dismissToast = (id) => setToasts((list) => list.filter((t) => t.id !== id));
+  const showToast = (type, message) => {
+    const id = ++toastIdRef.current;
+    setToasts((list) => [...list, { id, type, message }]);
+    setTimeout(() => dismissToast(id), 5000);
   };
 
   useEffect(() => {
@@ -552,7 +564,10 @@ function App() {
       if (currentDocId) {
         await api.updateResume(currentDocId, { data: gatherState() });
       } else {
-        if (maxReached) { alert(`You can save up to ${MAX_DOCS} résumés. Delete one to add another.`); return; }
+        if (maxReached) {
+          showToast('error', `You can save up to ${MAX_DOCS} résumés — delete one to save a new one.`);
+          return;
+        }
         const title = await promptForName();
         if (!title) return;
         const res = await api.createResume(title, gatherState());
@@ -561,8 +576,11 @@ function App() {
       }
       markSaved(); // current state is now the saved baseline
       await refreshSavedDocs();
+      showToast('success', 'Résumé saved.');
     } catch (err) {
-      alert(err.message || 'Could not save the résumé.');
+      // A 409 from the server is the max-limit case; everything else is a generic error.
+      if (err.status === 409) showToast('error', err.message || `You can save up to ${MAX_DOCS} résumés — delete one first.`);
+      else showToast('error', err.message || 'Could not save the résumé.');
     } finally {
       setDocsBusy(false);
     }
@@ -657,6 +675,7 @@ function App() {
     a.download = `${slug}-resume.pdf`;
     a.click();
     URL.revokeObjectURL(url);
+    showToast('success', 'PDF downloaded.');
   };
 
   // While checking the session, render nothing (brief). When logged out and not a
@@ -1040,6 +1059,9 @@ function App() {
         onProceed={() => resolveConfirm(true)}
         onCancel={() => resolveConfirm(false)}
       />
+
+      {/* Top-right toast notifications (saved / PDF downloaded / errors). */}
+      <Toasts toasts={toasts} onDismiss={dismissToast} />
     </div>
   )
 }

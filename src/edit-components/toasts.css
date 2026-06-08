@@ -1,0 +1,46 @@
+/* Top-right toast stack. Each toast slides in from the right and is colour-coded. */
+.toast-stack {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    pointer-events: none; /* the container ignores clicks; individual toasts re-enable */
+}
+
+.toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 220px;
+    max-width: 360px;
+    padding: 0.75rem 0.95rem;
+    border: none;
+    border-radius: 10px;
+    text-align: left;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+    animation: toast-slide-in 0.28s ease;
+}
+
+.toast-success { background-color: #2e9e5b; }
+.toast-error { background-color: #d1495b; }
+
+.toast-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.toast-message { flex: 1 1 auto; line-height: 1.3; }
+
+@keyframes toast-slide-in {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
