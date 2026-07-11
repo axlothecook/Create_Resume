@@ -9,13 +9,23 @@ import TabClosedSvg from '../components/TabClosedSvg';
 import { useEffect, useState } from 'react';
 
 const Description = (props) => {
+    // Link lists ('Links to the...') get a second field: a human label ("name")
+    // that becomes the visible, clickable text instead of the raw URL.
+    const isLink = props.type === 'link';
     const [listArr, setListArr] = useState(props.description);
     // The text currently typed in the "add new bullet" box. A plain string so the
     // handlers never crash on `undefined` when Add is clicked before typing.
     const [newText, setNewText] = useState('');
+    // The label typed in the "add new" box for link lists (parallel to newText).
+    const [newName, setNewName] = useState('');
     // The text being edited for the currently-selected existing bullet.
     const [editText, setEditText] = useState('');
-    const [selectedId, setSelectedId] = useState(-1);
+    // The label being edited for the currently-selected existing link.
+    const [editName, setEditName] = useState('');
+    // `null` = no bullet is being edited. MUST NOT be a number: real bullet ids can
+    // be any number (the example data uses -1/-2), and the old `-1` sentinel made a
+    // bullet with id -1 render permanently in its tick/X editing state.
+    const [selectedId, setSelectedId] = useState(null);
 
     // Generate an id larger than any existing bullet's, so re-adds after the
     // parent has saved (and this component remounted) never collide.
@@ -25,7 +35,7 @@ const Description = (props) => {
     // description (e.g. when the user opens a different Experience item).
     useEffect(() => {
         setListArr(props.description);
-        setSelectedId(-1);
+        setSelectedId(null);
     }, [props.description]);
 
     return (
@@ -44,21 +54,36 @@ const Description = (props) => {
                 {listArr.map((item) => (
                     <li key={item.id}>
                         <div style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}} className={props.type === 'skill' ? 'edit-skill-list-item' : "edit-list-item"}>
-                            <TextareaAutosize
-                                style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}}
-                                className='edit-desc-list-item'
-                                minRows={1}
-                                placeholder= {props.placeholder ? props.placeholder : 'Add a bullet point'}
-                                autoFocus
-                                type='text'
-                                defaultValue={item.text}
-                                onChange={(e) => setEditText(e.target.value)}
-                                readOnly={selectedId !== item.id}
-                            />
+                            <div className={isLink ? 'edit-link-fields' : 'edit-desc-fields'}>
+                                <TextareaAutosize
+                                    style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}}
+                                    className='edit-desc-list-item'
+                                    minRows={1}
+                                    placeholder= {props.placeholder ? props.placeholder : 'Add a bullet point'}
+                                    autoFocus
+                                    type='text'
+                                    defaultValue={item.text}
+                                    onChange={(e) => setEditText(e.target.value)}
+                                    readOnly={selectedId !== item.id}
+                                />
+                                {/* Link lists get a second field: the label shown in place of the URL. */}
+                                {isLink &&
+                                <TextareaAutosize
+                                    style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}}
+                                    className='edit-desc-list-item edit-link-name'
+                                    minRows={1}
+                                    placeholder='Link label (e.g. Archery website)'
+                                    type='text'
+                                    defaultValue={item.name}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    readOnly={selectedId !== item.id}
+                                />}
+                            </div>
 
                             {selectedId !== item.id && <div onClick={() => {
                                 setSelectedId(item.id);
                                 setEditText(item.text);
+                                setEditName(item.name || '');
                             }}>
                                 <EditSvg width={'13px'} height={'13px'} color={'black'}  />
                             </div>}
@@ -67,19 +92,22 @@ const Description = (props) => {
                                 // Build a NEW array (immutable update) so React re-renders
                                 // and the parent receives a fresh reference.
                                 const updated = listArr.map(thing =>
-                                    thing.id === item.id ? { ...thing, text: editText } : thing
+                                    thing.id === item.id
+                                        ? { ...thing, text: editText, ...(isLink ? { name: editName } : {}) }
+                                        : thing
                                 );
                                 setListArr(updated);
                                 props.onChange(updated);
-                                setSelectedId(-1);
+                                setSelectedId(null);
                             }}>
                                 <TickSvg />
                             </div>}
 
                             {selectedId === item.id && <div onClick={() => {
                                 // Cancel: discard the edit, leave the list untouched.
-                                setSelectedId(-1);
+                                setSelectedId(null);
                                 setEditText('');
+                                setEditName('');
                             }}>
                                 <CancelChangeSvg />
                             </div>}
@@ -96,22 +124,39 @@ const Description = (props) => {
                 ))}
             </ul>
             <div className="edit-desc-box">
-                <TextareaAutosize
-                    style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}}
-                    className='edit-input-description'
-                    minRows={1}
-                    placeholder= {props.placeholder ? props.placeholder : 'Add a bullet point'}
-                    autoFocus
-                    type='text'
-                    value={newText}
-                    onChange={(e) => setNewText(e.target.value)}
-                />
+                <div className={isLink ? 'edit-link-fields' : 'edit-desc-fields'}>
+                    <TextareaAutosize
+                        style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}}
+                        className='edit-input-description'
+                        minRows={1}
+                        placeholder= {props.placeholder ? props.placeholder : 'Add a bullet point'}
+                        autoFocus
+                        type='text'
+                        value={newText}
+                        onChange={(e) => setNewText(e.target.value)}
+                    />
+                    {isLink &&
+                    <TextareaAutosize
+                        style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}}
+                        className='edit-input-description edit-link-name'
+                        minRows={1}
+                        placeholder='Link label (e.g. Archery website)'
+                        type='text'
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                    />}
+                </div>
                 <button className='add-desc-to-list-btn' onClick={() => {
                     if (!newText.trim()) return; // nothing to add
-                    const updated = [...listArr, { id: nextId(listArr), text: newText }];
+                    const updated = [...listArr, {
+                        id: nextId(listArr),
+                        text: newText,
+                        ...(isLink ? { name: newName } : {})
+                    }];
                     setListArr(updated);
                     props.onChange(updated);
                     setNewText('');
+                    setNewName('');
                 }}>Add</button>
             </div>
         </div>

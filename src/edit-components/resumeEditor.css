@@ -426,6 +426,29 @@ li {
     gap: 10px;
 }
 
+/* Link lists ('Links to the...') stack two inputs: URL on top, label below.
+   The wrapper takes the row's flexible width so the edit/delete icons still
+   sit to the right (the icon divs keep their margin-left:auto behaviour). */
+.edit-link-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+}
+.edit-desc-fields {
+    flex: 1;
+    min-width: 0;
+}
+/* In the add-box the URL+label wrapper should grow next to the Add button. */
+.edit-desc-box .edit-link-fields,
+.edit-desc-box .edit-desc-fields {
+    flex: 1;
+}
+.edit-link-name {
+    opacity: 0.95;
+}
+
 .add-desc-to-list-btn {
     padding: 12px 17px;
     border: none;

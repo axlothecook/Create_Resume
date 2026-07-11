@@ -22,19 +22,10 @@ const pdfItalicFor = (font) => {
     return 'Helvetica-Oblique';
 };
 
-// --- Date helper (ported from General-Info-Block.jsx ongoingChecker) ---------------
-const pad = (n) => String(n).padStart(2, '0');
-const formatDate = (e, today) => {
-    if (!e) return '';
-    if (typeof e === 'string' && /^\d\d\/\d\d\d\d$/.test(e)) return e;
-    // dayjs-like object from the picker
-    if (typeof e === 'object' && e.$y !== undefined) {
-        const entered = `${pad(e.$D)}/${pad(e.$M + 1)}/${e.$y}`;
-        if (entered === today) return 'present';
-        return `${pad(e.$M + 1)}/${e.$y}`;
-    }
-    return typeof e === 'string' ? e : '';
-};
+// --- Date + link helpers (SHARED with the on-screen demo via utils/resumeFormat, so
+// the two render paths can't drift; also handles the ISO strings saved dates become
+// after the JSON round-trip, which used to print raw here) --------------------------
+import { formatResumeDate as formatDate, todayString, toHref } from '../utils/resumeFormat';
 
 // Pick white or black text for legibility on the accent color (ported checkBrightness).
 const onAccent = (hex) => {
@@ -86,7 +77,7 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
     const font = pdfFontFor(style.font);
     const bold = pdfBoldFor(style.font);
     const italic = pdfItalicFor(style.font);
-    const today = (() => { const d = new Date(); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`; })();
+    const today = todayString();
 
     // Where does the name/contact panel sit?
     const grid = !!style.gridView;
@@ -233,9 +224,15 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
             <View style={s.entry} key={item.id ?? i} wrap={false}>
                 <View style={s.entryLeft}>
                     {!!dateRange && <Text style={s.dateText}>{dateRange}</Text>}
-                    {!item.links && !!item.subtext && <Text style={s.locationText}>{item.subtext}</Text>}
-                    {item.links && item.links.map((l, li) => (
-                        <Text key={l.id ?? li} style={s.link}>{l.text}</Text>
+                    {/* links?.length (not just `links`): an empty links array must not
+                        suppress the location line. Links are real clickable <Link>
+                        annotations (they were plain <Text> before — looked like links
+                        in the PDF but did nothing), with the href normalized so
+                        protocol-less URLs don't resolve as relative paths. */}
+                    {!item.links?.length && !!item.subtext && <Text style={s.locationText}>{item.subtext}</Text>}
+                    {!!item.links?.length && item.links.map((l, li) => (
+                        // Show the label; fall back to the raw URL only when no label was set.
+                        <Link key={l.id ?? li} style={s.link} src={toHref(l.text)}>{l.name?.trim() ? l.name : l.text}</Link>
                     ))}
                 </View>
                 <View style={s.entryRight}>
@@ -256,7 +253,19 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         <>
             {(skills.skillList?.length > 0) && (
                 <View style={{ marginBottom: 4 }}>
-                    <Text style={s.skillGroupTitle}>Technical Skills</Text>
+                    {/* Title row: "Technical Skills" + the optional CLICKABLE portfolio
+                        link beside it (mirrors the on-screen demo's title row). */}
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
+                        <Text style={s.skillGroupTitle}>Technical Skills</Text>
+                        {!!skills.portfolioLink && (
+                            <Text style={{ ...s.skillText, marginLeft: 6 }}>Full skill list at</Text>
+                        )}
+                        {!!skills.portfolioLink && (
+                            <Link style={{ ...s.link, fontSize: s.skillText.fontSize, marginLeft: 4 }} src={toHref(skills.portfolioLink)}>
+                                {skills.portfolioLinkName?.trim() ? skills.portfolioLinkName : skills.portfolioLink}
+                            </Link>
+                        )}
+                    </View>
                     <Text style={s.skillText}>{skills.skillList.map(x => x.text).join(', ')}</Text>
                 </View>
             )}

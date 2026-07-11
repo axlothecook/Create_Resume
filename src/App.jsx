@@ -133,6 +133,13 @@ function App() {
   };
 
   const [secondTab, setSecondTab] = useState(false);
+  // Remount key for the editor column. The editor's inputs are UNCONTROLLED
+  // (defaultValue), so replacing the state arrays (loading a saved CV, Clear Resume,
+  // Load Example) does NOT refresh what the always-mounted forms display — Personal
+  // Details kept showing the mount-time filler after a load. Bumping this key
+  // remounts the forms so every defaultValue re-reads the fresh state.
+  const [editorKey, setEditorKey] = useState(0);
+  const bumpEditorKey = () => setEditorKey((k) => k + 1);
   // Which of the Clear-Resume / Load-Example buttons is "selected": whichever was
   // clicked last (default 'load' since the app starts with the example loaded). Drives
   // the selected-highlight on those two buttons.
@@ -204,7 +211,8 @@ function App() {
     endDate: '02/2020',
     links: [{
       id: -2,
-      text: `wwww.youngArtistsPaintings.fr`
+      text: `wwww.youngArtistsPaintings.fr`,
+      name: `Young Artists Paintings`
     }],
     description: [{
       id: -2,
@@ -216,6 +224,8 @@ function App() {
     hidden: false,
     newValue: true,
     title: '',
+    portfolioLink: '',    // optional link shown (clickable) next to the Technical Skills title
+    portfolioLinkName: '', // the words the portfolio link shows (e.g. 'portfolio website')
     skillHidden: false,   // visibility of the Technical Skills sub-group
     langHidden: false,    // visibility of the Languages sub-group
     skillList: [{
@@ -335,6 +345,20 @@ function App() {
 
   let skillRequirements = [
     {
+      type: 'InputField',
+      result: 'portfolioLink',
+      editTitle: 'Portfolio link',
+      placeholder: 'www.yourportfolio.com',
+      subtext: '*shown as a clickable link next to the Technical Skills title'
+    },
+    {
+      type: 'InputField',
+      result: 'portfolioLinkName',
+      editTitle: 'Portfolio link label',
+      placeholder: 'portfolio website',
+      subtext: '*the words the link shows (e.g. portfolio website)'
+    },
+    {
       type: 'Description',
       descType: 'skill',
       result: 'skillList',
@@ -412,8 +436,9 @@ function App() {
     },
     {
       type: 'Description',
+      descType: 'link',
       result: 'links',
-      editTitle: 'Links to the Project', 
+      editTitle: 'Links to the Project',
       placeholder: 'www.projectwebsite.com',
       subtext: '*recommended style of two links'
     },
@@ -512,6 +537,7 @@ function App() {
     if (data.skill) setSkillArray(data.skill);
     if (data.sectionOrder) setSectionOrder(data.sectionOrder);
     if (data.style) setStyle(data.style);
+    bumpEditorKey(); // remount the (uncontrolled) editor forms onto the loaded state
   };
 
   // --- Unsaved-changes guard (#6) ---
@@ -525,7 +551,7 @@ function App() {
   // and re-baseline so the blank slate isn't immediately "dirty".
   const clearToBlank = () => {
     const blankPersonal = [{ id: '', hidden: false, newValue: true, fullname: '', email: '', phoneNumber: '', address: '' }];
-    const blankSkill = [{ id: '', hidden: false, newValue: true, title: '', skillHidden: false, langHidden: false, skillList: [], languageList: [] }];
+    const blankSkill = [{ id: '', hidden: false, newValue: true, title: '', portfolioLink: '', portfolioLinkName: '', skillHidden: false, langHidden: false, skillList: [], languageList: [] }];
     setPersonalDetailsArray(blankPersonal);
     setEducationArray([]);
     setExperienceArray([]);
@@ -533,6 +559,7 @@ function App() {
     setSkillArray(blankSkill);
     setCurrentDocId(null);
     setClearLoadSelection('clear');
+    bumpEditorKey(); // remount the (uncontrolled) editor forms onto the blank state
     // Re-baseline to the blank state (built explicitly so it doesn't depend on the
     // async state setters above having flushed).
     savedSnapshotRef.current = JSON.stringify({
@@ -745,15 +772,18 @@ function App() {
             <StickyDiv themeProp = {theme}
               selection={clearLoadSelection}
               setSelection={setClearLoadSelection}
-              emptyPersonalDetails={() => {setPersonalDetailsArray([{
-                id: '',
-                hidden: false,
-                newValue: true,
-                fullname: '',
-                email: '',
-                phoneNumber: '',
-                address: ''
-              }])}} 
+              emptyPersonalDetails={() => {
+                setPersonalDetailsArray([{
+                  id: '',
+                  hidden: false,
+                  newValue: true,
+                  fullname: '',
+                  email: '',
+                  phoneNumber: '',
+                  address: ''
+                }]);
+                bumpEditorKey(); // Clear Resume: remount forms onto the blank state
+              }}
               emptyEducation={() => {setEducationArray([])}} 
               emptyExperience={() => {setExperienceArray([])}} 
               emptySkills={() => {setSkillArray([{
@@ -761,9 +791,11 @@ function App() {
                 hidden: false,
                 newValue: true,
                 title: '',
+                portfolioLink: '',
+                portfolioLinkName: '',
                 skillList: [],
                 languageList: []
-              }])}} 
+              }])}}
               emptyPProject={() => {setProjectArray([])}}  
 
               fillPersonalDetails={() => {
@@ -775,7 +807,8 @@ function App() {
                   email: 'clea.desandre@gmail.co.fr',
                   phoneNumber: '33 7807 63 733',
                   address: 'Paris, France'
-                }])
+                }]);
+                bumpEditorKey(); // Load Example: remount forms onto the example state
               }}
               fillEducation={() => { setEducationArray([{
                 id: -2,
@@ -863,7 +896,8 @@ function App() {
                 endDate: '02/2020',
                 links: [{
                   id: -1,
-                  text: `wwww.youngArtistsPaintings.fr`
+                  text: `wwww.youngArtistsPaintings.fr`,
+                  name: `Young Artists Paintings`
                 }],
                 description: [{
                   id: -2,
@@ -878,7 +912,7 @@ function App() {
 
             <LeftColumn secondTabProp={secondTab} setTab={setSecondTab} themeProp = {theme} />
 
-            <div className='edit-and-load-div'>
+            <div className='edit-and-load-div' key={editorKey}>
               { secondTab && <> <CutomizeComponentDiv themeProp={theme} setTextColor={checkBrightness} styleItself={style} changeStyle={setStyle} /> </> }
               {!secondTab &&
                 <>
@@ -1046,7 +1080,7 @@ function App() {
                       const skillsVisible = s.skillList.length !== 0 && !s.skillHidden;
                       const langVisible = s.languageList.length !== 0 && !s.langHidden;
                       return (skillsVisible || langVisible)
-                        ? <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillsVisible ? s.skillList : []} langArr={langVisible ? s.languageList : []} />
+                        ? <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillsVisible ? s.skillList : []} langArr={langVisible ? s.languageList : []} portfolioLink={s.portfolioLink} portfolioLinkName={s.portfolioLinkName} />
                         : null;
                     }
                     case 'experience':

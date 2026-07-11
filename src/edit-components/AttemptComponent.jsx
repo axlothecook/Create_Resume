@@ -65,8 +65,10 @@ const BigComponent = (props) => {
                     onCancel={() => {
                       if(props.array[index].newValue) props.setArray(props.array.filter(item => item.newValue === false));
                       else {
-                        const tempArr = props.array.filter(item => item.id !== props.array[index].id);
-                        props.setArray([...tempArr, tempEd]);
+                        // Restore the pre-edit snapshot IN PLACE — the old
+                        // filter-then-append moved the cancelled item to the END of
+                        // the array, permanently reordering the section + the demo.
+                        props.setArray(props.array.map(item => item.id === props.array[index].id ? tempEd : item));
                       };
                       setShow(false);
                     }}
