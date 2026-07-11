@@ -324,6 +324,9 @@
     line-height: 1.5;
     font-size: 15px;
     width: 100%;
+    /* Keep the 10px padding inside the 100% width so the field doesn't overflow
+       its column and overlap the Add button / the row icons. */
+    box-sizing: border-box;
 }
 
 .edit-list {
