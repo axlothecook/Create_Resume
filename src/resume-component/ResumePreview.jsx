@@ -31,7 +31,7 @@ const ResumePreview = ({ data, setSvgClr, setTxtClr }) => {
                 const skillsVisible = skill.skillList.length !== 0 && !skill.skillHidden;
                 const langVisible = skill.languageList.length !== 0 && !skill.langHidden;
                 return (skillsVisible || langVisible)
-                    ? <SkillResumeDiv assumeStyle={style} setTxtClr={setTxtClr} skillArr={skillsVisible ? skill.skillList : []} langArr={langVisible ? skill.languageList : []} />
+                    ? <SkillResumeDiv assumeStyle={style} setTxtClr={setTxtClr} skillArr={skillsVisible ? skill.skillList : []} langArr={langVisible ? skill.languageList : []} portfolioLink={skill.portfolioLink} portfolioLinkName={skill.portfolioLinkName} />
                     : null;
             }
             case 'experience':

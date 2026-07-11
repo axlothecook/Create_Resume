@@ -11,6 +11,8 @@ const personalDetails = {
     address: 'Paris, France',
 };
 const skills = {
+    portfolioLink: 'www.cleadesandre-portfolio.fr',
+    portfolioLinkName: 'portfolio website',
     skillList: [{ id: 1, text: 'painting' }, { id: 2, text: 'art guide' }, { id: 3, text: 'color mixing' }],
     languageList: [{ id: 1, text: 'French (native)' }, { id: 2, text: 'English (fluent)' }],
 };
@@ -25,7 +27,7 @@ const experience = [
 ];
 const project = [{
     id: 1, title: 'El la vouivre', subtitle: 'Creator', startDate: '08/2019', endDate: '02/2020',
-    links: [{ id: 1, text: 'www.youngArtistsPaintings.fr' }],
+    links: [{ id: 1, text: 'www.youngArtistsPaintings.fr', name: 'Young Artists Paintings' }],
     description: [{ id: 1, text: 'practiced the acrylic technique mixed with oil on canvas' }],
 }];
 

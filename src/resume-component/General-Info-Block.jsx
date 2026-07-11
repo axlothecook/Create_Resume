@@ -1,20 +1,12 @@
 import './resumeComponents.css';
+import { formatResumeDate, todayString, toHref } from '../utils/resumeFormat';
 
 const GeneralInfoBox = (props) => {
-    const pad = (n) => String(n).padStart(2, '0');
-    const today = new Date();
-    const date = `${pad(today.getDate())}/${pad(today.getMonth() + 1)}/${today.getFullYear()}`;
+    // Shared date formatter (utils/resumeFormat) — also handles the ISO strings that
+    // saved dates become after the JSON round-trip (used to render "NaN/undefined").
+    const date = todayString();
+    const ongoingChecker = (e) => formatResumeDate(e, date);
 
-    function ongoingChecker(e) {
-        if(!e) return '';
-        // Already a stored "MM/YYYY" string — pass through untouched.
-        if(/^\d\d\/\d\d\d\d$/.test(e)) return e;
-        // Otherwise it's a dayjs object from the date picker.
-        const enteredDate = `${pad(e.$D)}/${pad(e.$M + 1)}/${e.$y}`;
-        if(date === enteredDate) return 'present';
-        else return `${pad(e.$M + 1)}/${e.$y}`;
-    };
-    
     return (
         <div className='resume-info-box'>
             {props.arr.length !== 0 && <div className='resume-title-box' style={{backgroundColor: (props.assumeStyle.underlined ? 'transparent' : props.setTxtClr(props.assumeStyle.color))}}>
@@ -31,10 +23,15 @@ const GeneralInfoBox = (props) => {
                                 <h4 style={{fontFamily: props.assumeStyle.font}}>{ongoingChecker(item.startDate)} - {ongoingChecker(item.endDate)}</h4>
                             </div>
                             <div className="resume-location">
-                                {!item.links && <h4 style={{fontFamily: props.assumeStyle.font}}>{item.subtext}</h4>}
-                                {item.links && item.links.map((subItem) => (
-                                    <a key={subItem.id} style={{fontFamily: props.assumeStyle.font}} target='_blank' rel='noopener noreferrer' href={subItem.text}>
-                                        {subItem.text}
+                                {/* links?.length (not just `links`): an entry with an EMPTY links
+                                    array (every freshly-added project) must still show its
+                                    location line, not silently blank the column. */}
+                                {!item.links?.length && <h4 style={{fontFamily: props.assumeStyle.font}}>{item.subtext}</h4>}
+                                {!!item.links?.length && item.links.map((subItem) => (
+                                    <a key={subItem.id} className='link-item' style={{fontFamily: props.assumeStyle.font}} target='_blank' rel='noopener noreferrer' href={toHref(subItem.text)}>
+                                        {/* Show the human label; fall back to the raw URL only
+                                            when no label was entered, so a link never renders blank. */}
+                                        {subItem.name?.trim() ? subItem.name : subItem.text}
                                     </a>
                                 ))}
                             </div>

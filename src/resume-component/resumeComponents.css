@@ -164,6 +164,29 @@
     line-height: 0.6;
 }
 
+/* Title + optional portfolio link on ONE row ("Technical Skills  www.myportfolio.com"),
+   baseline-aligned so the smaller link text sits on the title's text line. */
+.resume-skill-title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+}
+/* Plain "Full skill list at" lead-in before the clickable link. Sits tight to
+   the link (overrides the row's 10px gap) so the two read as one phrase. */
+.resume-skill-portfolio-lead {
+    line-height: 1.2;
+    font-size: 0.85em;
+    opacity: 0.75;
+}
+.resume-skill-portfolio-lead + .resume-skill-portfolio-link {
+    margin-left: -6px;
+}
+.resume-skill-portfolio-link {
+    line-height: 1.2;
+    font-size: 0.85em;
+}
+
 .link-item {
     overflow-wrap: break-word;
 }
