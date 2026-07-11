@@ -426,9 +426,21 @@ li {
     gap: 10px;
 }
 
-/* Link lists ('Links to the...') stack two inputs: URL on top, label below.
-   The wrapper takes the row's flexible width so the edit/delete icons still
-   sit to the right (the icon divs keep their margin-left:auto behaviour). */
+/* Link lists ('Links to the...'): two DISTINCT field rows (label on top, URL
+   below), each its own bordered box with its own pen. A gap separates them; only
+   the URL row carries the trash (deletes the whole item). */
+.edit-link-row {
+    /* inherits .edit-list-item flex layout (field + right-aligned icons) */
+    width: 100%;
+    /* border-box so the row's 10px padding is INSIDE the 100% width — otherwise
+       content-box adds it on top and the row (and its icons) clip past the panel. */
+    box-sizing: border-box;
+}
+.edit-link-gap {
+    height: 8px;
+}
+
+/* The add-box still stacks the two inputs (label then URL) in one column. */
 .edit-link-fields {
     display: flex;
     flex-direction: column;
