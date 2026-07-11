@@ -8,6 +8,42 @@
     position: relative;   /* anchor the credit footer to the page bottom */
 }
 
+/* Zoom control: pinned to the top-right of the VIEWPORT so it stays visible even
+   when the A4 preview is wider than the window (it would otherwise sit off-screen
+   past the demo's right edge). Offset down so it floats over the white page area,
+   clear of the résumé's dark header band (and the top-right toasts). */
+.zoom-controls {
+    position: fixed;
+    top: 9.5rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 40;
+}
+.zoom-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1a1a1a;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: background 0.15s ease;
+}
+.zoom-btn:hover:not(:disabled) {
+    background: #eef1f3;
+}
+.zoom-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
 /* ---------------------------------------------------------------------------
    1:1 SIZING WITH THE PDF.
    The demo page and the exported PDF are BOTH 210mm (A4) wide, so text can be
@@ -167,13 +203,15 @@
 .resume-info-box {
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    /* PDF section gap = 3pt = 4px (title -> entries, and between entries). */
+    gap: 4px;
 }
 
 .resume-info-box-lang {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    /* PDF section title -> content gap = 3pt = 4px. */
+    gap: 4px;
 }
 
 .resume-title-box {
@@ -203,7 +241,9 @@
 .resume-skills-n-languages-details-box {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    /* PDF skill group marginBottom = 4pt ~= 5px (gap between Technical Skills
+       and Languages blocks). */
+    gap: 5px;
     /* Keep the skills/languages content left-aligned regardless of inherited
        text-align (the title box is centred; the content must stay left, matching the
        other sections in both the live demo and the saved-card previews). */

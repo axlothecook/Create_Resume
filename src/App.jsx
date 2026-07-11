@@ -21,6 +21,8 @@ import EducationSvg from './components/Education';
 import SkillsSvg from './components/Skills';
 import ExperienceSvg from './components/Experience';
 import PersonalProjectsSvg from './components/PersonalProjects';
+import ZoomInSvg from './components/ZoomIn';
+import ZoomOutSvg from './components/ZoomOut';
 
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
@@ -40,6 +42,17 @@ function App() {
   const [savedDocs, setSavedDocs] = useState([]);
   const [currentDocId, setCurrentDocId] = useState(null);
   const [docsBusy, setDocsBusy] = useState(false);
+
+  // Demo preview zoom: 100% (true 1:1 with the PDF) is the minimum; zoom in by
+  // 10% steps up to 200% for on-screen readability. Zoom-out is hidden at 100%
+  // (can't go below the real page size). Purely a viewing aid — does NOT affect
+  // the saved data or the PDF/print output (only the on-screen preview scales).
+  const [zoom, setZoom] = useState(1);
+  const ZOOM_STEP = 0.1;
+  const ZOOM_MIN = 1;
+  const ZOOM_MAX = 2;
+  const zoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, Math.round((z + ZOOM_STEP) * 10) / 10));
+  const zoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, Math.round((z - ZOOM_STEP) * 10) / 10));
 
   // Name-résumé modal (replaces window.prompt). promptForName() opens it and returns a
   // promise that resolves to the trimmed title, or null if cancelled.
@@ -1049,15 +1062,48 @@ function App() {
               }
             </div>
           </div>
+          {/* Zoom control (top-right of the preview). Zoom is a pure viewing aid:
+              it scales only the on-screen preview, never the saved data or the PDF. */}
+          <div className='zoom-controls'>
+            <button
+              type='button'
+              className='zoom-btn'
+              onClick={zoomIn}
+              disabled={zoom >= ZOOM_MAX}
+              aria-label='Zoom in'
+              title={`Zoom in (${Math.round(zoom * 100)}%)`}
+            >
+              <ZoomInSvg />
+            </button>
+            {zoom > ZOOM_MIN && (
+              <button
+                type='button'
+                className='zoom-btn'
+                onClick={zoomOut}
+                aria-label='Zoom out'
+                title={`Zoom out (${Math.round(zoom * 100)}%)`}
+              >
+                <ZoomOutSvg />
+              </button>
+            )}
+          </div>
           {/* Wrapper lets the A4 page scale down to fit narrow (mobile) widths without
               overflowing — the inner .resume-view-* keeps its true 210mm size + ref so
-              the PDF/print render is unaffected; CSS transform shrinks it on phones. */}
-          <div className='resume-demo-wrap'>
+              the PDF/print render is unaffected; CSS transform shrinks it on phones.
+              The zoom scale is applied here (parent of the print ref) so the PDF/print
+              render — which reads printRef — is never affected by the preview zoom. */}
+          <div
+            className='resume-demo-wrap'
+            style={{ transform: zoom !== 1 ? `scale(${zoom})` : undefined, transformOrigin: 'top center' }}
+          >
           <div ref={printRef} className={style.resumeView}>
             <PersonInfoDiv assertStyle={style} setSvgClr={checkBrightness} object={personalDetailsArray[0]} />
             <div className={style.resumeInfoParentBoxLeft} style={{
-              padding: style.underlined ? (style.gridView ? '20px' : '0 25px 25px 25px') : '30px',
-              gap: style.underlined ? '5px' : '20px'
+              // Match the PDF body box (src/pdf: padding 16pt, section gap 8pt).
+              // 1pt = 1.333px at the shared 210mm width, so 16pt = 21.3px, 8pt = 10.7px.
+              // Underlined keeps no top padding (the header rule already spaces it).
+              padding: style.underlined ? (style.gridView ? '21.3px' : '0 21.3px 21.3px 21.3px') : '21.3px',
+              gap: style.underlined ? '10.7px' : '10.7px'
             }}>
 
               {/* Sections render in the order defined by `sectionOrder` (item #1 / drag-and-drop foundation). */}
