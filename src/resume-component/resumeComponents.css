@@ -343,14 +343,18 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 10px;
+    /* Match the PDF bullet row gap (3pt ~= 4px). */
+    gap: 4px;
 }
 
 .list-dot {
     background-color: black;
     border-radius: 50%;
-    min-width: 5px;
-    min-height: 5px;
+    /* Match the PDF bullet: '•' at the 7.5pt body renders ~3.5px across. */
+    min-width: 3.5px;
+    min-height: 3.5px;
+    width: 3.5px;
+    height: 3.5px;
 }
 
 .resume-skill-box-child, .resume-language-box-child {
