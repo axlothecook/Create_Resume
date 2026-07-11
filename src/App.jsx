@@ -1089,12 +1089,21 @@ function App() {
           </div>
           {/* Wrapper lets the A4 page scale down to fit narrow (mobile) widths without
               overflowing — the inner .resume-view-* keeps its true 210mm size + ref so
-              the PDF/print render is unaffected; CSS transform shrinks it on phones.
-              The zoom scale is applied here (parent of the print ref) so the PDF/print
-              render — which reads printRef — is never affected by the preview zoom. */}
+              the PDF/print render is unaffected; CSS transform shrinks it on phones. */}
+          <div className='resume-demo-wrap'>
+          {/* Zoom viewport: a FIXED-size window (the 100% page size). When zoomed in,
+              the inner page is scaled up and this box becomes scrollable (both axes)
+              rather than the whole box growing and pushing off-screen. The scale is
+              applied to the print ref's wrapper, so the PDF/print render is unaffected;
+              the sizer div gives the scaled content a real box so scrollbars appear. */}
+          <div className={`zoom-viewport${zoom > 1 ? ' is-zoomed' : ''}`}>
           <div
-            className='resume-demo-wrap'
-            style={{ transform: zoom !== 1 ? `scale(${zoom})` : undefined, transformOrigin: 'top center' }}
+            className='zoom-sizer'
+            style={zoom > 1 ? { width: `${zoom * 100}%`, height: `${zoom * 100}%` } : undefined}
+          >
+          <div
+            className='zoom-scale'
+            style={zoom !== 1 ? { transform: `scale(${zoom})`, transformOrigin: 'top left' } : undefined}
           >
           <div ref={printRef} className={style.resumeView}>
             <PersonInfoDiv assertStyle={style} setSvgClr={checkBrightness} object={personalDetailsArray[0]} />
@@ -1163,8 +1172,11 @@ function App() {
                 <a href='https://github.com/axlothecook/Create_Resume' target='_blank' rel='noopener noreferrer'>Resume Creator</a>
               </p>
             )}
-          </div>
-          </div>
+          </div>{/* .resume-view-* (print ref) */}
+          </div>{/* .zoom-scale */}
+          </div>{/* .zoom-sizer */}
+          </div>{/* .zoom-viewport */}
+          </div>{/* .resume-demo-wrap */}
         </div>
       </div>
 

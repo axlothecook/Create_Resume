@@ -8,6 +8,24 @@
     position: relative;   /* anchor the credit footer to the page bottom */
 }
 
+/* Zoom viewport: a fixed-size window onto the résumé page. At 100% it's fully
+   transparent (no clipping, no scroll — behaves exactly as before). Once zoomed
+   in (.is-zoomed) it fixes its own size to the page and scrolls in both axes so
+   the page grows INSIDE it instead of the whole box enlarging off-screen. */
+.zoom-viewport.is-zoomed {
+    width: 210mm;
+    max-width: 210mm;
+    height: 297mm;         /* one A4 page tall; scroll to see the rest when zoomed */
+    max-height: 80vh;      /* never taller than the screen */
+    overflow: auto;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+/* The sizer only takes a real (scaled) box when zoomed, so the viewport gets a
+   scrollable overflow. At 100% it's inert. */
+.zoom-scale {
+    transform-origin: top left;
+}
+
 /* Zoom control: pinned to the top-right of the VIEWPORT so it stays visible even
    when the A4 preview is wider than the window (it would otherwise sit off-screen
    past the demo's right edge). Offset down so it floats over the white page area,
