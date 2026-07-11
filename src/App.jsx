@@ -53,6 +53,65 @@ function App() {
   const ZOOM_MAX = 2;
   const zoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, Math.round((z + ZOOM_STEP) * 10) / 10));
   const zoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, Math.round((z - ZOOM_STEP) * 10) / 10));
+  const clampZoom = (z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+
+  // Touch zoom (phones): pinch-to-zoom + double-tap-to-zoom. On desktop the
+  // +/- buttons are used instead (a mouse can't pinch). Uses Pointer Events per
+  // the MDN/W3C pinch pattern: cache active pointers, and while two are down,
+  // scale by the ratio of the current finger distance to the distance at the
+  // gesture's start. touch-action:none on the viewport stops the browser from
+  // hijacking the pinch (which would zoom the whole page). Refs (not state) hold
+  // the in-flight gesture so we don't re-render on every pointermove.
+  const pinchRef = useRef({ pointers: new Map(), startDist: 0, startZoom: 1 });
+  const lastTapRef = useRef(0);
+  // Mirror the live zoom into a ref so the pointer handlers (created once per
+  // render) always read the CURRENT zoom when a pinch starts, not a stale
+  // closure value — otherwise pinch-in after a pinch-out uses the wrong base.
+  const zoomRef = useRef(zoom);
+  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
+
+  const distanceBetween = (pts) => {
+    const [a, b] = [...pts.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  };
+
+  const onViewportPointerDown = (e) => {
+    const p = pinchRef.current;
+    p.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (p.pointers.size === 2) {
+      p.startDist = distanceBetween(p.pointers);
+      p.startZoom = zoomRef.current;
+    }
+  };
+
+  const onViewportPointerMove = (e) => {
+    const p = pinchRef.current;
+    if (!p.pointers.has(e.pointerId)) return;
+    p.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (p.pointers.size === 2 && p.startDist > 0) {
+      const ratio = distanceBetween(p.pointers) / p.startDist;
+      setZoom(clampZoom(Math.round(p.startZoom * ratio * 100) / 100));
+    }
+  };
+
+  const onViewportPointerUp = (e) => {
+    const p = pinchRef.current;
+    p.pointers.delete(e.pointerId);
+    if (p.pointers.size < 2) p.startDist = 0;
+  };
+
+  // Double-tap toggles between 100% and 160% (a readable step), centred by the
+  // browser's scroll. Only fires for touch; mouse double-click is ignored.
+  const onViewportPointerTap = (e) => {
+    if (e.pointerType !== 'touch') return;
+    const now = e.timeStamp;
+    if (now - lastTapRef.current < 300) {
+      setZoom((z) => (z > ZOOM_MIN ? ZOOM_MIN : 1.6));
+      lastTapRef.current = 0;
+    } else {
+      lastTapRef.current = now;
+    }
+  };
 
   // Name-résumé modal (replaces window.prompt). promptForName() opens it and returns a
   // promise that resolves to the trimmed title, or null if cancelled.
@@ -1096,7 +1155,15 @@ function App() {
               rather than the whole box growing and pushing off-screen. The scale is
               applied to the print ref's wrapper, so the PDF/print render is unaffected;
               the sizer div gives the scaled content a real box so scrollbars appear. */}
-          <div className={`zoom-viewport${zoom > 1 ? ' is-zoomed' : ''}`}>
+          <div
+            className={`zoom-viewport${zoom > 1 ? ' is-zoomed' : ''}`}
+            onPointerDown={onViewportPointerDown}
+            onPointerMove={onViewportPointerMove}
+            onPointerUp={onViewportPointerUp}
+            onPointerCancel={onViewportPointerUp}
+            onPointerLeave={onViewportPointerUp}
+            onPointerDownCapture={onViewportPointerTap}
+          >
           <div
             className='zoom-sizer'
             style={zoom > 1 ? { width: `${zoom * 100}%`, height: `${zoom * 100}%` } : undefined}

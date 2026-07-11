@@ -12,6 +12,12 @@
    transparent (no clipping, no scroll — behaves exactly as before). Once zoomed
    in (.is-zoomed) it fixes its own size to the page and scrolls in both axes so
    the page grows INSIDE it instead of the whole box enlarging off-screen. */
+.zoom-viewport {
+    /* Let our JS own two-finger pinch (pan-x/pan-y still allows one-finger scroll
+       of the zoomed content). Without this the browser hijacks the pinch and zooms
+       the whole page instead of the résumé. */
+    touch-action: pan-x pan-y;
+}
 .zoom-viewport.is-zoomed {
     width: 210mm;
     max-width: 210mm;
@@ -62,6 +68,13 @@
 .zoom-btn:disabled {
     opacity: 0.4;
     cursor: default;
+}
+/* Phones: hide the +/- buttons — touch uses pinch-to-zoom + double-tap instead
+   (the native gesture). Buttons stay on desktop where a mouse can't pinch. */
+@media screen and (max-width: 768px) {
+    .zoom-controls {
+        display: none;
+    }
 }
 
 /* ---------------------------------------------------------------------------
