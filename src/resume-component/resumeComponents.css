@@ -15,8 +15,10 @@
 .zoom-viewport.is-zoomed {
     width: 210mm;
     max-width: 210mm;
-    height: 297mm;         /* one A4 page tall; scroll to see the rest when zoomed */
-    max-height: 80vh;      /* never taller than the screen */
+    /* Keep the SAME height as the un-zoomed demo (one full A4 page). Zooming only
+       enlarges the content inside and adds scrollbars — the box height never
+       changes, so the demo doesn't visually shrink when you zoom in. */
+    height: 297mm;
     overflow: auto;
     border: 1px solid rgba(0, 0, 0, 0.12);
 }
