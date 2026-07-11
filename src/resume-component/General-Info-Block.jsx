@@ -15,12 +15,19 @@ const GeneralInfoBox = (props) => {
                     color: (props.assumeStyle.underlined ? 'black' : props.assumeStyle.color)
                 }}>{props.resumeTitle}</h3>
             </div>}
-            {props.arr.map(item => (
+            {props.arr.map(item => {
+                // Build the date range, joining with " - " only when both ends exist.
+                // A freshly-added item with no dates yet must render nothing here,
+                // not a lone "-" (which used to show under the section).
+                const start = ongoingChecker(item.startDate);
+                const end = ongoingChecker(item.endDate);
+                const dateRange = start && end ? `${start} - ${end}` : (start || end);
+                return (
                 <div key={item.id}>
                     {!item.hidden && <div className='resume-details-box'>
                         <div className='left-date-location-box'>
                             <div className="resume-date">
-                                <h4 style={{fontFamily: props.assumeStyle.font}}>{ongoingChecker(item.startDate)} - {ongoingChecker(item.endDate)}</h4>
+                                {dateRange && <h4 style={{fontFamily: props.assumeStyle.font}}>{dateRange}</h4>}
                             </div>
                             <div className="resume-location">
                                 {/* links?.length (not just `links`): an entry with an EMPTY links
@@ -54,8 +61,8 @@ const GeneralInfoBox = (props) => {
                         </div>
                     </div>}
                 </div>
-                
-            ))}
+                );
+            })}
              {/* {props.assumeStyle.underlined && <hr style={{width: '100%'}} />} */}
         </div>
     )
