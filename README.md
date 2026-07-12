@@ -28,7 +28,7 @@ Only the user who has made an account will have their previous resume data saved
 ### ***Can I make an account?*** ###
 Of course. The point of having an account here is so that the returning user can continue working where they left off. The feature of account making and data storage have been integrated in Version 2. The idea is for the user login data to be stored in a database, along with each resume (up to a limit of 5), the individual information they hold and the style for each one.
 
-### ***What small features are there?*** ###
+### ***What features are there?*** ###
 + document save feature 
 + light / dark mode
 + account creation 
