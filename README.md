@@ -3,7 +3,7 @@
 ![image](https://github.com/user-attachments/assets/dfae46cd-61e6-44f1-9517-2590c75ed751)
 
 ## What is it?
-Resume Creator enables forming a resume, styling it and dowloading it. The resulting cv, one or multiple, can be download and used in a real-life job application. Project enables account creation and data storage in a remote DB.
+Resume Creator enables forming a resume, styling it and dowloading it. The resulting cv, one or multiple, can be download and used in a real-life job application. Data is stored locally since the project is self-hosted and deployed via a CI/CD pipeline.
 
 ## More information
 
@@ -39,8 +39,8 @@ Of course. The point of having an account here is so that the returning user can
 + 1:1 ratio of font size and spacing to a real pdf
 + pdf styling throught different fonts, design (filled or underline) and layout
 
-### ***What framework does the project use?*** ###
-+ [React](https://react.dev/learn)
-
-### ***What CSS styling does it use?*** ###
-- my own [sass library](https://github.com/axlothecook/axlothecook-sass-library)
+### ***What tools does the project use?*** ###
++ Framework: [React](https://react.dev/learn)
++ styling: my own [sass library](https://github.com/axlothecook/axlothecook-sass-library)
++ server: [Nodejs]()
++ db: [MongoDB]()
