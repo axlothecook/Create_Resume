@@ -205,8 +205,8 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         // label, so the entry text sits next to it instead of far right. Mirrors the
         // demo's .resume-details-box grid (20% / 3% gap / 77%).
         entry: { flexDirection: 'row', gap: '3%', marginBottom: 3 },
-        entryLeft: { width: '20%' },
-        entryRight: { width: '77%' },
+        entryLeft: { width: '15%' },
+        entryRight: { width: '82%' },
         dateText: { fontFamily: font, fontWeight: 'bold',fontSize: 7 },
         locationText: { fontSize: 7, color: '#444' },
         link: { fontSize: 7, color: accent, textDecoration: 'underline' },
@@ -304,9 +304,16 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
                 </View>
             )}
             {(skills.languageList?.length > 0) && (
-                <View>
+                <View style={(skills.toolList?.length > 0) ? { marginBottom: 4 } : undefined}>
                     <Text style={s.skillGroupTitle}>Languages</Text>
                     <Text style={s.skillText}>{skills.languageList.map(x => x.text).join(', ')}</Text>
+                </View>
+            )}
+            {/* Tools: the third sub-group, mirroring the demo's SkillsLangResumeDiv. */}
+            {(skills.toolList?.length > 0) && (
+                <View>
+                    <Text style={s.skillGroupTitle}>Tools</Text>
+                    <Text style={s.skillText}>{skills.toolList.map(x => x.text).join(', ')}</Text>
                 </View>
             )}
         </>
@@ -323,7 +330,7 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
 
     const renderSection = (sec) => {
         if (sec.key === 'skill') {
-            const has = (skills.skillList?.length > 0) || (skills.languageList?.length > 0);
+            const has = (skills.skillList?.length > 0) || (skills.languageList?.length > 0) || (skills.toolList?.length > 0);
             return has ? <View key="skill">{SkillsBlock}</View> : null;
         }
         if (!sec.items || sec.items.length === 0) return null;

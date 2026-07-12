@@ -300,6 +300,7 @@ function App() {
     portfolioLinkName: '', // the words the portfolio link shows (e.g. 'portfolio website')
     skillHidden: false,   // visibility of the Technical Skills sub-group
     langHidden: false,    // visibility of the Languages sub-group
+    toolHidden: false,    // visibility of the Tools sub-group
     skillList: [{
       id: -2,
       text: 'painting'
@@ -307,7 +308,8 @@ function App() {
     languageList: [{
       id: -2,
       text: `French (native)`
-    }]
+    }],
+    toolList: []
   }]);
 
   let educationObject = {
@@ -446,6 +448,15 @@ function App() {
       hideField: 'langHidden',
       editTitle: 'Languages',
       placeholder: 'Spanish (native), English(fluent), French(beginner)',
+      subtext: null
+    },
+    {
+      type: 'Description',
+      descType: 'skill',
+      result: 'toolList',
+      hideField: 'toolHidden',
+      editTitle: 'Tools',
+      placeholder: 'MS Excel, SAP, Figma, Jira',
       subtext: null
     }
   ]
@@ -623,7 +634,7 @@ function App() {
   // and re-baseline so the blank slate isn't immediately "dirty".
   const clearToBlank = () => {
     const blankPersonal = [{ id: '', hidden: false, newValue: true, fullname: '', email: '', phoneNumber: '', address: '' }];
-    const blankSkill = [{ id: '', hidden: false, newValue: true, title: '', portfolioLink: '', portfolioLinkName: '', skillHidden: false, langHidden: false, skillList: [], languageList: [] }];
+    const blankSkill = [{ id: '', hidden: false, newValue: true, title: '', portfolioLink: '', portfolioLinkName: '', skillHidden: false, langHidden: false, toolHidden: false, skillList: [], languageList: [], toolList: [] }];
     setPersonalDetailsArray(blankPersonal);
     setEducationArray([]);
     setExperienceArray([]);
@@ -764,11 +775,14 @@ function App() {
     const pdfSkills = {
       skillList: skill.skillHidden ? [] : skill.skillList,
       languageList: skill.langHidden ? [] : skill.languageList,
+      toolList: skill.toolHidden ? [] : (skill.toolList || []),
+      portfolioLink: skill.portfolioLink,
+      portfolioLinkName: skill.portfolioLinkName,
     };
-    // Drop sections with no visible content (all items hidden, or both skill groups
+    // Drop sections with no visible content (all items hidden, or every skill group
     // hidden) so the printed PDF matches the on-screen demo.
     const sectionHasContent = (key) => {
-      if (key === 'skill') return pdfSkills.skillList.length !== 0 || pdfSkills.languageList.length !== 0;
+      if (key === 'skill') return pdfSkills.skillList.length !== 0 || pdfSkills.languageList.length !== 0 || pdfSkills.toolList.length !== 0;
       const items = sectionData[key].items || [];
       return items.some(item => !item.hidden);
     };
@@ -866,9 +880,10 @@ function App() {
                 portfolioLink: '',
                 portfolioLinkName: '',
                 skillList: [],
-                languageList: []
+                languageList: [],
+                toolList: []
               }])}}
-              emptyPProject={() => {setProjectArray([])}}  
+              emptyPProject={() => {setProjectArray([])}}
 
               fillPersonalDetails={() => {
                 setPersonalDetailsArray([{
@@ -956,6 +971,14 @@ function App() {
                 {
                   id: -1,
                   text: `English (fluent)`
+                }],
+                toolList: [{
+                  id: -2,
+                  text: `Photoshop`
+                },
+                {
+                  id: -1,
+                  text: `Procreate`
                 }]
               }])}}
               fillProject={() => { setProjectArray([{
@@ -1199,13 +1222,14 @@ function App() {
                         : null;
                     case 'skill': {
                       // Skills & Languages renders in the main content column (every
-                      // layout). It hides only when BOTH sub-groups (skills + languages)
-                      // are toggled off (skillHidden + langHidden).
+                      // layout). It hides only when EVERY sub-group (skills + languages
+                      // + tools) is empty or toggled off.
                       const s = skillArray[0];
                       const skillsVisible = s.skillList.length !== 0 && !s.skillHidden;
                       const langVisible = s.languageList.length !== 0 && !s.langHidden;
-                      return (skillsVisible || langVisible)
-                        ? <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillsVisible ? s.skillList : []} langArr={langVisible ? s.languageList : []} portfolioLink={s.portfolioLink} portfolioLinkName={s.portfolioLinkName} />
+                      const toolsVisible = (s.toolList || []).length !== 0 && !s.toolHidden;
+                      return (skillsVisible || langVisible || toolsVisible)
+                        ? <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillsVisible ? s.skillList : []} langArr={langVisible ? s.languageList : []} toolArr={toolsVisible ? s.toolList : []} portfolioLink={s.portfolioLink} portfolioLinkName={s.portfolioLinkName} />
                         : null;
                     }
                     case 'experience':
