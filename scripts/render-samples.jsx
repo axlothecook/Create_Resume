@@ -5,16 +5,16 @@ import React from 'react';
 import ResumePdfDocument from '../src/pdf/ResumePdfDocument.jsx';
 
 const personalDetails = {
-    fullname: 'Clea Desandre',
+    fullname: 'Maja Šegović',
     email: 'clea.desandre@gmail.co.fr',
     phoneNumber: '33 7807 63 733',
-    address: 'Paris, France',
+    address: 'Varaždin, Hrvatska',
 };
 const skills = {
     portfolioLink: 'www.cleadesandre-portfolio.fr',
     portfolioLinkName: 'portfolio website',
     skillList: [{ id: 1, text: 'painting' }, { id: 2, text: 'art guide' }, { id: 3, text: 'color mixing' }],
-    languageList: [{ id: 1, text: 'French (native)' }, { id: 2, text: 'English (fluent)' }],
+    languageList: [{ id: 1, text: 'Hrvatski (materinji)' }, { id: 2, text: 'Engleski (tečno)' }],
 };
 const education = [{
     id: 1, title: 'University of Painters', subtitle: 'Bachelor in Arts', subtext: 'Paris, France',

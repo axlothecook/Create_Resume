@@ -1,4 +1,16 @@
-import { Document, Page, View, Text, Link, StyleSheet, Svg, Path } from '@react-pdf/renderer';
+import { Document, Page, View, Text, Link, StyleSheet, Svg, Path, Font } from '@react-pdf/renderer';
+// Font sources must work in BOTH environments react-pdf runs in here:
+//   • the browser  (the app's "Download PDF")     -> needs an http(s) URL
+//   • Node         (scripts/render-samples.jsx)   -> needs an absolute filesystem path
+// A plain Vite asset import gives a URL string, which Node then tries to open as a path
+// ("C:\src\pdf\fonts\…" -> ENOENT). Resolve against import.meta.url and convert a file://
+// URL to a real path, without importing node:url (that would break the browser bundle).
+const fontSrc = (file) => {
+    const url = new URL(`./fonts/${file}`, import.meta.url);
+    if (url.protocol !== 'file:') return url.href;                 // browser: fetchable URL
+    const p = decodeURIComponent(url.pathname);                    // node: /C:/… -> C:\…
+    return p.replace(/^\/([A-Za-z]:)/, '$1');
+};
 
 /*
  * Vector PDF rendering of the résumé. Mirrors the on-screen content + the `style`
@@ -6,21 +18,30 @@ import { Document, Page, View, Text, Link, StyleSheet, Svg, Path } from '@react-
  * top / left / right / grid). True selectable-text PDF, independent of screen size.
  */
 
+// --- Font registration --------------------------------------------------------------
+// We must NOT use react-pdf's built-in Helvetica/Times: those are the PDF standard-14
+// fonts, which are limited to WinAnsi/Latin-1 — Latin-1 has NO č ć š ž đ, so Croatian
+// text was silently DROPPED from the PDF ("Šegović" printed as "Šegovi", "tečno" as
+// "te no"). Roboto (Apache-2.0, vendored in ./fonts) carries the full Latin-Extended-A
+// range, so the diacritics render. Registered once at module load.
+Font.register({
+    family: 'Roboto',
+    fonts: [
+        { src: fontSrc('Roboto-Regular.ttf'), fontWeight: 'normal', fontStyle: 'normal' },
+        { src: fontSrc('Roboto-Bold.ttf'), fontWeight: 'bold', fontStyle: 'normal' },
+        { src: fontSrc('Roboto-Italic.ttf'), fontWeight: 'normal', fontStyle: 'italic' },
+    ],
+});
+// Don't hyphenate: react-pdf's default hyphenation callback splits words oddly in the
+// narrow entry columns.
+Font.registerHyphenationCallback((word) => [word]);
+
 // --- Font mapping -----------------------------------------------------------------
-// react-pdf ships Helvetica & Times-Roman. Map the app's font choices onto a usable
-// PDF family (Roboto/Calibri/Arial -> Helvetica; Times New Roman -> Times-Roman).
-const pdfFontFor = (font) => {
-    if (font && font.toLowerCase().includes('times')) return 'Times-Roman';
-    return 'Helvetica';
-};
-const pdfBoldFor = (font) => {
-    if (font && font.toLowerCase().includes('times')) return 'Times-Bold';
-    return 'Helvetica-Bold';
-};
-const pdfItalicFor = (font) => {
-    if (font && font.toLowerCase().includes('times')) return 'Times-Italic';
-    return 'Helvetica-Oblique';
-};
+// Every app font choice maps onto the registered Unicode family. The style variants are
+// selected via fontWeight/fontStyle rather than separate family names (which is how
+// Font.register above is keyed).
+const PDF_FAMILY = 'Roboto';
+const pdfFontFor = () => PDF_FAMILY;
 
 // --- Date + link helpers (SHARED with the on-screen demo via utils/resumeFormat, so
 // the two render paths can't drift; also handles the ISO strings saved dates become
@@ -74,9 +95,8 @@ const Icon = ({ kind, color, size = 8 }) => {
 
 export default function ResumePdfDocument({ personalDetails, skills, orderedSections, style }) {
     const accent = style.color || '#607480';
+    // One registered Unicode family; weight/style are set per-style (fontWeight/fontStyle).
     const font = pdfFontFor(style.font);
-    const bold = pdfBoldFor(style.font);
-    const italic = pdfItalicFor(style.font);
     const today = todayString();
 
     // Where does the name/contact panel sit?
@@ -141,7 +161,7 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
                     : { borderRightWidth: 1, borderRightColor: '#cccccc' })
                 : {}),
         },
-        name: { fontFamily: bold, fontSize: sidebar ? 17 : 14, color: headerTextColor, marginBottom: 4 },
+        name: { fontFamily: font, fontWeight: 'bold',fontSize: sidebar ? 17 : 14, color: headerTextColor, marginBottom: 4 },
         // section title colour switches with the style; underline rule kept in both.
         contactRow: { flexDirection: sidebar ? 'column' : 'row', flexWrap: 'wrap', gap: sidebar ? 8 : 9, alignItems: sidebar ? 'flex-start' : 'center' },
         contactItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
@@ -168,20 +188,28 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         // Filled → title sits on a filled background bar (no rule). Underlined → black
         // title with a bottom rule (the underline), no bar.
         sectionTitle: underlined
-            ? { fontFamily: bold, fontSize: 9, color: titleColor, textAlign: 'center', borderBottomWidth: 1, borderBottomColor: titleColor, paddingBottom: 1.5, marginBottom: 1.5 }
-            : { fontFamily: bold, fontSize: 9, color: titleColor, textAlign: 'center', backgroundColor: titleBarBg, paddingTop: 2.5, paddingBottom: 2.5, marginBottom: 1.5 },
+            // Underlined: NO rule on the title itself. The rules are SEPARATORS between
+            // blocks (header | section | section …), which is what the on-screen demo does
+            // — so the line reads as sitting ABOVE each section title, and the header's rule
+            // doubles as the line above the first one. The PDF used to hang a borderBottom
+            // off the title, which drew the line BETWEEN the title and its own content.
+            ? { fontFamily: font, fontWeight: 'bold', fontSize: 9, color: titleColor, textAlign: 'center', marginBottom: 1.5 }
+            : { fontFamily: font, fontWeight: 'bold',fontSize: 9, color: titleColor, textAlign: 'center', backgroundColor: titleBarBg, paddingTop: 2.5, paddingBottom: 2.5, marginBottom: 1.5 },
+        // The separator rule drawn BETWEEN sections in the underlined style (mirrors the
+        // demo's <hr>); same colour/width as the header's bottom rule so all lines match.
+        sectionSeparator: { borderBottomWidth: 1, borderBottomColor: '#1a1a1a', width: '100%' },
         entry: { flexDirection: 'row', gap: '4%', marginBottom: 3 },
         entryLeft: { width: '30%' },
         entryRight: { width: '66%' },
-        dateText: { fontFamily: bold, fontSize: 7 },
+        dateText: { fontFamily: font, fontWeight: 'bold',fontSize: 7 },
         locationText: { fontSize: 7, color: '#444' },
         link: { fontSize: 7, color: accent, textDecoration: 'underline' },
-        entryTitle: { fontFamily: bold, fontSize: 8 },
-        entrySubtitle: { fontFamily: italic, fontSize: 7.5, color: '#333' },
+        entryTitle: { fontFamily: font, fontWeight: 'bold',fontSize: 8 },
+        entrySubtitle: { fontFamily: font, fontStyle: 'italic',fontSize: 7.5, color: '#333' },
         bulletRow: { flexDirection: 'row', gap: 3, marginTop: 0.5 },
         bulletDot: { fontSize: 7.5 },
         bulletText: { fontSize: 7.5, flex: 1 },
-        skillGroupTitle: { fontFamily: bold, fontSize: 8, marginBottom: 1 },
+        skillGroupTitle: { fontFamily: font, fontWeight: 'bold',fontSize: 8, marginBottom: 1 },
         skillText: { fontSize: 7.5 },
         // Layout containers. flexGrow makes the row fill the page height so the side
         // panel (accent column) stretches all the way down, not just to its content.
@@ -304,6 +332,18 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
     // In the underlined TOP layout the header lives INSIDE the body, so its bottom rule
     // shares the exact same horizontal inset as the section-title rules (all equal width).
     const topUnderlinedInBody = underlined && !sidebar;
+    // Build the visible sections first, then (in the underlined style) interleave a
+    // separator rule BETWEEN them — the same model the demo uses, so the rule reads as
+    // the line above each section title.
+    const visibleSections = orderedSections.map(renderSection).filter(Boolean);
+    const sectionsWithRules = underlined
+        ? visibleSections.flatMap((node, i) => (
+            i < visibleSections.length - 1
+                ? [node, <View key={`sep-${i}`} style={s.sectionSeparator} />]
+                : [node]
+        ))
+        : visibleSections;
+
     const bodyContent = (
         <View style={s.body}>
             {topUnderlinedInBody && (
@@ -312,7 +352,7 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
                     <ContactRow />
                 </View>
             )}
-            {orderedSections.map(renderSection)}
+            {sectionsWithRules}
         </View>
     );
 
