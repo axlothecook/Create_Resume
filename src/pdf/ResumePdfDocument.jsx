@@ -201,9 +201,12 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         // The separator rule drawn BETWEEN sections in the underlined style (mirrors the
         // demo's <hr>); same colour/width as the header's bottom rule so all lines match.
         sectionSeparator: { borderBottomWidth: 1, borderBottomColor: '#1a1a1a', width: '100%' },
-        entry: { flexDirection: 'row', gap: '4%', marginBottom: 3 },
-        entryLeft: { width: '30%' },
-        entryRight: { width: '66%' },
+        // Narrow date/location column: it only needs room for a date range or a link
+        // label, so the entry text sits next to it instead of far right. Mirrors the
+        // demo's .resume-details-box grid (20% / 3% gap / 77%).
+        entry: { flexDirection: 'row', gap: '3%', marginBottom: 3 },
+        entryLeft: { width: '20%' },
+        entryRight: { width: '77%' },
         dateText: { fontFamily: font, fontWeight: 'bold',fontSize: 7 },
         locationText: { fontSize: 7, color: '#444' },
         link: { fontSize: 7, color: accent, textDecoration: 'underline' },

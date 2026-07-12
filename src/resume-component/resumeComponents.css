@@ -288,8 +288,13 @@
 
 .resume-details-box {
     display: grid;
-    grid-template-columns: 30% 65%;
-    gap: 5%;
+    /* The date/location column only needs ~100px (dates ~79px, the longest link label
+       ~97px), but it used to reserve 30% (~225px) and then leave a 5% (~38px) gap —
+       pushing the entry text far to the right for no reason. Tighter columns bring the
+       text next to its dates while keeping a moderate gap. Kept in step with the PDF
+       (entryLeft/entryRight/gap in ResumePdfDocument). */
+    grid-template-columns: 20% 77%;
+    gap: 3%;
 }
 
 .resume-skills-n-languages-details-box {
