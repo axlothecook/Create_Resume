@@ -293,7 +293,7 @@
        pushing the entry text far to the right for no reason. Tighter columns bring the
        text next to its dates while keeping a moderate gap. Kept in step with the PDF
        (entryLeft/entryRight/gap in ResumePdfDocument). */
-    grid-template-columns: 20% 77%;
+    grid-template-columns: 15% 82%;
     gap: 3%;
 }
 

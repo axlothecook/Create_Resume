@@ -15,6 +15,7 @@ const skills = {
     portfolioLinkName: 'portfolio website',
     skillList: [{ id: 1, text: 'painting' }, { id: 2, text: 'art guide' }, { id: 3, text: 'color mixing' }],
     languageList: [{ id: 1, text: 'Hrvatski (materinji)' }, { id: 2, text: 'Engleski (tečno)' }],
+    toolList: [{ id: 1, text: 'Photoshop' }, { id: 2, text: 'Procreate' }],
 };
 const education = [{
     id: 1, title: 'University of Painters', subtitle: 'Bachelor in Arts', subtext: 'Paris, France',

@@ -16,7 +16,7 @@ const ResumePreview = ({ data, setSvgClr, setTxtClr }) => {
     const education = data.education || [];
     const experience = data.experience || [];
     const project = data.project || [];
-    const skill = (data.skill && data.skill[0]) || { skillList: [], languageList: [] };
+    const skill = (data.skill && data.skill[0]) || { skillList: [], languageList: [], toolList: [] };
     const sectionOrder = data.sectionOrder || ['project', 'experience', 'skill', 'education'];
 
     // A section renders only if it has a visible (non-hidden) item — so the card
@@ -30,8 +30,9 @@ const ResumePreview = ({ data, setSvgClr, setTxtClr }) => {
             case 'skill': {
                 const skillsVisible = skill.skillList.length !== 0 && !skill.skillHidden;
                 const langVisible = skill.languageList.length !== 0 && !skill.langHidden;
-                return (skillsVisible || langVisible)
-                    ? <SkillResumeDiv assumeStyle={style} setTxtClr={setTxtClr} skillArr={skillsVisible ? skill.skillList : []} langArr={langVisible ? skill.languageList : []} portfolioLink={skill.portfolioLink} portfolioLinkName={skill.portfolioLinkName} />
+                const toolsVisible = (skill.toolList || []).length !== 0 && !skill.toolHidden;
+                return (skillsVisible || langVisible || toolsVisible)
+                    ? <SkillResumeDiv assumeStyle={style} setTxtClr={setTxtClr} skillArr={skillsVisible ? skill.skillList : []} langArr={langVisible ? skill.languageList : []} toolArr={toolsVisible ? skill.toolList : []} portfolioLink={skill.portfolioLink} portfolioLinkName={skill.portfolioLinkName} />
                     : null;
             }
             case 'experience':

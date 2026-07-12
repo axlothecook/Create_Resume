@@ -54,6 +54,20 @@ const SkillResumeDiv = (props) => {
                         }).join(', ')}</h4>
                     </div>
                 </div>}
+                {/* Tools: the third sub-group, same shape as Technical Skills / Languages
+                    (own visibility eye in the editor; renders as a comma-joined line). */}
+                {(props.toolArr?.length ?? 0) !== 0 &&
+                <div className='resume-skill-lang-box-parent'>
+                    <h3 style={{
+                            fontFamily: props.assumeStyle.font,
+                            fontWeight: 600
+                        }}>Tools</h3>
+                    <div className="resume-language-box-child">
+                        <h4 style={{fontFamily: props.assumeStyle.font}}>{props.toolArr.map(item => {
+                            return item.text;
+                        }).join(', ')}</h4>
+                    </div>
+                </div>}
             </div>
         </div>
     )
