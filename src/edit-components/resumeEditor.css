@@ -341,6 +341,10 @@
 }
 .edit-desc-list-item {
     min-height: 1.5em;
+    /* block, not inline: an inline textarea sits on the wrapper's text BASELINE,
+       leaving ~6px descender space below it — which pushed the text ~3px above the
+       row's true center (icons were centered, text wasn't) and inflated the row. */
+    display: block;
 }
 
 .edit-list {
@@ -359,6 +363,10 @@
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
+    /* Cap the pill list at 4 rows (4 x 50px pills + 3 x 7px gaps = 221px); more
+       items scroll INSIDE the list instead of growing the section — all screens. */
+    max-height: 221px;
+    overflow-y: auto;
 }
 
 li {
