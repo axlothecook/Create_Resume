@@ -42,5 +42,5 @@ Of course. The point of having an account here is so that the returning user can
 ### ***What tools does the project use?*** ###
 + Framework: [React](https://react.dev/learn)
 + styling: my own [sass library](https://github.com/axlothecook/axlothecook-sass-library)
-+ server: [Nodejs]()
-+ db: [MongoDB]()
++ server: [Nodejs](https://nodejs.org/en)
++ db: [MongoDB](https://www.mongodb.com)
