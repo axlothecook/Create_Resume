@@ -21,6 +21,8 @@ import EducationSvg from './components/Education';
 import SkillsSvg from './components/Skills';
 import ExperienceSvg from './components/Experience';
 import PersonalProjectsSvg from './components/PersonalProjects';
+import ZoomInSvg from './components/ZoomIn';
+import ZoomOutSvg from './components/ZoomOut';
 
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
@@ -40,6 +42,76 @@ function App() {
   const [savedDocs, setSavedDocs] = useState([]);
   const [currentDocId, setCurrentDocId] = useState(null);
   const [docsBusy, setDocsBusy] = useState(false);
+
+  // Demo preview zoom: 100% (true 1:1 with the PDF) is the minimum; zoom in by
+  // 10% steps up to 200% for on-screen readability. Zoom-out is hidden at 100%
+  // (can't go below the real page size). Purely a viewing aid — does NOT affect
+  // the saved data or the PDF/print output (only the on-screen preview scales).
+  const [zoom, setZoom] = useState(1);
+  const ZOOM_STEP = 0.1;
+  const ZOOM_MIN = 1;
+  const ZOOM_MAX = 2;
+  const zoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, Math.round((z + ZOOM_STEP) * 10) / 10));
+  const zoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, Math.round((z - ZOOM_STEP) * 10) / 10));
+  const clampZoom = (z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+
+  // Touch zoom (phones): pinch-to-zoom + double-tap-to-zoom. On desktop the
+  // +/- buttons are used instead (a mouse can't pinch). Uses Pointer Events per
+  // the MDN/W3C pinch pattern: cache active pointers, and while two are down,
+  // scale by the ratio of the current finger distance to the distance at the
+  // gesture's start. touch-action:none on the viewport stops the browser from
+  // hijacking the pinch (which would zoom the whole page). Refs (not state) hold
+  // the in-flight gesture so we don't re-render on every pointermove.
+  const pinchRef = useRef({ pointers: new Map(), startDist: 0, startZoom: 1 });
+  const lastTapRef = useRef(0);
+  // Mirror the live zoom into a ref so the pointer handlers (created once per
+  // render) always read the CURRENT zoom when a pinch starts, not a stale
+  // closure value — otherwise pinch-in after a pinch-out uses the wrong base.
+  const zoomRef = useRef(zoom);
+  useEffect(() => { zoomRef.current = zoom; }, [zoom]);
+
+  const distanceBetween = (pts) => {
+    const [a, b] = [...pts.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y);
+  };
+
+  const onViewportPointerDown = (e) => {
+    const p = pinchRef.current;
+    p.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (p.pointers.size === 2) {
+      p.startDist = distanceBetween(p.pointers);
+      p.startZoom = zoomRef.current;
+    }
+  };
+
+  const onViewportPointerMove = (e) => {
+    const p = pinchRef.current;
+    if (!p.pointers.has(e.pointerId)) return;
+    p.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (p.pointers.size === 2 && p.startDist > 0) {
+      const ratio = distanceBetween(p.pointers) / p.startDist;
+      setZoom(clampZoom(Math.round(p.startZoom * ratio * 100) / 100));
+    }
+  };
+
+  const onViewportPointerUp = (e) => {
+    const p = pinchRef.current;
+    p.pointers.delete(e.pointerId);
+    if (p.pointers.size < 2) p.startDist = 0;
+  };
+
+  // Double-tap toggles between 100% and 160% (a readable step), centred by the
+  // browser's scroll. Only fires for touch; mouse double-click is ignored.
+  const onViewportPointerTap = (e) => {
+    if (e.pointerType !== 'touch') return;
+    const now = e.timeStamp;
+    if (now - lastTapRef.current < 300) {
+      setZoom((z) => (z > ZOOM_MIN ? ZOOM_MIN : 1.6));
+      lastTapRef.current = 0;
+    } else {
+      lastTapRef.current = now;
+    }
+  };
 
   // Name-résumé modal (replaces window.prompt). promptForName() opens it and returns a
   // promise that resolves to the trimmed title, or null if cancelled.
@@ -1049,15 +1121,65 @@ function App() {
               }
             </div>
           </div>
+          {/* Zoom control (top-right of the preview). Zoom is a pure viewing aid:
+              it scales only the on-screen preview, never the saved data or the PDF. */}
+          <div className='zoom-controls'>
+            <button
+              type='button'
+              className='zoom-btn'
+              onClick={zoomIn}
+              disabled={zoom >= ZOOM_MAX}
+              aria-label='Zoom in'
+              title={`Zoom in (${Math.round(zoom * 100)}%)`}
+            >
+              <ZoomInSvg />
+            </button>
+            {zoom > ZOOM_MIN && (
+              <button
+                type='button'
+                className='zoom-btn'
+                onClick={zoomOut}
+                aria-label='Zoom out'
+                title={`Zoom out (${Math.round(zoom * 100)}%)`}
+              >
+                <ZoomOutSvg />
+              </button>
+            )}
+          </div>
           {/* Wrapper lets the A4 page scale down to fit narrow (mobile) widths without
               overflowing — the inner .resume-view-* keeps its true 210mm size + ref so
               the PDF/print render is unaffected; CSS transform shrinks it on phones. */}
           <div className='resume-demo-wrap'>
+          {/* Zoom viewport: a FIXED-size window (the 100% page size). When zoomed in,
+              the inner page is scaled up and this box becomes scrollable (both axes)
+              rather than the whole box growing and pushing off-screen. The scale is
+              applied to the print ref's wrapper, so the PDF/print render is unaffected;
+              the sizer div gives the scaled content a real box so scrollbars appear. */}
+          <div
+            className={`zoom-viewport${zoom > 1 ? ' is-zoomed' : ''}`}
+            onPointerDown={onViewportPointerDown}
+            onPointerMove={onViewportPointerMove}
+            onPointerUp={onViewportPointerUp}
+            onPointerCancel={onViewportPointerUp}
+            onPointerLeave={onViewportPointerUp}
+            onPointerDownCapture={onViewportPointerTap}
+          >
+          <div
+            className='zoom-sizer'
+            style={zoom > 1 ? { width: `${zoom * 100}%`, height: `${zoom * 100}%` } : undefined}
+          >
+          <div
+            className='zoom-scale'
+            style={zoom !== 1 ? { transform: `scale(${zoom})`, transformOrigin: 'top left' } : undefined}
+          >
           <div ref={printRef} className={style.resumeView}>
             <PersonInfoDiv assertStyle={style} setSvgClr={checkBrightness} object={personalDetailsArray[0]} />
             <div className={style.resumeInfoParentBoxLeft} style={{
-              padding: style.underlined ? (style.gridView ? '20px' : '0 25px 25px 25px') : '30px',
-              gap: style.underlined ? '5px' : '20px'
+              // Match the PDF body box (src/pdf: padding 16pt, section gap 8pt).
+              // 1pt = 1.333px at the shared 210mm width, so 16pt = 21.3px, 8pt = 10.7px.
+              // Underlined keeps no top padding (the header rule already spaces it).
+              padding: style.underlined ? (style.gridView ? '21.3px' : '0 21.3px 21.3px 21.3px') : '21.3px',
+              gap: style.underlined ? '10.7px' : '10.7px'
             }}>
 
               {/* Sections render in the order defined by `sectionOrder` (item #1 / drag-and-drop foundation). */}
@@ -1117,8 +1239,11 @@ function App() {
                 <a href='https://github.com/axlothecook/Create_Resume' target='_blank' rel='noopener noreferrer'>Resume Creator</a>
               </p>
             )}
-          </div>
-          </div>
+          </div>{/* .resume-view-* (print ref) */}
+          </div>{/* .zoom-scale */}
+          </div>{/* .zoom-sizer */}
+          </div>{/* .zoom-viewport */}
+          </div>{/* .resume-demo-wrap */}
         </div>
       </div>
 

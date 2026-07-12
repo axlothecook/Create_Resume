@@ -323,7 +323,24 @@
     resize: none;
     line-height: 1.5;
     font-size: 15px;
+    /* Fill the column but keep padding INSIDE the width (border-box) so the field
+       never overflows into the Add button / row icons. */
     width: 100%;
+    box-sizing: border-box;
+}
+/* min-height guards TextareaAutosize's border-box height calc from clipping.
+   The add-box input carries its own 10px padding (hence +20px); the row textarea
+   has padding:0 (its parent row pads instead), so it only needs the line height —
+   giving it the +20px made the rows taller than the add fields with top-stuck text. */
+.edit-input-description {
+    /* 12px vertical padding mirrors the Add button's (12px 17px), so the field and
+       the button next to it render the same height (~47px), text centered. */
+    padding-top: 12px;
+    padding-bottom: 12px;
+    min-height: calc(1.5em + 24px);
+}
+.edit-desc-list-item {
+    min-height: 1.5em;
 }
 
 .edit-list {
@@ -426,9 +443,21 @@ li {
     gap: 10px;
 }
 
-/* Link lists ('Links to the...') stack two inputs: URL on top, label below.
-   The wrapper takes the row's flexible width so the edit/delete icons still
-   sit to the right (the icon divs keep their margin-left:auto behaviour). */
+/* Link lists ('Links to the...'): two DISTINCT field rows (label on top, URL
+   below), each its own bordered box with its own pen. A gap separates them; only
+   the URL row carries the trash (deletes the whole item). */
+.edit-link-row {
+    /* inherits .edit-list-item flex layout (field + right-aligned icons) */
+    width: 100%;
+    /* border-box so the row's 10px padding is INSIDE the 100% width — otherwise
+       content-box adds it on top and the row (and its icons) clip past the panel. */
+    box-sizing: border-box;
+}
+.edit-link-gap {
+    height: 8px;
+}
+
+/* The add-box still stacks the two inputs (label then URL) in one column. */
 .edit-link-fields {
     display: flex;
     flex-direction: column;

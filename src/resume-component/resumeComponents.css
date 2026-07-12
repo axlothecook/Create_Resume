@@ -8,6 +8,128 @@
     position: relative;   /* anchor the credit footer to the page bottom */
 }
 
+/* Zoom viewport: a fixed-size window onto the résumé page. At 100% it's fully
+   transparent (no clipping, no scroll — behaves exactly as before). Once zoomed
+   in (.is-zoomed) it fixes its own size to the page and scrolls in both axes so
+   the page grows INSIDE it instead of the whole box enlarging off-screen. */
+.zoom-viewport {
+    /* Let our JS own two-finger pinch (pan-x/pan-y still allows one-finger scroll
+       of the zoomed content). Without this the browser hijacks the pinch and zooms
+       the whole page instead of the résumé. */
+    touch-action: pan-x pan-y;
+}
+.zoom-viewport.is-zoomed {
+    width: 210mm;
+    max-width: 210mm;
+    /* Keep the SAME height as the un-zoomed demo (one full A4 page). Zooming only
+       enlarges the content inside and adds scrollbars — the box height never
+       changes, so the demo doesn't visually shrink when you zoom in. */
+    height: 297mm;
+    overflow: auto;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+/* The sizer only takes a real (scaled) box when zoomed, so the viewport gets a
+   scrollable overflow. At 100% it's inert. */
+.zoom-scale {
+    transform-origin: top left;
+}
+
+/* Zoom control: pinned to the top-right of the VIEWPORT so it stays visible even
+   when the A4 preview is wider than the window (it would otherwise sit off-screen
+   past the demo's right edge). Offset down so it floats over the white page area,
+   clear of the résumé's dark header band (and the top-right toasts). */
+.zoom-controls {
+    position: fixed;
+    top: 9.5rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 40;
+}
+.zoom-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: #ffffff;
+    color: #1a1a1a;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: background 0.15s ease;
+}
+.zoom-btn:hover:not(:disabled) {
+    background: #eef1f3;
+}
+.zoom-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+/* Phones: hide the +/- buttons — touch uses pinch-to-zoom + double-tap instead
+   (the native gesture). Buttons stay on desktop where a mouse can't pinch. */
+@media screen and (max-width: 768px) {
+    .zoom-controls {
+        display: none;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   1:1 SIZING WITH THE PDF.
+   The demo page and the exported PDF are BOTH 210mm (A4) wide, so text can be
+   matched exactly: 1pt = 1.333px at 96dpi. The PDF (src/pdf/ResumePdfDocument.jsx)
+   sizes everything off a 7.5pt body, so we set the demo page base to 10px
+   (= 7.5pt) and express each tier as the SAME ratio the PDF uses. This makes the
+   on-screen demo fill the page identically to the download — no more "looks full
+   on screen but half-empty in the PDF".
+
+   PDF ladder -> em ratio (base 7.5pt):
+     body / bullets / skills   7.5pt  = 1em      (10px)
+     dates / location / link   7pt    = 0.933em  (9.3px)
+     entry subtitle            7.5pt  = 1em
+     entry title (place/name)  8pt    = 1.067em  (10.7px)
+     section title             9pt    = 1.2em    (12px)
+     person name (h1)          14pt   = 1.867em  (18.7px)
+--------------------------------------------------------------------------- */
+.resume-view-top,
+.resume-view-right {
+    font-size: 10px;   /* body base = PDF's 7.5pt */
+}
+/* Most demo text is plain <h4> (body/dates/location/titles) and <h3> (section
+   titles) — normalize them to the body base, then set the tiers below. */
+.resume-view-top h1, .resume-view-top h2, .resume-view-top h3, .resume-view-top h4,
+.resume-view-right h1, .resume-view-right h2, .resume-view-right h3, .resume-view-right h4 {
+    font-size: 1em;
+    line-height: 1.3;
+    margin: 0;
+}
+/* Section titles (PERSONAL PROJECTS / EXPERIENCE / SKILLS / EDUCATION) = 9pt. */
+.resume-view-top .resume-title-box > h3,
+.resume-view-right .resume-title-box > h3 {
+    font-size: 1.2em;
+}
+/* Entry title (company / project / school / skill-group heading) = 8pt. */
+.resume-view-top .resume-place > h4,
+.resume-view-top .resume-project-title > h4,
+.resume-view-top .resume-skill-lang-box-parent > h3,
+.resume-view-right .resume-place > h4,
+.resume-view-right .resume-project-title > h4,
+.resume-view-right .resume-skill-lang-box-parent > h3 {
+    font-size: 1.067em;
+}
+/* Dates, location, and links = 7pt. */
+.resume-view-top .resume-date > h4,
+.resume-view-top .resume-location > h4,
+.resume-view-top .resume-location .link-item,
+.resume-view-right .resume-date > h4,
+.resume-view-right .resume-location > h4,
+.resume-view-right .resume-location .link-item {
+    font-size: 0.933em;
+}
+
 /* "Made with Resume Creator" credit, centred at the very bottom of the résumé. */
 .resume-credit {
     position: absolute;
@@ -114,13 +236,15 @@
 .resume-info-box {
     display: flex;
     flex-direction: column;
-    gap: 9px;
+    /* PDF section gap = 3pt = 4px (title -> entries, and between entries). */
+    gap: 4px;
 }
 
 .resume-info-box-lang {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    /* PDF section title -> content gap = 3pt = 4px. */
+    gap: 4px;
 }
 
 .resume-title-box {
@@ -150,7 +274,9 @@
 .resume-skills-n-languages-details-box {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    /* PDF skill group marginBottom = 4pt ~= 5px (gap between Technical Skills
+       and Languages blocks). */
+    gap: 5px;
     /* Keep the skills/languages content left-aligned regardless of inherited
        text-align (the title box is centred; the content must stay left, matching the
        other sections in both the live demo and the saved-card previews). */
@@ -217,14 +343,18 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 10px;
+    /* Match the PDF bullet row gap (3pt ~= 4px). */
+    gap: 4px;
 }
 
 .list-dot {
     background-color: black;
     border-radius: 50%;
-    min-width: 5px;
-    min-height: 5px;
+    /* Match the PDF bullet: '•' at the 7.5pt body renders ~3.5px across. */
+    min-width: 3.5px;
+    min-height: 3.5px;
+    width: 3.5px;
+    height: 3.5px;
 }
 
 .resume-skill-box-child, .resume-language-box-child {
@@ -273,17 +403,22 @@
     min-width: 80px;
 }
 
+/* Name = PDF 14pt (top layout) = 18.7px. */
 .personal-info-box-no-side-padding > h1, .personal-info-box-left > h1, .personal-info-box-right > h1 {
-    font-size: 27px;
+    font-size: 18.7px;
+}
+/* Top-layout contact line (email | phone | address) = PDF 7pt = 9.3px. */
+.personal-info-box-no-side-padding .details-box h4 {
+    font-size: 9.3px;
 }
 
-/* Left/right sidebar layouts: larger personal-info text (name + contacts) since the
-   side column has the room and benefits from the bigger, more readable header. */
+/* Left/right sidebar layouts: the PDF uses a larger 17pt name + 9pt contacts in
+   the sidebar column. Match those (17pt = 22.7px, 9pt = 12px). */
 .personal-info-box-left > h1, .personal-info-box-right > h1 {
-    font-size: 32px;
+    font-size: 22.7px;
 }
 .personal-info-box-left .details-box h4, .personal-info-box-right .details-box h4 {
-    font-size: 15px;
+    font-size: 12px;
 }
 
 /* The demo wrapper is transparent / full-flow on desktop — it only does work on
