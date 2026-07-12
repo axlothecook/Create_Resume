@@ -303,17 +303,18 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
                     <Text style={s.skillText}>{skills.skillList.map(x => x.text).join(', ')}</Text>
                 </View>
             )}
-            {(skills.languageList?.length > 0) && (
-                <View style={(skills.toolList?.length > 0) ? { marginBottom: 4 } : undefined}>
-                    <Text style={s.skillGroupTitle}>Languages</Text>
-                    <Text style={s.skillText}>{skills.languageList.map(x => x.text).join(', ')}</Text>
-                </View>
-            )}
-            {/* Tools: the third sub-group, mirroring the demo's SkillsLangResumeDiv. */}
+            {/* Tools: sits between Technical Skills and Languages (mirrors the demo's
+                SkillsLangResumeDiv). Keeps a gap below it when Languages follows. */}
             {(skills.toolList?.length > 0) && (
-                <View>
+                <View style={(skills.languageList?.length > 0) ? { marginBottom: 4 } : undefined}>
                     <Text style={s.skillGroupTitle}>Tools</Text>
                     <Text style={s.skillText}>{skills.toolList.map(x => x.text).join(', ')}</Text>
+                </View>
+            )}
+            {(skills.languageList?.length > 0) && (
+                <View>
+                    <Text style={s.skillGroupTitle}>Languages</Text>
+                    <Text style={s.skillText}>{skills.languageList.map(x => x.text).join(', ')}</Text>
                 </View>
             )}
         </>

@@ -444,19 +444,19 @@ function App() {
     {
       type: 'Description',
       descType: 'skill',
-      result: 'languageList',
-      hideField: 'langHidden',
-      editTitle: 'Languages',
-      placeholder: 'Spanish (native), English(fluent), French(beginner)',
+      result: 'toolList',
+      hideField: 'toolHidden',
+      editTitle: 'Tools',
+      placeholder: 'MS Excel, SAP, Figma, Jira',
       subtext: null
     },
     {
       type: 'Description',
       descType: 'skill',
-      result: 'toolList',
-      hideField: 'toolHidden',
-      editTitle: 'Tools',
-      placeholder: 'MS Excel, SAP, Figma, Jira',
+      result: 'languageList',
+      hideField: 'langHidden',
+      editTitle: 'Languages',
+      placeholder: 'Spanish (native), English(fluent), French(beginner)',
       subtext: null
     }
   ]
