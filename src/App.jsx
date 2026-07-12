@@ -1178,7 +1178,10 @@ function App() {
               // Match the PDF body box (src/pdf: padding 16pt, section gap 8pt).
               // 1pt = 1.333px at the shared 210mm width, so 16pt = 21.3px, 8pt = 10.7px.
               // Underlined keeps no top padding (the header rule already spaces it).
-              padding: style.underlined ? (style.gridView ? '21.3px' : '0 21.3px 21.3px 21.3px') : '21.3px',
+              // Underlined: the top padding is the gap BELOW the header rule, and must
+              // equal the between-sections gap (10.7px = the PDF's 8pt) so the first
+              // section title sits exactly as far from its rule as all the others.
+              padding: style.underlined ? (style.gridView ? '21.3px' : '10.7px 21.3px 21.3px 21.3px') : '21.3px',
               gap: style.underlined ? '10.7px' : '10.7px'
             }}>
 

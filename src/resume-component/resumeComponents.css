@@ -8,6 +8,21 @@
     position: relative;   /* anchor the credit footer to the page bottom */
 }
 
+/* --- Underlined style: separator spacing mirrors the PDF exactly ------------------
+   The rules are separators between blocks, so the gap BELOW each rule (rule -> the
+   section title under it) must be identical everywhere. The PDF uses its 8pt body gap
+   for all of them (= 10.7px here).
+
+   Before: the demo's <hr>s carried a 5px margin, so the first title sat 5px below the
+   header rule while every other title sat 15.7px below its rule (5px margin + the
+   10.7px body gap) — and the PDF had the inverse problem. Now the hrs are margin-less
+   and the ONE 10.7px gap comes from the body: its flex gap between sections, and its
+   top padding under the header rule (set in App.jsx). */
+.resume-view-top hr,
+.resume-view-right hr {
+    margin: 0;
+}
+
 /* Zoom viewport: a fixed-size window onto the résumé page. At 100% it's fully
    transparent (no clipping, no scroll — behaves exactly as before). Once zoomed
    in (.is-zoomed) it fixes its own size to the page and scrolls in both axes so
@@ -170,8 +185,14 @@
     display: flex;
     flex-flow: column wrap;
     align-items: center;
-    gap: 15px;
+    /* Mirrors the PDF header: this gap is contacts -> separator rule (the PDF's 2pt).
+       The name -> contacts distance (the PDF's 6pt = 8px) is this gap plus the h1's
+       margin-bottom below. */
+    gap: 2.7px;
     background-color: var(--dark-blue);
+}
+.personal-info-box-no-side-padding > h1 {
+    margin-bottom: 5.3px;   /* + the 2.7px gap = 8px = the PDF's 6pt name -> contacts */
 }
 
 .personal-info-box-left {
@@ -201,7 +222,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 22px;
+    gap: 12px;   /* mirrors the PDF's 9pt gap between the email / phone / address items */
 }
 
 .personal-info-details-column {

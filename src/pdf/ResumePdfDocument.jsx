@@ -180,7 +180,10 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
             textAlign: 'center',
             gap: 6, // space between the name and the email/phone/location row
             paddingBottom: 2, // tight gap between the contacts and the separator line
-            marginBottom: 8, // extra space between the header rule and the first section
+            // NO extra marginBottom: the body's 8pt flex gap alone separates the header
+            // rule from the first section title — exactly like every other separator ->
+            // title gap. (It used to add 8 on top, so the FIRST title sat twice as far
+            // from its rule as all the others.)
             borderBottomWidth: 1,
             borderBottomColor: '#1a1a1a',
         },
