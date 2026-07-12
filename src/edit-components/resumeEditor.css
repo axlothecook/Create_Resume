@@ -323,10 +323,12 @@
     resize: none;
     line-height: 1.5;
     font-size: 15px;
+    /* Fill the column but keep padding INSIDE the width (border-box) so the field
+       never overflows into the Add button / row icons. min-height carries the
+       one-line size so TextareaAutosize's border-box height calc isn't clipped. */
     width: 100%;
-    /* Keep the 10px padding inside the 100% width so the field doesn't overflow
-       its column and overlap the Add button / the row icons. */
     box-sizing: border-box;
+    min-height: calc(1.5em + 20px);
 }
 
 .edit-list {
