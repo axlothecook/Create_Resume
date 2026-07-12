@@ -324,11 +324,19 @@
     line-height: 1.5;
     font-size: 15px;
     /* Fill the column but keep padding INSIDE the width (border-box) so the field
-       never overflows into the Add button / row icons. min-height carries the
-       one-line size so TextareaAutosize's border-box height calc isn't clipped. */
+       never overflows into the Add button / row icons. */
     width: 100%;
     box-sizing: border-box;
+}
+/* min-height guards TextareaAutosize's border-box height calc from clipping.
+   The add-box input carries its own 10px padding (hence +20px); the row textarea
+   has padding:0 (its parent row pads instead), so it only needs the line height —
+   giving it the +20px made the rows taller than the add fields with top-stuck text. */
+.edit-input-description {
     min-height: calc(1.5em + 20px);
+}
+.edit-desc-list-item {
+    min-height: 1.5em;
 }
 
 .edit-list {
