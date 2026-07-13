@@ -44,11 +44,15 @@ const GeneralInfoBox = (props) => {
                             </div>
                         </div>
                         <div className='right-name-position-desc-box'>
+                            {/* Experience/Education (swapTitleSubtitle): the POSITION/DEGREE is
+                                the bold headline and the company/school sits under it in italics —
+                                several roles at one place used to repeat the place as the headline.
+                                Personal projects keep title-first (the project name IS the headline). */}
                             <div className="resume-place">
-                                <h4 style={{fontFamily: props.assumeStyle.font}}>{item.title}</h4>
+                                <h4 style={{fontFamily: props.assumeStyle.font}}>{props.swapTitleSubtitle ? item.subtitle : item.title}</h4>
                             </div>
                             <div className="resume-position">
-                                <h4 style={{fontFamily: props.assumeStyle.font}}><i>{item.subtitle}</i></h4>
+                                <h4 style={{fontFamily: props.assumeStyle.font}}><i>{props.swapTitleSubtitle ? item.title : item.subtitle}</i></h4>
                             </div>
                             <ul className="resume-description">
                                 {item.description.map((subItem) => (

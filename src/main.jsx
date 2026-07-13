@@ -10,6 +10,11 @@ import '@fontsource/poppins/700.css'
 import './resumeFonts.css'
 import './index.css'
 import App from './App.jsx'
+import { installSelectionAssist } from './utils/selectionAssist.js'
+
+// Editor fields: keep drag-selection alive when the sweep overshoots a field's edge
+// (Chromium collapses it inside flex layouts — see utils/selectionAssist.js).
+installSelectionAssist()
 
 
 createRoot(document.getElementById('root')).render(

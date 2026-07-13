@@ -80,24 +80,28 @@ const BigComponent = (props) => {
                 </div>
               ) : (
                 <div key="list">
-                  {props.array.map(item => (
-                    <li key={item.id}>
-                      <SummaryComponentDiv
-                        onHide={(value) => {
-                          const index = props.array.findIndex(subItem => subItem.id === item.id);
-                          props.updateFunc(value, props.array, props.setArray, index, 'hidden');
-                        }}
-                        name={item.title}
-                        initial={item.hidden}
-                        themeProp={props.themeP}
-                        onClick={() => {
-                          setShow(true);
-                          setIndex(props.array.findIndex(subItem => subItem.id === item.id));
-                          setTempEd(item);
-                        }}
-                      />
-                    </li>
-                  ))}
+                  {/* Rows scroll past 5 items (.entry-rows caps the height); the Add
+                      button stays put below the list. */}
+                  <div className='entry-rows'>
+                    {props.array.map(item => (
+                      <li key={item.id}>
+                        <SummaryComponentDiv
+                          onHide={(value) => {
+                            const index = props.array.findIndex(subItem => subItem.id === item.id);
+                            props.updateFunc(value, props.array, props.setArray, index, 'hidden');
+                          }}
+                          name={item.title}
+                          initial={item.hidden}
+                          themeProp={props.themeP}
+                          onClick={() => {
+                            setShow(true);
+                            setIndex(props.array.findIndex(subItem => subItem.id === item.id));
+                            setTempEd(item);
+                          }}
+                        />
+                      </li>
+                    ))}
+                  </div>
                   <AddBtnDiv themeProp={props.themeP} name={props.name} onClick={addBtnReplacement}/>
                 </div>
               )}
