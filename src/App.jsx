@@ -383,15 +383,9 @@ function App() {
     description: []
   };
 
+  // Degree first, school second — matches the demo/PDF, where the degree is the bold
+  // headline and the school sits under it in italics.
   let educationRequirements = [
-    {
-      type: 'InputField',
-      result: 'title',
-      editTitle: 'School / University / Course',
-      placeholder: 'University of Arts',
-      importantClass: null,
-      subtext: null
-    },
     {
       type: 'InputField',
       result: 'subtitle',
@@ -399,6 +393,14 @@ function App() {
       placeholder: 'Bachelor of Science',
       importantClass: null,
       subtext: 'recommended'
+    },
+    {
+      type: 'InputField',
+      result: 'title',
+      editTitle: 'School / University / Course',
+      placeholder: 'University of Arts',
+      importantClass: null,
+      subtext: null
     },
     {
       type: 'Dates'
@@ -461,16 +463,10 @@ function App() {
     }
   ]
 
+  // Position first, company second — matches the demo/PDF, where the position is the
+  // bold headline and the company sits under it in italics.
   let experienceRequirements =
   [
-    {
-      type: 'InputField',
-      result: 'title',
-      editTitle: 'Company',
-      placeholder: 'Local candymaker co.',
-      importantClass: null,
-      subtext: 'optional'
-    },
     {
       type: 'InputField',
       result: 'subtitle',
@@ -478,6 +474,14 @@ function App() {
       placeholder: 'Freelancer',
       importantClass: null,
       subtext: null
+    },
+    {
+      type: 'InputField',
+      result: 'title',
+      editTitle: 'Company',
+      placeholder: 'Local candymaker co.',
+      importantClass: null,
+      subtext: 'optional'
     },
     {
       type: 'Dates'
@@ -1218,7 +1222,7 @@ function App() {
                   switch (key) {
                     case 'education':
                       return educationArray.some(item => !item.hidden)
-                        ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EDUCATION' arr={educationArray} />
+                        ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EDUCATION' arr={educationArray} swapTitleSubtitle />
                         : null;
                     case 'skill': {
                       // Skills & Languages renders in the main content column (every
@@ -1234,7 +1238,7 @@ function App() {
                     }
                     case 'experience':
                       return experienceArray.some(item => !item.hidden)
-                        ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EXPERIENCE' arr={experienceArray} />
+                        ? <GeneralInfoBox assumeStyle={style} setTxtClr={checkBrightnessTab} resumeTitle='EXPERIENCE' arr={experienceArray} swapTitleSubtitle />
                         : null;
                     case 'project':
                       return projectArray.some(item => !item.hidden)

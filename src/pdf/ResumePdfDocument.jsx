@@ -250,7 +250,11 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         </View>
     );
 
-    const renderEntry = (item, i) => {
+    // swapTitle (experience/education): the POSITION/DEGREE is the bold headline and the
+    // company/school sits under it in italics — mirrors the on-screen demo, where several
+    // roles at one place used to repeat the place as the headline. Personal projects keep
+    // title-first (the project name IS the headline).
+    const renderEntry = (item, i, swapTitle = false) => {
         const start = formatDate(item.startDate, today);
         const end = formatDate(item.endDate, today);
         const dateRange = (start || end) ? `${start}${start && end ? ' - ' : ''}${end}` : '';
@@ -270,8 +274,8 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
                     ))}
                 </View>
                 <View style={s.entryRight}>
-                    {!!item.title && <Text style={s.entryTitle}>{item.title}</Text>}
-                    {!!item.subtitle && <Text style={s.entrySubtitle}>{item.subtitle}</Text>}
+                    {!!(swapTitle ? item.subtitle : item.title) && <Text style={s.entryTitle}>{swapTitle ? item.subtitle : item.title}</Text>}
+                    {!!(swapTitle ? item.title : item.subtitle) && <Text style={s.entrySubtitle}>{swapTitle ? item.title : item.subtitle}</Text>}
                     {(item.description || []).map((b, bi) => (
                         <View style={s.bulletRow} key={b.id ?? bi}>
                             <Text style={s.bulletDot}>•</Text>
@@ -338,7 +342,7 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
         return (
             <View style={s.section} key={sec.key}>
                 <Text style={s.sectionTitle}>{sec.label}</Text>
-                {sec.items.filter(it => !it.hidden).map(renderEntry)}
+                {sec.items.filter(it => !it.hidden).map((it, i) => renderEntry(it, i, sec.key === 'experience' || sec.key === 'education'))}
             </View>
         );
     };

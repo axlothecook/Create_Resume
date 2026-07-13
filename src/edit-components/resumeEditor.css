@@ -356,10 +356,21 @@
     gap: 7px;
 }
 
+/* Entry rows of a section (Experience / Education / Personal Project): show at most
+   5 rows (5 x 59px .summary-div rows); more scroll INSIDE the list — all screens.
+   The "+ Add" button sits below, outside the scroll area, so it never scrolls away. */
+.entry-rows {
+    max-height: 295px;
+    overflow-y: auto;
+}
+
 .edit-skill-list {
     margin: 0;
     margin-bottom: 10px;
     padding: 0;
+    /* Breathing room so no pill ever sits flush against the scrollbar when the
+       list overflows. */
+    padding-right: 6px;
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
