@@ -128,8 +128,9 @@ function App() {
     if (resolve) resolve(value);
   };
 
-  // Generic confirm modal (Proceed / Cancel). confirm({title, message, ...}) opens it
-  // and resolves true on Proceed, false on Cancel. Replaces window.confirm.
+  // Generic confirm modal. confirm({title, message, ...}) opens it and resolves:
+  //   'proceed' (the primary button) | 'alt' (the optional middle button) | 'cancel'.
+  // Callers that only need yes/no can just test `=== 'proceed'`. Replaces window.confirm.
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmContent, setConfirmContent] = useState({});
   const confirmResolverRef = useRef(null);
@@ -138,11 +139,11 @@ function App() {
     setConfirmContent(content || {});
     setConfirmOpen(true);
   });
-  const resolveConfirm = (ok) => {
+  const resolveConfirm = (outcome) => {
     setConfirmOpen(false);
     const resolve = confirmResolverRef.current;
     confirmResolverRef.current = null;
-    if (resolve) resolve(ok);
+    if (resolve) resolve(outcome);
   };
 
   // Toast notifications (top-right). showToast adds one; the Toast component owns its
@@ -602,6 +603,10 @@ function App() {
 
   const printRef = useRef(null);
 
+  // Skill/tool/language chips each carry their own visibility eye (`hidden`). Drop the
+  // hidden ones before rendering — used by BOTH the demo and the PDF so they can't drift.
+  const visibleItems = (list) => (list || []).filter((item) => !item.hidden);
+
   // --- Saved-docs (#6): gather/hydrate the full editor state ---
   // The backend stores a résumé's `data` as the FULL editor state verbatim, so saving
   // captures everything and loading restores the session exactly.
@@ -621,7 +626,17 @@ function App() {
     if (data.education) setEducationArray(data.education);
     if (data.experience) setExperienceArray(data.experience);
     if (data.project) setProjectArray(data.project);
-    if (data.skill) setSkillArray(data.skill);
+    // A résumé saved before a field existed simply has no such key (e.g. `toolList`,
+    // added with the Tools group). Backfill the lists so older CVs load into the current
+    // editor instead of blowing up on `undefined.map`.
+    if (data.skill) {
+      setSkillArray(data.skill.map((s) => ({
+        ...s,
+        skillList: s.skillList ?? [],
+        toolList: s.toolList ?? [],
+        languageList: s.languageList ?? [],
+      })));
+    }
     if (data.sectionOrder) setSectionOrder(data.sectionOrder);
     if (data.style) setStyle(data.style);
     bumpEditorKey(); // remount the (uncontrolled) editor forms onto the loaded state
@@ -665,21 +680,23 @@ function App() {
   const handleAddNew = async () => {
     if (docsBusy) return;
     if (hasUnsavedChanges()) {
-      const ok = await confirm({
+      const choice = await confirm({
         title: 'Unsaved changes',
         message: 'You have unsaved changes. Starting a new résumé will discard them. Do you want to proceed?',
         proceedLabel: 'Proceed',
         cancelLabel: 'Cancel',
       });
-      if (!ok) return;
+      if (choice !== 'proceed') return;
     }
     clearToBlank();
   };
 
   // "Save": update the loaded doc (PUT). If nothing is loaded yet, behave like Add new
   // (prompt for a title + POST), respecting the max limit.
+  // Returns TRUE only when the résumé actually reached the server — the unsaved-changes
+  // guard relies on that to know whether it may switch away.
   const handleSaveDoc = async () => {
-    if (docsBusy) return;
+    if (docsBusy) return false;
     setDocsBusy(true);
     try {
       if (currentDocId) {
@@ -687,10 +704,10 @@ function App() {
       } else {
         if (maxReached) {
           showToast('error', `You can save up to ${MAX_DOCS} résumés — delete one to save a new one.`);
-          return;
+          return false;
         }
         const title = await promptForName();
-        if (!title) return;
+        if (!title) return false; // the user cancelled the name prompt
         const res = await api.createResume(title, gatherState());
         setCurrentDocId(res.resume.id);
         setClearLoadSelection('load');
@@ -698,6 +715,7 @@ function App() {
       markSaved(); // current state is now the saved baseline
       await refreshSavedDocs();
       showToast('success', 'Résumé saved.');
+      return true;
     } catch (err) {
       // 401 = the session was lost (cookie expired, or the browser is blocking cookies
       // for the site) — the save can't go through. Tell the user plainly and send them
@@ -710,14 +728,36 @@ function App() {
       // A 409 from the server is the max-limit case; everything else is a generic error.
       else if (err.status === 409) showToast('error', err.message || `You can save up to ${MAX_DOCS} résumés — delete one first.`);
       else showToast('error', err.message || 'Could not save the résumé.');
+      return false;
     } finally {
       setDocsBusy(false);
     }
   };
 
   // Load a saved résumé into the editor (GET full data → hydrate every state slice).
+  // Switching away from a dirty editor would silently bin the edits, so warn first:
+  // Save (store them, then switch) / Discard (switch anyway) / Cancel (stay put).
   const handleLoadDoc = async (id) => {
     if (docsBusy) return;
+
+    if (hasUnsavedChanges()) {
+      const choice = await confirm({
+        title: 'Unsaved changes',
+        message: "You have unsaved changes. If you leave this résumé, they won't be saved.",
+        proceedLabel: 'Save',
+        altLabel: 'Discard',
+        cancelLabel: 'Cancel',
+      });
+      if (choice === 'cancel') return;
+      if (choice === 'proceed') {
+        // Save first; if it fails (offline, session expired, name prompt cancelled…)
+        // stay on the current résumé rather than losing the changes anyway.
+        const saved = await handleSaveDoc();
+        if (!saved) return;
+      }
+      // 'alt' (Discard) → fall through and load, dropping the changes.
+    }
+
     setDocsBusy(true);
     try {
       const res = await api.getResume(id);
@@ -745,13 +785,13 @@ function App() {
 
   const handleDeleteDoc = async (id, title) => {
     if (docsBusy) return;
-    const ok = await confirm({
+    const choice = await confirm({
       title: 'Delete résumé',
       message: `Delete "${title}"? This can't be undone.`,
       proceedLabel: 'Delete',
       cancelLabel: 'Cancel',
     });
-    if (!ok) return;
+    if (choice !== 'proceed') return;
     setDocsBusy(true);
     try {
       await api.deleteResume(id);
@@ -774,12 +814,13 @@ function App() {
       project: { key: 'project', label: 'PERSONAL PROJECTS', items: projectArray },
       skill: { key: 'skill', label: 'SKILLS & LANGUAGES' },
     };
-    // Skills sub-groups respect their visibility flags (a hidden group is omitted).
+    // Skills sub-groups respect their visibility flags (a hidden GROUP is omitted), and
+    // each entry respects its own eye (a hidden CHIP drops out of its group).
     const skill = skillArray[0];
     const pdfSkills = {
-      skillList: skill.skillHidden ? [] : skill.skillList,
-      languageList: skill.langHidden ? [] : skill.languageList,
-      toolList: skill.toolHidden ? [] : (skill.toolList || []),
+      skillList: skill.skillHidden ? [] : visibleItems(skill.skillList),
+      languageList: skill.langHidden ? [] : visibleItems(skill.languageList),
+      toolList: skill.toolHidden ? [] : visibleItems(skill.toolList),
       portfolioLink: skill.portfolioLink,
       portfolioLinkName: skill.portfolioLinkName,
     };
@@ -804,14 +845,26 @@ function App() {
       />
     ).toBlob();
 
-    // Filename: logged-in users get "<username>-resume.pdf"; guests get "johndoe-resume.pdf".
-    const slug = (user && user.username ? user.username : 'johndoe')
-      .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'johndoe';
+    // Filename: the résumé's own NAME (the title the user gave it when saving) — that's
+    // what they recognise it by, and it keeps several downloaded CVs apart. Falls back to
+    // the username, then "johndoe", for a résumé that hasn't been saved/named yet.
+    // Accents survive the slug (é, ž, č…) so "Životopis" doesn't become "ivotopis".
+    const currentTitle = savedDocs.find((d) => d.id === currentDocId)?.title;
+    const rawName = currentTitle || (user && user.username) || 'johndoe';
+    const slug = rawName
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      // Strip only what a filename can't safely carry, keeping letters/digits of any script.
+      .replace(/[^\p{L}\p{N}-]+/gu, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '') || 'resume';
 
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${slug}-resume.pdf`;
+    // A named résumé is already its own name — don't tack "-resume" onto it twice.
+    a.download = currentTitle ? `${slug}.pdf` : `${slug}-resume.pdf`;
     a.click();
     URL.revokeObjectURL(url);
     showToast('success', 'PDF downloaded.');
@@ -1028,6 +1081,7 @@ function App() {
                           updateFunc={updateObject}
                           requirementsArray={educationRequirements}
                           addBtnObject={educationObject}
+                          swapTitleSubtitle
                         />
                       ),
                       skill: (
@@ -1052,6 +1106,7 @@ function App() {
                           updateFunc={updateObject}
                           requirementsArray={experienceRequirements}
                           addBtnObject={experienceObject}
+                          swapTitleSubtitle
                         />
                       ),
                       project: (
@@ -1227,13 +1282,15 @@ function App() {
                     case 'skill': {
                       // Skills & Languages renders in the main content column (every
                       // layout). It hides only when EVERY sub-group (skills + languages
-                      // + tools) is empty or toggled off.
+                      // + tools) is empty or toggled off. Individually-hidden chips (their
+                      // own eye) drop out of their group first — so a group whose every
+                      // chip is hidden disappears heading and all, like an empty one.
                       const s = skillArray[0];
-                      const skillsVisible = s.skillList.length !== 0 && !s.skillHidden;
-                      const langVisible = s.languageList.length !== 0 && !s.langHidden;
-                      const toolsVisible = (s.toolList || []).length !== 0 && !s.toolHidden;
-                      return (skillsVisible || langVisible || toolsVisible)
-                        ? <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skillsVisible ? s.skillList : []} langArr={langVisible ? s.languageList : []} toolArr={toolsVisible ? s.toolList : []} portfolioLink={s.portfolioLink} portfolioLinkName={s.portfolioLinkName} />
+                      const skills = s.skillHidden ? [] : visibleItems(s.skillList);
+                      const langs = s.langHidden ? [] : visibleItems(s.languageList);
+                      const tools = s.toolHidden ? [] : visibleItems(s.toolList);
+                      return (skills.length || langs.length || tools.length)
+                        ? <SkillResumeDiv assumeStyle={style} setTxtClr={checkBrightnessTab} skillArr={skills} langArr={langs} toolArr={tools} portfolioLink={s.portfolioLink} portfolioLinkName={s.portfolioLinkName} />
                         : null;
                     }
                     case 'experience':
@@ -1294,7 +1351,8 @@ function App() {
         onCancel={() => resolveName(null)}
       />
 
-      {/* Generic confirm modal (unsaved-changes warning, delete confirmation, …). */}
+      {/* Generic confirm modal (unsaved-changes warning, delete confirmation, …).
+          `altLabel` adds the optional middle button (Discard, when switching docs). */}
       <ConfirmModal
         open={confirmOpen}
         themeProp={theme}
@@ -1302,8 +1360,10 @@ function App() {
         message={confirmContent.message}
         proceedLabel={confirmContent.proceedLabel}
         cancelLabel={confirmContent.cancelLabel}
-        onProceed={() => resolveConfirm(true)}
-        onCancel={() => resolveConfirm(false)}
+        altLabel={confirmContent.altLabel}
+        onProceed={() => resolveConfirm('proceed')}
+        onAlt={() => resolveConfirm('alt')}
+        onCancel={() => resolveConfirm('cancel')}
       />
 
       {/* Top-right toast notifications (saved / PDF downloaded / errors). */}

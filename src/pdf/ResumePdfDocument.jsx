@@ -46,7 +46,7 @@ const pdfFontFor = () => PDF_FAMILY;
 // --- Date + link helpers (SHARED with the on-screen demo via utils/resumeFormat, so
 // the two render paths can't drift; also handles the ISO strings saved dates become
 // after the JSON round-trip, which used to print raw here) --------------------------
-import { formatResumeDate as formatDate, todayString, toHref } from '../utils/resumeFormat';
+import { formatResumeDate as formatDate, formatEndDate, todayString, toHref } from '../utils/resumeFormat';
 
 // Pick white or black text for legibility on the accent color (ported checkBrightness).
 const onAccent = (hex) => {
@@ -256,7 +256,8 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
     // title-first (the project name IS the headline).
     const renderEntry = (item, i, swapTitle = false) => {
         const start = formatDate(item.startDate, today);
-        const end = formatDate(item.endDate, today);
+        // "present" when the entry is flagged ongoing, else the formatted end date.
+        const end = formatEndDate(item, today);
         const dateRange = (start || end) ? `${start}${start && end ? ' - ' : ''}${end}` : '';
         return (
             <View style={s.entry} key={item.id ?? i} wrap={false}>

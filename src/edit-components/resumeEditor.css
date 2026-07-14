@@ -405,8 +405,55 @@ li {
     width: fit-content;
 }
 
-.edit-list-item > div:first-of-type {
+/* Action-icon cluster of a list row (pen/tick/cancel/trash, plus the per-item eye on
+   skill chips). Pushed to the right end, and divided from the text by a vertical rule
+   so it's clear where the editable text ends and the buttons start. */
+.edit-item-actions {
     margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-left: 10px;
+    border-left: 1px solid rgba(0, 0, 0, 0.18);
+    align-self: stretch;
+}
+.edit-item-actions > div {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+/* A hidden chip's eye reads as "off" — the row itself stays fully legible/editable. */
+.edit-item-eye {
+    opacity: 0.55;
+}
+.edit-item-eye:hover {
+    opacity: 1;
+}
+/* Black, matching the pen/trash it sits beside (the shared eye is blue, which read as
+   a link next to them). Black in BOTH themes: the chip keeps a light background in dark
+   mode, so the dark-theme white eye would vanish on it. */
+.edit-item-eye .tab-open-svg,
+.edit-item-eye .tab-closed-svg,
+.theme-dark .edit-item-eye .tab-open-svg,
+.theme-dark .edit-item-eye .tab-closed-svg {
+    fill: #000;
+}
+
+/* "Ongoing" checkbox under the End Date picker. */
+.ongoing-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+}
+.ongoing-checkbox input {
+    width: 16px;
+    height: 16px;
+    accent-color: #5e59a8;
+    cursor: pointer;
 }
 
 .edit-desc-list-item {

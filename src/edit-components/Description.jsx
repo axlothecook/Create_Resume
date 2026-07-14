@@ -12,7 +12,10 @@ const Description = (props) => {
     // Link lists ('Links to the...') get a second field: a human label ("name")
     // that becomes the visible, clickable text instead of the raw URL.
     const isLink = props.type === 'link';
-    const [listArr, setListArr] = useState(props.description);
+    // Default to [] — a résumé saved BEFORE a list existed (e.g. `toolList`, added later)
+    // has no such key, so `props.description` arrives undefined and every `.map` below
+    // threw, taking the whole editor down when that CV was loaded.
+    const [listArr, setListArr] = useState(props.description ?? []);
     // The text currently typed in the "add new bullet" box. A plain string so the
     // handlers never crash on `undefined` when Add is clicked before typing.
     const [newText, setNewText] = useState('');
@@ -38,7 +41,7 @@ const Description = (props) => {
     // Re-sync the local list when the parent swaps in a different entry's
     // description (e.g. when the user opens a different Experience item).
     useEffect(() => {
-        setListArr(props.description);
+        setListArr(props.description ?? []);
         setSelectedId(null);
         setSelectedField(null);
     }, [props.description]);
@@ -153,42 +156,64 @@ const Description = (props) => {
                                 />
                             </div>
 
-                            {selectedId !== item.id && <div onClick={() => {
-                                setSelectedId(item.id);
-                                setEditText(item.text);
-                            }}>
-                                <EditSvg width={'13px'} height={'13px'} color={'black'}  />
-                            </div>}
+                            {/* Action icons live in their own cluster, divided from the text by a
+                                rule (.edit-item-actions) so it's obvious where the editable text
+                                ends and the buttons begin. */}
+                            <div className='edit-item-actions'>
+                                {/* Per-item visibility eye (skill / tool / language chips): hides
+                                    this single entry from the résumé without deleting it. The
+                                    GROUP eye (next to the heading) still hides the whole group. */}
+                                {props.type === 'skill' && <div
+                                    className='edit-item-eye'
+                                    title={item.hidden ? 'Show in résumé' : 'Hide from résumé'}
+                                    onClick={() => {
+                                        const updated = listArr.map(thing =>
+                                            thing.id === item.id ? { ...thing, hidden: !thing.hidden } : thing
+                                        );
+                                        setListArr(updated);
+                                        props.onChange(updated);
+                                    }}
+                                >
+                                    {item.hidden ? <TabClosedSvg /> : <TabOpenSvg />}
+                                </div>}
 
-                            {selectedId === item.id && <div onClick={() => {
-                                // Build a NEW array (immutable update) so React re-renders
-                                // and the parent receives a fresh reference.
-                                const updated = listArr.map(thing =>
-                                    thing.id === item.id
-                                        ? { ...thing, text: editText }
-                                        : thing
-                                );
-                                setListArr(updated);
-                                props.onChange(updated);
-                                setSelectedId(null);
-                            }}>
-                                <TickSvg />
-                            </div>}
+                                {selectedId !== item.id && <div onClick={() => {
+                                    setSelectedId(item.id);
+                                    setEditText(item.text);
+                                }}>
+                                    <EditSvg width={'13px'} height={'13px'} color={'black'}  />
+                                </div>}
 
-                            {selectedId === item.id && <div onClick={() => {
-                                // Cancel: discard the edit, leave the list untouched.
-                                setSelectedId(null);
-                                setEditText('');
-                            }}>
-                                <CancelChangeSvg />
-                            </div>}
+                                {selectedId === item.id && <div onClick={() => {
+                                    // Build a NEW array (immutable update) so React re-renders
+                                    // and the parent receives a fresh reference.
+                                    const updated = listArr.map(thing =>
+                                        thing.id === item.id
+                                            ? { ...thing, text: editText }
+                                            : thing
+                                    );
+                                    setListArr(updated);
+                                    props.onChange(updated);
+                                    setSelectedId(null);
+                                }}>
+                                    <TickSvg />
+                                </div>}
 
-                            <div onClick={() => {
-                                const trimmed = listArr.filter(itemToStay => itemToStay.id !== item.id);
-                                setListArr(trimmed);
-                                props.onChange(trimmed);
-                            }}>
-                                <TrashSvg color={'black'} width={'15px'} height={'15px'} />
+                                {selectedId === item.id && <div onClick={() => {
+                                    // Cancel: discard the edit, leave the list untouched.
+                                    setSelectedId(null);
+                                    setEditText('');
+                                }}>
+                                    <CancelChangeSvg />
+                                </div>}
+
+                                <div onClick={() => {
+                                    const trimmed = listArr.filter(itemToStay => itemToStay.id !== item.id);
+                                    setListArr(trimmed);
+                                    props.onChange(trimmed);
+                                }}>
+                                    <TrashSvg color={'black'} width={'15px'} height={'15px'} />
+                                </div>
                             </div>
                         </div>
                     </li>

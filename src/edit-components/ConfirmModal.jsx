@@ -4,9 +4,12 @@ import './nameModal.css';
 
 const FADE_MS = 600; // keep in sync with nameModal.css
 
-// Centered confirm modal (Proceed / Cancel) over a dimmed backdrop, fading in/out like
-// the name modal. Controlled by App: `open` shows it; onProceed / onCancel close it.
-const ConfirmModal = ({ open, title, message, proceedLabel = 'Proceed', cancelLabel = 'Cancel', themeProp, onProceed, onCancel }) => {
+// Centered confirm modal over a dimmed backdrop, fading in/out like the name modal.
+// Controlled by App: `open` shows it; onProceed / onCancel close it.
+//
+// Optional THIRD action (`altLabel` + `onAlt`) for the unsaved-changes-on-switch case,
+// which needs Save / Discard / Cancel: `onProceed` = Save, `onAlt` = Discard.
+const ConfirmModal = ({ open, title, message, proceedLabel = 'Proceed', cancelLabel = 'Cancel', altLabel, themeProp, onProceed, onCancel, onAlt }) => {
     const [render, setRender] = useState(open);
     const [closing, setClosing] = useState(false);
 
@@ -42,6 +45,7 @@ const ConfirmModal = ({ open, title, message, proceedLabel = 'Proceed', cancelLa
                 <p className="confirm-modal-message">{message}</p>
                 <div className="name-modal-actions">
                     <button type="button" className="name-modal-btn name-modal-cancel" onClick={onCancel}>{cancelLabel}</button>
+                    {altLabel && <button type="button" className="name-modal-btn name-modal-alt" onClick={onAlt}>{altLabel}</button>}
                     <button type="button" className="name-modal-btn name-modal-save" onClick={onProceed}>{proceedLabel}</button>
                 </div>
             </div>
