@@ -106,6 +106,26 @@
 .theme-dark .name-modal-cancel { border-color: #5a5780; }
 .theme-dark .name-modal-cancel:hover { background: rgba(255, 255, 255, 0.08); }
 
+/* Optional middle action — "Discard" when switching away from unsaved changes. It's the
+   destructive choice, so it reads in the danger colour (the sass library's cornel-red,
+   #b91c1c) but stays secondary to Save. */
+.name-modal-alt {
+    background: transparent;
+    color: #b91c1c;
+    border: 1.5px solid #b91c1c;
+}
+/* Hover: fill solid with the border colour, text flips to white. */
+.name-modal-alt:hover {
+    background: #b91c1c;
+    color: #fff;
+}
+/* Dark mode: a lightened cornel-red so it keeps contrast on the dark modal. */
+.theme-dark .name-modal-alt { color: #e35d5d; border-color: #e35d5d; }
+.theme-dark .name-modal-alt:hover {
+    background: #e35d5d;
+    color: #fff;
+}
+
 .name-modal-save {
     background: #5e59a8;
     color: #fff;

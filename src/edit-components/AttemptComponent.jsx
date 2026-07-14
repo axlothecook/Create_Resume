@@ -49,7 +49,10 @@ const BigComponent = (props) => {
                        to keep keys defined + unique (fixes the missing-key warning). */
                     <div style={{width: 'inherit'}} key={obj.result || `${obj.type}-${i}`}>
                       {obj.type == 'InputField' && <InputField themeProp={props.themeP} initial={props.array[index][obj.result]} onChange={(e) => {props.updateFunc(e.target.value, props.array, props.setArray, index, `${obj.result}`)}} editTitle={obj.editTitle} importantClass={obj.importantClass} subtext={obj.subtext} type='text' placeholder={obj.placeholder} />}
-                      {obj.type == 'Dates' && <Dates initialStart={props.array[index].startDate} initialEnd={props.array[index].endDate} startDateonChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, 'startDate')}} endDateonChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, 'endDate')}} />}
+                      {obj.type == 'Dates' && <Dates initialStart={props.array[index].startDate} initialEnd={props.array[index].endDate} startDateonChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, 'startDate')}} endDateonChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, 'endDate')}}
+                        ongoing={props.array[index].ongoing}
+                        onOngoingChange={(val) => {props.updateFunc(val, props.array, props.setArray, index, 'ongoing')}}
+                      />}
                       {obj.type == 'Description' && <Description themeProp={props.themeP} editTitle={obj.editTitle} placeholder={obj.placeholder} subtext={obj.subtext} description={props.array[index][obj.result]} type={obj.descType} onChange={(e) => {props.updateFunc(e, props.array, props.setArray, index, `${obj.result}`)}}
                         hidden={obj.hideField ? !!props.array[index][obj.hideField] : undefined}
                         onToggleHide={obj.hideField ? (val) => props.updateFunc(val, props.array, props.setArray, index, obj.hideField) : undefined}
@@ -85,12 +88,15 @@ const BigComponent = (props) => {
                   <div className='entry-rows'>
                     {props.array.map(item => (
                       <li key={item.id}>
+                        {/* Experience/Education rows are labelled by POSITION/DEGREE, not
+                            company/school — several roles at one employer made every row read
+                            identically. Falls back to the title if no subtitle is set yet. */}
                         <SummaryComponentDiv
                           onHide={(value) => {
                             const index = props.array.findIndex(subItem => subItem.id === item.id);
                             props.updateFunc(value, props.array, props.setArray, index, 'hidden');
                           }}
-                          name={item.title}
+                          name={props.swapTitleSubtitle ? (item.subtitle || item.title) : item.title}
                           initial={item.hidden}
                           themeProp={props.themeP}
                           onClick={() => {

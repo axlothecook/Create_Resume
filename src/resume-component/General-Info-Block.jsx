@@ -1,5 +1,5 @@
 import './resumeComponents.css';
-import { formatResumeDate, todayString, toHref } from '../utils/resumeFormat';
+import { formatResumeDate, formatEndDate, todayString, toHref } from '../utils/resumeFormat';
 
 const GeneralInfoBox = (props) => {
     // Shared date formatter (utils/resumeFormat) — also handles the ISO strings that
@@ -20,7 +20,8 @@ const GeneralInfoBox = (props) => {
                 // A freshly-added item with no dates yet must render nothing here,
                 // not a lone "-" (which used to show under the section).
                 const start = ongoingChecker(item.startDate);
-                const end = ongoingChecker(item.endDate);
+                // "present" when the entry is flagged ongoing, else the formatted end date.
+                const end = formatEndDate(item, date);
                 const dateRange = start && end ? `${start} - ${end}` : (start || end);
                 return (
                 <div key={item.id}>
