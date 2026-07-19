@@ -56,7 +56,6 @@ The resume preview components and the date formatting logic are covered by 20 un
 
 
 ### ***What tools does the project use?*** ###
-+ styling: my own [sass library](https://github.com/axlothecook/axlothecook-sass-library)
 + [React 19](https://react.dev) + [Vite](https://vite.dev): the app and its build tooling <br />
 + [@react-pdf/renderer](https://react-pdf.org): renders the resume as a real vector PDF, right in the browser <br />
 + [@dnd-kit](https://dndkit.com): the drag-to-reorder <br />
