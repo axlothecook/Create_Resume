@@ -24,7 +24,7 @@ Each resume is styled with built-in options to create a look suitable for user's
 Each cv can be downloaded via a button in bottom right corner.
 
 ### ***What if I want to choose the order of sections or leave some out?*** ###
-Version 2 shipped exactly this. Items can now be dragged to reorder, and each item can be shown or hidden individually.
+Version 2 shipped exactly this. Sections can now be dragged to reorder, and each item can be shown or hidden individually.
 
 ### ***Will my data be deleted?*** ###
 Only the user who has made an account will have their previous resume data saved. If a user chooses to use the tool as a guest, the data will be lost after a page refresh or leaving the page.
