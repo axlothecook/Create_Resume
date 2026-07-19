@@ -31,8 +31,9 @@ Only the user who has made an account will have their previous resume data saved
 
 ### ***Can I make an account?*** ###
 Of course. The point of having an account here is so that the returning user can continue working where they left off. Account making and data storage came with Version 2: the user login data is stored in a database, along with each resume (up to a limit of 5), the individual information they hold and the style for each one. Logging in lasts 7 days, or 30 with `remember me` option ticked on.
+<br />
 
-### ***What features are there?*** ###
+## Features
 <ul> 
 	<li>section-by-section editor: personal details, experience, education, projects, skills and languages</li> 
 	<li>live A4 preview that mirrors the downloadable PDF</li> 
