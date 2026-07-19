@@ -55,7 +55,7 @@ The app work is depicted in the graph below. Everything about building the resum
 The resume preview components and the date formatting logic are covered by 20 unit tests. They run in CI before every deploy; if any fail, nothing gets deployed. The pipeline itself is explained in [homelab-ci-cd](https://github.com/axlothecook/homelab-ci-cd).
 
 
-### ***What tools does the project use?*** ###
+## What tools does the project use?
 + [React 19](https://react.dev) + [Vite](https://vite.dev): the app and its build tooling <br />
 + [@react-pdf/renderer](https://react-pdf.org): renders the resume as a real vector PDF, right in the browser <br />
 + [@dnd-kit](https://dndkit.com): the drag-to-reorder <br />
