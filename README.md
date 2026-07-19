@@ -48,7 +48,7 @@ Of course. The point of having an account here is so that the returning user can
 ## How it works
 The app work is depicted in the graph below. Everything about building the resume happens in the browser: edits update React state, which feeds both the live preview and the PDF renderer. Only accounts and saved resumes travel over the network, to the backend.
 
-![image](https://github.com/user-attachments/assets/2e58fa7e-a839-48b9-adc9-143fea716dbe)
+![image](https://github.com/user-attachments/assets/53d9b961-5029-4323-a454-129cf38d3fe6)
 
 
 ## Testing
