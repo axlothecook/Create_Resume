@@ -830,6 +830,25 @@ input[type="color"]::-webkit-color-swatch {
     pointer-events: none;
 }
 
+/* Item-level reorder (entries within a section / bullets within a description).
+   Unlike the section grip above, this grip IS the drag handle (the row itself stays
+   clickable), so it keeps pointer events and centers on the row's height. */
+.sortable-entry-row {
+    padding-left: 22px;
+    position: relative;
+}
+
+.sortable-entry-row .entry-drag-grip {
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    line-height: 1;
+    color: var(--red, #888);
+    user-select: none;
+}
+
 .calibri {
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }

@@ -1,17 +1,25 @@
 import './resumeEditor.css';
 import TextareaAutosize from 'react-textarea-autosize';
+import { DndContext, closestCenter, PointerSensor, KeyboardSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import EditSvg from '../components/Edit';
 import TrashSvg from '../components/Trash';
 import TickSvg from '../components/Tick';
 import CancelChangeSvg from '../components/CancelChange';
 import TabOpenSvg from '../components/TabOpen';
 import TabClosedSvg from '../components/TabClosedSvg';
+import SortableEntryRow from '../edit-components/SortableEntryRow';
 import { useEffect, useState } from 'react';
 
 const Description = (props) => {
     // Link lists ('Links to the...') get a second field: a human label ("name")
     // that becomes the visible, clickable text instead of the raw URL.
     const isLink = props.type === 'link';
+    // Only plain bullet lists reorder by drag (item #2). Link rows are two stacked
+    // fields (a grip would fight the pens) and skill chips flow in a grid, so both
+    // keep their existing layout untouched.
+    const isPlainList = !isLink && props.type !== 'skill';
     // Default to [] — a résumé saved BEFORE a list existed (e.g. `toolList`, added later)
     // has no such key, so `props.description` arrives undefined and every `.map` below
     // threw, taking the whole editor down when that CV was loaded.
@@ -37,6 +45,28 @@ const Description = (props) => {
     // Generate an id larger than any existing bullet's, so re-adds after the
     // parent has saved (and this component remounted) never collide.
     const nextId = (arr) => (arr.length ? Math.max(...arr.map(i => Number(i.id) || 0)) + 1 : 0);
+
+    // Same sensor recipe as the other reorder spots (pointer / touch / keyboard,
+    // small threshold so a tap on the grip isn't already a drag).
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+        useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    );
+
+    // Drop a dragged bullet into its new slot. Same commit pattern as every other
+    // mutation here: build the new array, set it locally AND report it up. Ids are
+    // String()ed — the demo data uses negative ids and nextId starts at 0.
+    function handleBulletDragEnd(event) {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        const oldIndex = listArr.findIndex(item => String(item.id) === active.id);
+        const newIndex = listArr.findIndex(item => String(item.id) === over.id);
+        if (oldIndex === -1 || newIndex === -1) return;
+        const updated = arrayMove(listArr, oldIndex, newIndex);
+        setListArr(updated);
+        props.onChange(updated);
+    };
 
     // Re-sync the local list when the parent swaps in a different entry's
     // description (e.g. when the user opens a different Experience item).
@@ -139,8 +169,12 @@ const Description = (props) => {
                         </div>
                     </li>
                     );
-                }) : listArr.map((item) => (
+                }) : (() => {
+                    // Plain bullet lists get a drag grip per row (SortableEntryRow);
+                    // skill chips render the same rows but skip the wrapper entirely.
+                    const bulletRows = listArr.map((item) => (
                     <li key={item.id}>
+                        {(() => { const row = (
                         <div style={{backgroundColor: !props.themeProp ? '#eef1f3' : '#ccc'}} className={props.type === 'skill' ? 'edit-skill-list-item' : "edit-list-item"}>
                             <div className='edit-desc-fields'>
                                 <TextareaAutosize
@@ -216,8 +250,20 @@ const Description = (props) => {
                                 </div>
                             </div>
                         </div>
+                        ); return isPlainList ? <SortableEntryRow id={String(item.id)}>{row}</SortableEntryRow> : row; })()}
                     </li>
-                ))}
+                    ));
+                    return isPlainList ? (
+                        /* Only the vertical-axis lock here: the bullet <ul> has no scroll cap, so
+   there is no scrollbar cascade to guard against (and restrictToParentElement
+   would clamp the drag to the bullet's own row-sized <li>, freezing it). */
+<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleBulletDragEnd} modifiers={[restrictToVerticalAxis]}>
+                            <SortableContext items={listArr.map(item => String(item.id))} strategy={verticalListSortingStrategy}>
+                                {bulletRows}
+                            </SortableContext>
+                        </DndContext>
+                    ) : bulletRows;
+                })()}
             </ul>
             <div className="edit-desc-box">
                 <div className={isLink ? 'edit-link-fields' : 'edit-desc-fields'}>

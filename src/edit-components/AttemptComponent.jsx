@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import './resumeEditor.css';
+import { DndContext, closestCenter, PointerSensor, KeyboardSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, arrayMove, verticalListSortingStrategy, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis, restrictToFirstScrollableAncestor } from '@dnd-kit/modifiers';
 import InputBlock from '../edit-components/Edit-input-block';
 import InputField from '../edit-components/Input-field';
 import Dates from '../edit-components/Dates';
@@ -8,12 +11,32 @@ import AddBtnDiv from '../edit-components/AddBtn';
 import BottomBar from '../edit-components/BottomBar';
 import SummaryComponentDiv from '../edit-components/ArraySummary';
 import AnimatedHeight from '../edit-components/AnimatedHeight';
+import SortableEntryRow from '../edit-components/SortableEntryRow';
 
 
 const BigComponent = (props) => {
     const [show, setShow] = useState(props.singleObject ? true : false);
     const [index, setIndex] = useState(props.singleObject ? 0 : -1);
     const [tempEd, setTempEd] = useState({});
+
+    // Same sensor recipe as the section reorder in App: pointer, touch (phones) and
+    // keyboard, with a small activation threshold so a tap/click isn't read as a drag.
+    const sensors = useSensors(
+      useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+      useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } }),
+      useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    );
+
+    // Reorder this section's entries (item #2: drag an entry within its section).
+    // Ids arrive as String(item.id) — real ids can be 0, which dnd-kit treats as falsy.
+    function handleEntryDragEnd(event) {
+      const { active, over } = event;
+      if (!over || active.id === over.id) return;
+      const oldIndex = props.array.findIndex(item => String(item.id) === active.id);
+      const newIndex = props.array.findIndex(item => String(item.id) === over.id);
+      if (oldIndex === -1 || newIndex === -1) return;
+      props.setArray(arrayMove(props.array, oldIndex, newIndex));
+    };
 
     // Unique id = larger than any existing entry's, so added entries never collide
     // with each other or the demo data (which prevented React's duplicate-key warning).
@@ -85,29 +108,53 @@ const BigComponent = (props) => {
                 <div key="list">
                   {/* Rows scroll past 5 items (.entry-rows caps the height); the Add
                       button stays put below the list. */}
-                  <div className='entry-rows'>
-                    {props.array.map(item => (
+                  {(() => {
+                    const rows = props.array.map(item => (
                       <li key={item.id}>
                         {/* Experience/Education rows are labelled by POSITION/DEGREE, not
                             company/school — several roles at one employer made every row read
                             identically. Falls back to the title if no subtitle is set yet. */}
-                        <SummaryComponentDiv
-                          onHide={(value) => {
-                            const index = props.array.findIndex(subItem => subItem.id === item.id);
-                            props.updateFunc(value, props.array, props.setArray, index, 'hidden');
-                          }}
-                          name={props.swapTitleSubtitle ? (item.subtitle || item.title) : item.title}
-                          initial={item.hidden}
-                          themeProp={props.themeP}
-                          onClick={() => {
-                            setShow(true);
-                            setIndex(props.array.findIndex(subItem => subItem.id === item.id));
-                            setTempEd(item);
-                          }}
-                        />
+                        {(() => {
+                          const summary = (
+                            <SummaryComponentDiv
+                              onHide={(value) => {
+                                const index = props.array.findIndex(subItem => subItem.id === item.id);
+                                props.updateFunc(value, props.array, props.setArray, index, 'hidden');
+                              }}
+                              name={props.swapTitleSubtitle ? (item.subtitle || item.title) : item.title}
+                              initial={item.hidden}
+                              themeProp={props.themeP}
+                              onClick={() => {
+                                setShow(true);
+                                setIndex(props.array.findIndex(subItem => subItem.id === item.id));
+                                setTempEd(item);
+                              }}
+                            />
+                          );
+                          return props.reorderable
+                            ? <SortableEntryRow id={String(item.id)}>{summary}</SortableEntryRow>
+                            : summary;
+                        })()}
                       </li>
-                    ))}
-                  </div>
+                    ));
+                    return (
+                      <div className='entry-rows'>
+                        {props.reorderable ? (
+                          /* Modifiers pin the drag to the vertical axis AND inside .entry-rows
+                             (the first scrollable ancestor) — a row dragged sideways/past the end
+                             otherwise grows the list's scroll size and pops both scrollbars
+                             mid-drag. NOT restrictToParentElement: dnd-kit measures the dragged
+                             row's direct parent, the <li>, which is exactly row-sized and would
+                             clamp all movement to zero. */
+                          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleEntryDragEnd} modifiers={[restrictToVerticalAxis, restrictToFirstScrollableAncestor]}>
+                            <SortableContext items={props.array.map(item => String(item.id))} strategy={verticalListSortingStrategy}>
+                              {rows}
+                            </SortableContext>
+                          </DndContext>
+                        ) : rows}
+                      </div>
+                    );
+                  })()}
                   <AddBtnDiv themeProp={props.themeP} name={props.name} onClick={addBtnReplacement}/>
                 </div>
               )}

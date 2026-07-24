@@ -1082,6 +1082,7 @@ function App() {
                           requirementsArray={educationRequirements}
                           addBtnObject={educationObject}
                           swapTitleSubtitle
+                          reorderable
                         />
                       ),
                       skill: (
@@ -1107,6 +1108,7 @@ function App() {
                           requirementsArray={experienceRequirements}
                           addBtnObject={experienceObject}
                           swapTitleSubtitle
+                          reorderable
                         />
                       ),
                       project: (
@@ -1119,6 +1121,7 @@ function App() {
                           updateFunc={updateObject}
                           requirementsArray={personalProjectRequirements}
                           addBtnObject={personalProjectObject}
+                          reorderable
                         />
                       ),
                     };
