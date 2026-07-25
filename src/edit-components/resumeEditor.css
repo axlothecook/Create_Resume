@@ -422,6 +422,31 @@ li {
     align-items: center;
     cursor: pointer;
 }
+/* Plain bullet rows: icons stay in a row (the row keeps its one-line height) but
+   get a wider gap than the default cluster and one uniform size — every svg is
+   normalized to the eye's 20px box, overriding the smaller width/height attrs the
+   pen (13px) and trash (15px) are created with. Tick/X inherit the same row. */
+.edit-item-actions.bullet-actions {
+    gap: 14px;
+}
+.edit-item-actions.bullet-actions svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* View mode (readonly): the bullet shows ONE line and longer text fades out to
+   the right — a mask, not an overlay, so it matches any background/theme. The
+   editing textarea has no readonly attr, so it auto-grows to the full text.
+   white-space:pre keeps the line from wrapping where supported; the max-height
+   caps it to one line regardless. Link rows are excluded (two stacked fields). */
+.edit-list .edit-list-item:not(.edit-link-row) textarea[readonly].edit-desc-list-item {
+    white-space: pre;
+    max-height: 24px;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, #000 82%, transparent 98%);
+    mask-image: linear-gradient(to right, #000 82%, transparent 98%);
+}
+
 /* A hidden chip's eye reads as "off" — the row itself stays fully legible/editable. */
 .edit-item-eye {
     opacity: 0.55;

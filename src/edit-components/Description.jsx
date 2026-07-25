@@ -192,12 +192,17 @@ const Description = (props) => {
 
                             {/* Action icons live in their own cluster, divided from the text by a
                                 rule (.edit-item-actions) so it's obvious where the editable text
-                                ends and the buttons begin. */}
-                            <div className='edit-item-actions'>
-                                {/* Per-item visibility eye (skill / tool / language chips): hides
-                                    this single entry from the résumé without deleting it. The
-                                    GROUP eye (next to the heading) still hides the whole group. */}
-                                {props.type === 'skill' && <div
+                                ends and the buttons begin. Plain bullet rows widen the gaps and
+                                normalize every icon to the eye's 20px ('bullet-actions'); the row
+                                keeps its one-line height because view-mode text fades instead of
+                                wrapping (see resumeEditor.css). */}
+                            <div className={isPlainList ? 'edit-item-actions bullet-actions' : 'edit-item-actions'}>
+                                {/* Per-item visibility eye (skill chips AND description bullets):
+                                    hides this single entry from the résumé without deleting it. The
+                                    GROUP eye (next to the heading) still hides the whole group. On
+                                    bullets the eye unmounts while the row is being edited (only
+                                    tick/X stay, for space). */}
+                                {(props.type === 'skill' || (isPlainList && selectedId !== item.id)) && <div
                                     className='edit-item-eye'
                                     title={item.hidden ? 'Show in résumé' : 'Hide from résumé'}
                                     onClick={() => {
@@ -241,13 +246,14 @@ const Description = (props) => {
                                     <CancelChangeSvg />
                                 </div>}
 
-                                <div onClick={() => {
+                                {/* Trash also unmounts while a plain bullet is being edited. */}
+                                {!(isPlainList && selectedId === item.id) && <div onClick={() => {
                                     const trimmed = listArr.filter(itemToStay => itemToStay.id !== item.id);
                                     setListArr(trimmed);
                                     props.onChange(trimmed);
                                 }}>
                                     <TrashSvg color={'black'} width={'15px'} height={'15px'} />
-                                </div>
+                                </div>}
                             </div>
                         </div>
                         ); return isPlainList ? <SortableEntryRow id={String(item.id)}>{row}</SortableEntryRow> : row; })()}

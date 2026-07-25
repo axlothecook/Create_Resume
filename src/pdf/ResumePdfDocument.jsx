@@ -277,7 +277,8 @@ export default function ResumePdfDocument({ personalDetails, skills, orderedSect
                 <View style={s.entryRight}>
                     {!!(swapTitle ? item.subtitle : item.title) && <Text style={s.entryTitle}>{swapTitle ? item.subtitle : item.title}</Text>}
                     {!!(swapTitle ? item.title : item.subtitle) && <Text style={s.entrySubtitle}>{swapTitle ? item.title : item.subtitle}</Text>}
-                    {(item.description || []).map((b, bi) => (
+                    {/* Same per-bullet hidden filter as the on-screen demo (General-Info-Block). */}
+                    {(item.description || []).filter(b => !b.hidden).map((b, bi) => (
                         <View style={s.bulletRow} key={b.id ?? bi}>
                             <Text style={s.bulletDot}>•</Text>
                             <Text style={s.bulletText}>{b.text}</Text>

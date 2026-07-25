@@ -56,7 +56,8 @@ const GeneralInfoBox = (props) => {
                                 <h4 style={{fontFamily: props.assumeStyle.font}}><i>{props.swapTitleSubtitle ? item.title : item.subtitle}</i></h4>
                             </div>
                             <ul className="resume-description">
-                                {item.description.map((subItem) => (
+                                {/* Bullets hidden via their per-item eye stay out of the résumé. */}
+                                {item.description.filter((subItem) => !subItem.hidden).map((subItem) => (
                                     <li className='list-item' key={subItem.id} style={{fontFamily: props.assumeStyle.font}}>
                                         <div className='list-dot'></div>
                                         {subItem.text} 
