@@ -88,7 +88,10 @@ const Description = (props) => {
                     {props.hidden ? <TabClosedSvg /> : <TabOpenSvg />}
                 </div>}
             </div>
-            <ul className={props.type === 'skill' ? 'edit-skill-list' : "edit-list"}>
+            {/* Plain bullet lists get 'edit-bullet-list' so the 3-row scroll cap in
+                resumeEditor.css applies ONLY to them — link rows are ~98px tall (two
+                stacked fields), so the same cap would scroll at just 2 links. */}
+            <ul className={props.type === 'skill' ? 'edit-skill-list' : isLink ? 'edit-list' : 'edit-list edit-bullet-list'}>
                 {isLink ? listArr.map((item) => {
                     // A link row: two DISTINCT fields (label on top, URL below), each
                     // with its own pen so they edit independently. Only the URL row
@@ -260,9 +263,10 @@ const Description = (props) => {
                     </li>
                     ));
                     return isPlainList ? (
-                        /* Only the vertical-axis lock here: the bullet <ul> has no scroll cap, so
-   there is no scrollbar cascade to guard against (and restrictToParentElement
-   would clamp the drag to the bullet's own row-sized <li>, freezing it). */
+                        /* Only the vertical-axis lock here: the bullet <ul> caps at 3 rows and
+   scrolls (.edit-bullet-list) — dnd-kit handles scrollable containers natively
+   (auto-scrolls near the edges), and restrictToParentElement would clamp the
+   drag to the bullet's own row-sized <li>, freezing it. */
 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleBulletDragEnd} modifiers={[restrictToVerticalAxis]}>
                             <SortableContext items={listArr.map(item => String(item.id))} strategy={verticalListSortingStrategy}>
                                 {bulletRows}

@@ -153,6 +153,22 @@
     padding: 15px 0;
 }
 
+/* Desktop (side-by-side layout) only: the editor column pins to the viewport and
+   scrolls INSIDE itself, so a long open section scrolls in the panel instead of
+   growing the page — the A4 demo stays in sight. Below 1024px the columns stack
+   (see the responsive block near the bottom) and normal page scroll is correct.
+   The Clear/Load bar (.sticky-div) keeps sticking — inside this scroll container. */
+@media screen and (min-width: 1025px) {
+    .edit-load-div-parent {
+        position: sticky;
+        top: 0;
+        align-self: flex-start;
+        max-height: 100vh;
+        box-sizing: border-box;   /* keep the 15px vertical padding inside 100vh */
+        overflow-y: auto;
+    }
+}
+
 .left-column, .sticky-div  {
     display: flex;
     gap: 0.5rem;   /* space between the two buttons (Clear/Load, Content/Customize) */
@@ -354,6 +370,19 @@
     display: flex;
     flex-direction: column;
     gap: 7px;
+}
+
+/* Plain bullet lists ONLY (class added in Description.jsx — link rows are ~98px
+   tall, so this cap would scroll at just 2 links): show at most 3 rows
+   (3 x 44px rows + 2 x 7px gaps = 146px, measured; +2px slack so an exact fit
+   never flickers a scrollbar); a 4th row scrolls INSIDE the list — the add-box
+   below sits outside the scroll, so it never scrolls away. */
+.edit-bullet-list {
+    max-height: 148px;
+    overflow-y: auto;
+    /* Breathing room so no row sits flush against the scrollbar when the list
+       overflows (same as .edit-skill-list). */
+    padding-right: 6px;
 }
 
 /* Entry rows of a section (Experience / Education / Personal Project): show at most
