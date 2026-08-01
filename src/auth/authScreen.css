@@ -150,13 +150,13 @@
 .auth-field.is-invalid input:focus + label { color: #d1495b; }
 
 .auth-field.is-valid input {
-    border-color: #2e9e5b;
+    border-color: #269115;
 }
 .auth-field.is-valid input:focus {
-    border-color: #2e9e5b;
-    box-shadow: 0 0 0 1px #2e9e5b;
+    border-color: #269115;
+    box-shadow: 0 0 0 1px #269115;
 }
-.auth-field.is-valid input:focus + label { color: #2e9e5b; }
+.auth-field.is-valid input:focus + label { color: #269115; }
 
 /* --- password requirements checklist --- */
 .auth-pw-checklist {
@@ -175,7 +175,7 @@
     color: #8a8a99;            /* unmet = muted */
     transition: color 0.15s ease;
 }
-.auth-pw-checklist li.is-passed { color: #2e9e5b; }   /* met = green */
+.auth-pw-checklist li.is-passed { color: #269115; }   /* met = green */
 .auth-pw-mark {
     display: inline-flex;
     align-items: center;
@@ -199,9 +199,9 @@
    are confirmations, not failures, and they must not read as an error. */
 .auth-notice {
     margin: 0;
-    color: #2e9e5b;
+    color: #269115;
     font-size: 0.85rem;
-    background: rgba(46, 158, 91, 0.1);
+    background: rgba(38, 145, 21, 0.1);
     padding: 0.5rem 0.7rem;
     border-radius: 8px;
 }
