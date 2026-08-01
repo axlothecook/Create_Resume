@@ -95,8 +95,14 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
         return SUBMIT_LABEL[mode];
     })();
 
+    // True while the submit button should refuse to act. Note this is enforced HERE,
+    // not by the `disabled` attribute: the button stays focusable on purpose (see the
+    // aria-disabled comment on it), and an aria-disabled button still fires events.
+    const submitBlocked = busy || (mode === 'forgot' && cooldown > 0);
+
     const submit = async (e) => {
         e.preventDefault();
+        if (submitBlocked) return;
         setError('');
         setNotice('');
         // The submit button stays ENABLED (per UX best practice); on an invalid new
@@ -259,7 +265,13 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
                         </p>
                     )}
 
-                    <button type="submit" className="auth-submit" disabled={busy || cooldown > 0}>
+                    {/* aria-disabled, NOT the `disabled` attribute. A disabled button is
+                        removed from the tab order, so a keyboard or screen-reader user
+                        could not reach it to hear that a countdown is running or how far
+                        along it is. aria-disabled keeps it focusable and announced as
+                        unavailable; `submitBlocked` in the handler is what actually stops
+                        the action, since aria-disabled is advisory only. */}
+                    <button type="submit" className="auth-submit" aria-disabled={submitBlocked}>
                         {submitLabel}
                     </button>
 

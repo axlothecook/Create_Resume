@@ -60,7 +60,45 @@ describe('forgot-password flow', () => {
         expect(api.forgotPassword).toHaveBeenCalledWith('someone@example.com');
         // The button IS the confirmation now: it locks and starts counting down.
         const button = await screen.findByRole('button', { name: /send link again \(60\)/i });
-        expect(button).toBeDisabled();
+        // aria-disabled, not `disabled`: it must stay focusable so a keyboard or screen
+        // reader user can reach it and hear the countdown.
+        expect(button).toHaveAttribute('aria-disabled', 'true');
+        expect(button).not.toBeDisabled();
+    });
+
+    test('the locked button still refuses to send, even though it is clickable', async () => {
+        const user = userEvent.setup();
+        api.forgotPassword.mockResolvedValue({ ok: true });
+        render(<AuthScreen onAuthenticated={vi.fn()} onGuest={vi.fn()} />);
+
+        await user.click(screen.getByRole('button', { name: /forgot your password/i }));
+        await user.type(screen.getByLabelText(/email/i), 'someone@example.com');
+        await user.click(screen.getByRole('button', { name: /send reset link/i }));
+
+        const locked = await screen.findByRole('button', { name: /send link again \(60\)/i });
+        expect(api.forgotPassword).toHaveBeenCalledTimes(1);
+
+        // aria-disabled is advisory: the click DOES reach the handler, so the guard in
+        // the component is the thing actually preventing a second request.
+        await user.click(locked);
+        await user.click(locked);
+        expect(api.forgotPassword).toHaveBeenCalledTimes(1);
+    });
+
+    test('the locked button is reachable by keyboard (it is not removed from tab order)', async () => {
+        const user = userEvent.setup();
+        api.forgotPassword.mockResolvedValue({ ok: true });
+        render(<AuthScreen onAuthenticated={vi.fn()} onGuest={vi.fn()} />);
+
+        await user.click(screen.getByRole('button', { name: /forgot your password/i }));
+        await user.type(screen.getByLabelText(/email/i), 'someone@example.com');
+        await user.click(screen.getByRole('button', { name: /send reset link/i }));
+
+        const locked = await screen.findByRole('button', { name: /send link again \(60\)/i });
+        locked.focus();
+        // A `disabled` button cannot hold focus, so this is the assertion that would
+        // fail if it were ever changed back.
+        expect(locked).toHaveFocus();
     });
 
     test('says nothing about whether the account exists', async () => {
