@@ -36,7 +36,7 @@
     animation: toast-slide-out 0.28s ease forwards;
 }
 
-.toast-success { background-color: #2e9e5b; }
+.toast-success { background-color: #269115; }
 .toast-error { background-color: #d1495b; }
 
 .toast-icon {
