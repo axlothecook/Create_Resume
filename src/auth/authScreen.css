@@ -249,8 +249,12 @@
     cursor: pointer;
     transition: background 0.15s ease;
 }
-.auth-submit:hover:not(:disabled) { background: #4b478a; }
-.auth-submit:disabled { opacity: 0.6; cursor: default; }
+.auth-submit:hover:not(:disabled):not([aria-disabled='true']) { background: #4b478a; }
+/* Both selectors: the submit button uses aria-disabled rather than the disabled
+   attribute so it stays focusable during the resend countdown (see AuthScreen), but it
+   must still LOOK unavailable. :disabled is kept for any other button using this class. */
+.auth-submit:disabled,
+.auth-submit[aria-disabled='true'] { opacity: 0.6; cursor: default; }
 
 .auth-divider {
     display: flex;
