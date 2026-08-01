@@ -33,6 +33,10 @@ Only the user who has made an account will have their previous resume data saved
 Of course. The point of having an account here is so that the returning user can continue working where they left off. Account making and data storage came with Version 2: the user login data is stored in a database, along with each resume (up to a limit of 5), the individual information they hold and the style for each one. Logging in lasts 7 days, or 30 with `remember me` option ticked on.
 <br />
 
+### ***What if I forget my password?*** ###
+There is a "Forgot your password?" link under the password field. Enter the email address and a reset link is sent to it. The link lasts 15 minutes and works only once. Choosing a new password also signs out every other device, so if someone else had got into the account, they are removed from it.
+<br />
+
 ## Features
 <ul> 
 	<li>section-by-section editor: personal details, experience, education, projects, skills and languages</li> 
@@ -41,6 +45,7 @@ Of course. The point of having an account here is so that the returning user can
 	<li>pdf styling through different fonts, design and layout</li> 
 	<li>drag to reorder sections, and per-item show or hide</li>
 	 <li>account creation, login authentication and cookie sessions, or use without login as a guest</li> <li>document save feature (up to 5 per account)</li> 
+	<li>password recovery by email, with a reset link that expires after 15 minutes</li> 
 	<li>light / dark mode</li> 
 	<li>fully responsive, with a dedicated mobile pass across every page</li> 
 </ul>
@@ -52,7 +57,7 @@ The app work is depicted in the graph below. Everything about building the resum
 
 
 ## Testing
-The resume preview components and the date formatting logic are covered by 20 unit tests. They run in CI before every deploy; if any fail, nothing gets deployed. The pipeline itself is explained in [homelab-ci-cd](https://github.com/axlothecook/homelab-ci-cd).
+The resume preview components, the auth screen and the date formatting logic are covered by 30 unit tests. They run in CI before every deploy; if any fail, nothing gets deployed. The pipeline itself is explained in [homelab-ci-cd](https://github.com/axlothecook/homelab-ci-cd).
 
 
 ## What tools does the project use?
