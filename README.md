@@ -56,8 +56,19 @@ The app work is depicted in the graph below. Everything about building the resum
 ![image](https://github.com/user-attachments/assets/53d9b961-5029-4323-a454-129cf38d3fe6)
 
 
+## How password recovery works
+Added August 2026. The whole flow lives on the same auth card as login and signup, so there are no extra pages and no router.
+
+**Asking for a link.** "Forgot your password?" sits under the password field and swaps the card into a mode that asks only for an email. On submit the button itself becomes the confirmation: it locks and counts down from 60, reading "Send link again (60)", then unlocks as "Send link again". The countdown starts only after the server replies, so a button that changed is proof the request went through. It also stops repeated clicking from burning the limit of three reset emails per hour.
+
+**What the screen deliberately does not say.** It never reports whether the address has an account. The server answers identically either way, so a form that revealed the difference would turn it into a tool for checking who has an account here. A hidden message carries the same wording to screen readers, since a button quietly changing its own label is not announced.
+
+**Choosing the new password.** The emailed link points at `/reset-password` with a token in the address. There is no router, so the app reads the token off the URL and shows the reset form, with the same live requirements checklist used at signup. After a successful change the token is stripped from the address bar so it cannot be re-shared or read over a shoulder, and the user is returned to the login form rather than being signed in automatically.
+
+**What the server enforces**, described fully in the [backend README](https://github.com/axlothecook/Create_Resume-backend): the token is random, stored only as a hash, expires after 15 minutes and works exactly once. Changing the password also signs out every other device.
+
 ## Testing
-The resume preview components, the auth screen and the date formatting logic are covered by 30 unit tests. They run in CI before every deploy; if any fail, nothing gets deployed. The pipeline itself is explained in [homelab-ci-cd](https://github.com/axlothecook/homelab-ci-cd).
+The resume preview components, the auth screen, the app's sign-in gating and the date formatting logic are covered by 38 unit tests. They run in CI before every deploy; if any fail, nothing gets deployed. The pipeline itself is explained in [homelab-ci-cd](https://github.com/axlothecook/homelab-ci-cd).
 
 
 ## What tools does the project use?

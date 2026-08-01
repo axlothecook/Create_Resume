@@ -73,10 +73,30 @@ describe('forgot-password flow', () => {
         await user.click(screen.getByRole('button', { name: /send reset link/i }));
         await screen.findByRole('button', { name: /send link again/i });
 
-        // No status banner at all, and nothing anywhere that confirms or denies the
-        // address. The backend responds identically for both cases; the UI must too.
-        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+        // Nothing anywhere confirms or denies the address. The backend responds
+        // identically for both cases; the UI must too.
         expect(document.body.textContent).not.toMatch(/not registered|no account|we sent|doesn't exist|does not exist/i);
+    });
+
+    test('announces the result to screen readers without showing it on screen', async () => {
+        const user = userEvent.setup();
+        api.forgotPassword.mockResolvedValue({ ok: true });
+        render(<AuthScreen onAuthenticated={vi.fn()} onGuest={vi.fn()} />);
+
+        await user.click(screen.getByRole('button', { name: /forgot your password/i }));
+        // Nothing to announce before a request is made.
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+
+        await user.type(screen.getByLabelText(/email/i), 'someone@example.com');
+        await user.click(screen.getByRole('button', { name: /send reset link/i }));
+
+        // The countdown button is the SIGHTED confirmation; this live region is the
+        // equivalent for anyone who can't see it change.
+        const status = await screen.findByRole('status');
+        expect(status).toHaveClass('auth-sr-only');
+        // Same conditional phrasing as everything else: no enumeration through audio.
+        expect(status).toHaveTextContent(/if an account exists/i);
+        expect(status).toHaveTextContent(/15 minutes/i);
     });
 
     // NOTE: the countdown TICKING (60 → 59 → … → unlocked) is deliberately not unit
