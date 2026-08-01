@@ -195,6 +195,22 @@
     border-radius: 8px;
 }
 
+/* Available to screen readers, invisible on screen. The standard clip pattern rather
+   than display:none or visibility:hidden — both of those remove the element from the
+   accessibility tree too, so a live region inside them announces nothing. Kept 1x1 and
+   clipped instead of width:0 so it stays a rendered box that assistive tech will read. */
+.auth-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* Neutral feedback (reset link sent, password changed). Green rather than red: these
    are confirmations, not failures, and they must not read as an error. */
 .auth-notice {

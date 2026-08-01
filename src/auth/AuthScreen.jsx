@@ -49,6 +49,10 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
     // Whether a link has been requested at all this visit, so the button can read
     // "Send link again" rather than reverting to "Send reset link" once it unlocks.
     const [linkSent, setLinkSent] = useState(false);
+    // How many reset links have been requested this visit. Only used to re-key the
+    // screen-reader announcement so a SECOND request is announced too; without it the
+    // live region's text would be unchanged and most readers would stay silent.
+    const [requestCount, setRequestCount] = useState(0);
 
     // Tick the cooldown down once a second. One timeout per second rather than a
     // single interval, so the cleanup covers unmount and mode switches alike.
@@ -77,6 +81,7 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
         setPassword('');
         setCooldown(0);
         setLinkSent(false);
+        setRequestCount(0);
     };
 
     // The forgot button doubles as the confirmation, so its label carries the state:
@@ -110,6 +115,7 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
                 // countdown starts identically too, so the UI leaks nothing.
                 setLinkSent(true);
                 setCooldown(RESEND_COOLDOWN_SECONDS);
+                setRequestCount((n) => n + 1);
                 return;
             }
 
@@ -239,6 +245,19 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
 
                     {error && <p className="auth-error">{error}</p>}
                     {notice && <p className="auth-notice" role="status">{notice}</p>}
+
+                    {/* Screen-reader-only confirmation. A disabled button quietly
+                        relabelling itself is not reliably announced, so without this a
+                        blind user gets NO feedback that the request went through. The
+                        text is deliberately static: re-rendering it once a second with
+                        the countdown would make a reader interrupt itself 60 times.
+                        `key` re-keys the region so a repeat request announces again. */}
+                    {mode === 'forgot' && requestCount > 0 && (
+                        <p key={requestCount} className="auth-sr-only" role="status">
+                            If an account exists for that email, a reset link is on its way.
+                            The link is valid for 15 minutes. You can request another link in one minute.
+                        </p>
+                    )}
 
                     <button type="submit" className="auth-submit" disabled={busy || cooldown > 0}>
                         {submitLabel}
