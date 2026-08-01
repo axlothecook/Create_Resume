@@ -48,7 +48,7 @@ describe('forgot-password flow', () => {
         expect(screen.getByRole('button', { name: /send reset link/i })).toBeInTheDocument();
     });
 
-    test('submitting calls the API and shows a message that reveals NOTHING about the account', async () => {
+    test('submitting calls the API and locks the button into a countdown', async () => {
         const user = userEvent.setup();
         api.forgotPassword.mockResolvedValue({ ok: true });
         render(<AuthScreen onAuthenticated={vi.fn()} onGuest={vi.fn()} />);
@@ -58,11 +58,31 @@ describe('forgot-password flow', () => {
         await user.click(screen.getByRole('button', { name: /send reset link/i }));
 
         expect(api.forgotPassword).toHaveBeenCalledWith('someone@example.com');
-        const notice = await screen.findByRole('status');
-        // Must be conditional ("if an account exists"), never a confirmation that it does.
-        expect(notice).toHaveTextContent(/if an account exists/i);
-        expect(notice.textContent).not.toMatch(/\b(we sent|your account|not found|no account)\b/i);
+        // The button IS the confirmation now: it locks and starts counting down.
+        const button = await screen.findByRole('button', { name: /send link again \(60\)/i });
+        expect(button).toBeDisabled();
     });
+
+    test('says nothing about whether the account exists', async () => {
+        const user = userEvent.setup();
+        api.forgotPassword.mockResolvedValue({ ok: true });
+        render(<AuthScreen onAuthenticated={vi.fn()} onGuest={vi.fn()} />);
+
+        await user.click(screen.getByRole('button', { name: /forgot your password/i }));
+        await user.type(screen.getByLabelText(/email/i), 'someone@example.com');
+        await user.click(screen.getByRole('button', { name: /send reset link/i }));
+        await screen.findByRole('button', { name: /send link again/i });
+
+        // No status banner at all, and nothing anywhere that confirms or denies the
+        // address. The backend responds identically for both cases; the UI must too.
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+        expect(document.body.textContent).not.toMatch(/not registered|no account|we sent|doesn't exist|does not exist/i);
+    });
+
+    // NOTE: the countdown TICKING (60 → 59 → … → unlocked) is deliberately not unit
+    // tested. Driving it needs vi.useFakeTimers(), which hangs userEvent and leaked
+    // into every following test in this file. The locked state and the label are
+    // covered above; the tick itself is verified in a real browser.
 
     test('can go back to log in', async () => {
         const user = userEvent.setup();

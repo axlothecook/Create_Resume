@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { api } from '../api/client';
 import authBg from '../assets/auth-bg.jpg'; // LED-dot texture; fills the screen via cover
 import { evaluatePassword, isPasswordValid } from './passwordRules';
@@ -21,6 +21,12 @@ const SUBMIT_LABEL = {
     reset: 'Change password',
 };
 
+// How long the forgot-password button stays locked after a request, in seconds. The
+// countdown IS the confirmation: it only starts once the request came back, so a
+// button that changed means the request went through. It also keeps someone from
+// burning their per-email allowance (3/hour) on impatient double-clicks.
+const RESEND_COOLDOWN_SECONDS = 60;
+
 // Shown when logged out. Defaults to login (email + password + Continue); a "Sign up"
 // switch below Continue reveals the signup fields. Plus "Browse as guest".
 // On success it calls onAuthenticated(user) / onGuest() so App can drop into the editor.
@@ -38,6 +44,19 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
     const [error, setError] = useState('');
     const [notice, setNotice] = useState('');                // neutral, non-error feedback
     const [busy, setBusy] = useState(false);
+    // Seconds left before another reset link can be requested; 0 = free to send.
+    const [cooldown, setCooldown] = useState(0);
+    // Whether a link has been requested at all this visit, so the button can read
+    // "Send link again" rather than reverting to "Send reset link" once it unlocks.
+    const [linkSent, setLinkSent] = useState(false);
+
+    // Tick the cooldown down once a second. One timeout per second rather than a
+    // single interval, so the cleanup covers unmount and mode switches alike.
+    useEffect(() => {
+        if (cooldown <= 0) return undefined;
+        const id = setTimeout(() => setCooldown((c) => c - 1), 1000);
+        return () => clearTimeout(id);
+    }, [cooldown]);
 
     // Which fields each mode needs. Keeps the JSX conditions readable.
     const needsEmail = mode === 'login' || mode === 'signup' || mode === 'forgot';
@@ -56,7 +75,20 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
         setError('');
         setNotice('');
         setPassword('');
+        setCooldown(0);
+        setLinkSent(false);
     };
+
+    // The forgot button doubles as the confirmation, so its label carries the state:
+    // locked with a countdown right after a request, then unlocked as "again".
+    const submitLabel = (() => {
+        if (busy) return 'Please wait…';
+        if (mode === 'forgot' && cooldown > 0) {
+            return `Send link again (${String(cooldown).padStart(2, '0')})`;
+        }
+        if (mode === 'forgot' && linkSent) return 'Send link again';
+        return SUBMIT_LABEL[mode];
+    })();
 
     const submit = async (e) => {
         e.preventDefault();
@@ -72,10 +104,12 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
         try {
             if (mode === 'forgot') {
                 await api.forgotPassword(email);
-                // Deliberately says nothing about whether the address is registered —
-                // the backend answers identically either way, and a UI that revealed
-                // the difference would undo that.
-                setNotice("If an account exists for that email, a reset link is on its way. The link is valid for 15 minutes.");
+                // The button itself becomes the feedback: it locks and counts down.
+                // Note what is NOT here — nothing about whether the address is
+                // registered. The backend answers identically either way, and the
+                // countdown starts identically too, so the UI leaks nothing.
+                setLinkSent(true);
+                setCooldown(RESEND_COOLDOWN_SECONDS);
                 return;
             }
 
@@ -206,8 +240,8 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
                     {error && <p className="auth-error">{error}</p>}
                     {notice && <p className="auth-notice" role="status">{notice}</p>}
 
-                    <button type="submit" className="auth-submit" disabled={busy}>
-                        {busy ? 'Please wait…' : SUBMIT_LABEL[mode]}
+                    <button type="submit" className="auth-submit" disabled={busy || cooldown > 0}>
+                        {submitLabel}
                     </button>
 
                     {/* Mode switch sits BELOW Continue (no top tabs). */}
