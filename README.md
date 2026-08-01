@@ -68,7 +68,7 @@ Added August 2026. The whole flow lives on the same auth card as login and signu
 **What the server enforces**, described fully in the [backend README](https://github.com/axlothecook/Create_Resume-backend): the token is random, stored only as a hash, expires after 15 minutes and works exactly once. Changing the password also signs out every other device.
 
 ## Testing
-The resume preview components, the auth screen, the app's sign-in gating and the date formatting logic are covered by 38 unit tests. They run in CI before every deploy; if any fail, nothing gets deployed. The pipeline itself is explained in [homelab-ci-cd](https://github.com/axlothecook/homelab-ci-cd).
+The resume preview components, the auth screen, the app's sign-in gating and the date formatting logic are covered by 40 unit tests. They run in CI before every deploy; if any fail, nothing gets deployed. The pipeline itself is explained in [homelab-ci-cd](https://github.com/axlothecook/homelab-ci-cd).
 
 
 ## What tools does the project use?
