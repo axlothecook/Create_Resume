@@ -195,6 +195,33 @@
     border-radius: 8px;
 }
 
+/* Neutral feedback (reset link sent, password changed). Green rather than red: these
+   are confirmations, not failures, and they must not read as an error. */
+.auth-notice {
+    margin: 0;
+    color: #2e9e5b;
+    font-size: 0.85rem;
+    background: rgba(46, 158, 91, 0.1);
+    padding: 0.5rem 0.7rem;
+    border-radius: 8px;
+}
+
+/* One line of explanation under the title, for the two recovery modes. */
+.auth-lead {
+    margin: -0.4rem 0 0;
+    text-align: center;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+/* "Forgot your password?" — sits under the password field, right-aligned so it reads
+   as a secondary action rather than competing with Continue. */
+.auth-forgot {
+    margin: -0.4rem 0 0;
+    text-align: right;
+    font-size: 0.85rem;
+}
+
 .auth-submit {
     padding: 0.7rem;
     border: none;

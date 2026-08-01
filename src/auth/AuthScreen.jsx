@@ -6,36 +6,94 @@ import TabOpenSvg from '../components/TabOpen';
 import TabClosedSvg from '../components/TabClosedSvg';
 import './authScreen.css';
 
+// The reset link mailed by the backend looks like /reset-password?token=<64 hex>.
+// There is no router in this app, and nginx already serves index.html for unknown
+// paths, so the token is read straight off the URL instead of adding one.
+export function readResetToken() {
+    if (typeof window === 'undefined') return '';
+    return new URLSearchParams(window.location.search).get('token') || '';
+}
+
+const SUBMIT_LABEL = {
+    login: 'Continue',
+    signup: 'Create account',
+    forgot: 'Send reset link',
+    reset: 'Change password',
+};
+
 // Shown when logged out. Defaults to login (email + password + Continue); a "Sign up"
 // switch below Continue reveals the signup fields. Plus "Browse as guest".
 // On success it calls onAuthenticated(user) / onGuest() so App can drop into the editor.
+// Also carries the two password-recovery modes: 'forgot' (ask for a reset link) and
+// 'reset' (choose a new password), the latter entered by arriving with a token in the URL.
 export default function AuthScreen({ onAuthenticated, onGuest }) {
-    const [mode, setMode] = useState('login'); // 'login' | 'signup'
+    const [resetToken, setResetToken] = useState(readResetToken);
+    // Landing with a token means the user clicked a reset link: go straight there.
+    const [mode, setMode] = useState(() => (readResetToken() ? 'reset' : 'login'));
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false); // eye toggle (both modes)
     const [rememberMe, setRememberMe] = useState(false);     // login only
     const [error, setError] = useState('');
+    const [notice, setNotice] = useState('');                // neutral, non-error feedback
     const [busy, setBusy] = useState(false);
 
-    // Live password validation (signup only). The checklist + border read from these.
+    // Which fields each mode needs. Keeps the JSX conditions readable.
+    const needsEmail = mode === 'login' || mode === 'signup' || mode === 'forgot';
+    const needsPassword = mode === 'login' || mode === 'signup' || mode === 'reset';
+    // A new password is being CHOSEN (not just typed), so show the live checklist.
+    const choosingPassword = mode === 'signup' || mode === 'reset';
+
+    // Live password validation. The checklist + border read from these.
     const passwordChecks = evaluatePassword(password);
     const passwordOk = isPasswordValid(password);
     // Border colour: only flag once the user has typed something.
     const passwordState = password.length === 0 ? '' : (passwordOk ? 'is-valid' : 'is-invalid');
 
+    const switchMode = (next) => {
+        setMode(next);
+        setError('');
+        setNotice('');
+        setPassword('');
+    };
+
     const submit = async (e) => {
         e.preventDefault();
         setError('');
-        // The submit button stays ENABLED (per UX best practice); on an invalid signup
+        setNotice('');
+        // The submit button stays ENABLED (per UX best practice); on an invalid new
         // password we reveal the inline errors instead of sending a doomed request.
-        if (mode === 'signup' && !passwordOk) {
+        if (choosingPassword && !passwordOk) {
             setError('Please meet all the password requirements below.');
             return;
         }
         setBusy(true);
         try {
+            if (mode === 'forgot') {
+                await api.forgotPassword(email);
+                // Deliberately says nothing about whether the address is registered —
+                // the backend answers identically either way, and a UI that revealed
+                // the difference would undo that.
+                setNotice("If an account exists for that email, a reset link is on its way. The link is valid for 15 minutes.");
+                return;
+            }
+
+            if (mode === 'reset') {
+                await api.resetPassword(resetToken, password);
+                // Drop the token out of the address bar and browser history now that
+                // it is spent, so it can't be re-shared or shoulder-surfed.
+                if (typeof window !== 'undefined') {
+                    window.history.replaceState({}, '', window.location.pathname);
+                }
+                setResetToken('');
+                setMode('login');
+                setPassword('');
+                // No auto-login by design (the backend does not create a session here).
+                setNotice('Your password has been changed. You can log in with it now.');
+                return;
+            }
+
             const res = mode === 'login'
                 ? await api.login(email, password, rememberMe)
                 : await api.signup(email, username, password);
@@ -70,15 +128,24 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
             <div className="auth-card">
                 <h1 className="auth-title">Resume Creator</h1>
 
+                {mode === 'forgot' && (
+                    <p className="auth-lead">Enter your email and we&rsquo;ll send you a link to choose a new password.</p>
+                )}
+                {mode === 'reset' && (
+                    <p className="auth-lead">Choose a new password for your account.</p>
+                )}
+
                 <form className="auth-form" onSubmit={submit}>
                     {/* Floating-label fields: the input carries a single-space placeholder
                         (so :placeholder-shown works); the <span> label sits as the
                         placeholder, then floats onto the border + highlights on focus or
                         when filled. Order = input THEN label (CSS sibling selectors). */}
-                    <div className="auth-field">
-                        <input id="auth-email" type="email" placeholder=" " value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
-                        <label htmlFor="auth-email">Email</label>
-                    </div>
+                    {needsEmail && (
+                        <div className="auth-field">
+                            <input id="auth-email" type="email" placeholder=" " value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
+                            <label htmlFor="auth-email">Email</label>
+                        </div>
+                    )}
 
                     {mode === 'signup' && (
                         <div className="auth-field">
@@ -87,21 +154,32 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
                         </div>
                     )}
 
-                    <div className={`auth-field auth-field-password ${mode === 'signup' ? passwordState : ''}`}>
-                        <input id="auth-password" type={showPassword ? 'text' : 'password'} placeholder=" " value={password} onChange={(e) => setPassword(e.target.value)} required minLength={mode === 'signup' ? 8 : undefined} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} aria-invalid={mode === 'signup' && passwordState === 'is-invalid'} />
-                        <label htmlFor="auth-password">Password</label>
-                        {/* Show/hide password eye (both login + signup). */}
-                        <button
-                            type="button"
-                            className="auth-pw-toggle"
-                            onClick={() => setShowPassword((v) => !v)}
-                            aria-label={showPassword ? 'Hide password' : 'Show password'}
-                            aria-pressed={showPassword}
-                            tabIndex={-1}
-                        >
-                            {showPassword ? <TabClosedSvg /> : <TabOpenSvg />}
-                        </button>
-                    </div>
+                    {needsPassword && (
+                        <div className={`auth-field auth-field-password ${choosingPassword ? passwordState : ''}`}>
+                            <input id="auth-password" type={showPassword ? 'text' : 'password'} placeholder=" " value={password} onChange={(e) => setPassword(e.target.value)} required minLength={choosingPassword ? 8 : undefined} autoComplete={mode === 'login' ? 'current-password' : 'new-password'} aria-invalid={choosingPassword && passwordState === 'is-invalid'} />
+                            <label htmlFor="auth-password">{mode === 'reset' ? 'New password' : 'Password'}</label>
+                            {/* Show/hide password eye (every mode with a password field). */}
+                            <button
+                                type="button"
+                                className="auth-pw-toggle"
+                                onClick={() => setShowPassword((v) => !v)}
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                aria-pressed={showPassword}
+                                tabIndex={-1}
+                            >
+                                {showPassword ? <TabClosedSvg /> : <TabOpenSvg />}
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Forgot-password link sits directly under the password field. */}
+                    {mode === 'login' && (
+                        <p className="auth-forgot">
+                            <button type="button" className="auth-switch-btn" onClick={() => switchMode('forgot')}>
+                                Forgot your password?
+                            </button>
+                        </p>
+                    )}
 
                     {/* "Remember me" — login only. Checked = 30-day session; unchecked =
                         a browser-session cookie that ends when the browser closes. */}
@@ -114,7 +192,7 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
 
                     {/* Live requirements checklist — signup only. Each rule ticks green
                         as it's met (icon + text, not colour alone, for accessibility). */}
-                    {mode === 'signup' && (
+                    {choosingPassword && (
                         <ul className="auth-pw-checklist" aria-label="Password requirements">
                             {passwordChecks.map((c) => (
                                 <li key={c.key} className={c.passed ? 'is-passed' : ''}>
@@ -126,31 +204,44 @@ export default function AuthScreen({ onAuthenticated, onGuest }) {
                     )}
 
                     {error && <p className="auth-error">{error}</p>}
+                    {notice && <p className="auth-notice" role="status">{notice}</p>}
 
                     <button type="submit" className="auth-submit" disabled={busy}>
-                        {busy ? 'Please wait…' : (mode === 'login' ? 'Continue' : 'Create account')}
+                        {busy ? 'Please wait…' : SUBMIT_LABEL[mode]}
                     </button>
 
                     {/* Mode switch sits BELOW Continue (no top tabs). */}
-                    {mode === 'login' ? (
+                    {mode === 'login' && (
                         <p className="auth-switch">
                             New here?{' '}
-                            <button type="button" className="auth-switch-btn" onClick={() => { setMode('signup'); setError(''); }}>Sign up</button>
+                            <button type="button" className="auth-switch-btn" onClick={() => switchMode('signup')}>Sign up</button>
                         </p>
-                    ) : (
+                    )}
+                    {mode === 'signup' && (
                         <p className="auth-switch">
                             Already have an account?{' '}
-                            <button type="button" className="auth-switch-btn" onClick={() => { setMode('login'); setError(''); }}>Log in</button>
+                            <button type="button" className="auth-switch-btn" onClick={() => switchMode('login')}>Log in</button>
+                        </p>
+                    )}
+                    {(mode === 'forgot' || mode === 'reset') && (
+                        <p className="auth-switch">
+                            <button type="button" className="auth-switch-btn" onClick={() => switchMode('login')}>Back to log in</button>
                         </p>
                     )}
                 </form>
 
-                <div className="auth-divider"><span>or</span></div>
+                {/* Guest browsing is an alternative to signing IN — it makes no sense
+                    while recovering a password, so it stays out of those two modes. */}
+                {(mode === 'login' || mode === 'signup') && (
+                    <>
+                        <div className="auth-divider"><span>or</span></div>
 
-                <button type="button" className="auth-guest" onClick={onGuest}>
-                    Browse as guest
-                </button>
-                <p className="auth-guest-note">Guests can build and download résumés but can’t save them.</p>
+                        <button type="button" className="auth-guest" onClick={onGuest}>
+                            Browse as guest
+                        </button>
+                        <p className="auth-guest-note">Guests can build and download résumés but can’t save them.</p>
+                    </>
+                )}
             </div>
         </div>
     );

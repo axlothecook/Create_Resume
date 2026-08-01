@@ -39,6 +39,10 @@ export const api = {
     signup: (email, username, password) => request('/auth/signup', { method: 'POST', body: { email, username, password } }),
     login: (email, password, rememberMe = false) => request('/auth/login', { method: 'POST', body: { email, password, rememberMe } }),
     logout: () => request('/auth/logout', { method: 'POST' }),
+    // Always resolves the same way whether or not the address is registered — the
+    // backend deliberately gives no signal, so the UI must not imply one either.
+    forgotPassword: (email) => request('/auth/forgot-password', { method: 'POST', body: { email } }),
+    resetPassword: (token, password) => request('/auth/reset-password', { method: 'POST', body: { token, password } }),
 
     // --- résumés (used in the saved-docs slice) ---
     listResumes: () => request('/resumes'),

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRef } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import ResumePdfDocument from './pdf/ResumePdfDocument';
-import AuthScreen from './auth/AuthScreen';
+import AuthScreen, { readResetToken } from './auth/AuthScreen';
 import { api } from './api/client';
 import SavedDocsRail from './edit-components/SavedDocsRail';
 import FloatingActions from './edit-components/FloatingActions';
@@ -35,6 +35,11 @@ function App() {
   const [authStatus, setAuthStatus] = useState('loading'); // 'loading' | 'out' | 'in'
   const [user, setUser] = useState(null);
   const [isGuest, setIsGuest] = useState(false);
+  // Arrived on a reset link (/reset-password?token=…). Captured at mount so the reset
+  // screen stays put after AuthScreen strips the spent token out of the URL, and
+  // CLEARED once the user gets in — otherwise this flag would pin them to the auth
+  // screen for the rest of the page load, even after a successful login.
+  const [arrivedWithResetToken, setArrivedWithResetToken] = useState(() => readResetToken() !== '');
 
   // Saved-docs (#6): the account's saved résumés (lightweight {id,title,...}), the
   // currently-loaded doc's id (null = unsaved/new), and a busy flag to block actions
@@ -875,11 +880,13 @@ function App() {
   if (authStatus === 'loading') {
     return <div className={theme ? 'app-shell theme-dark' : 'app-shell theme-light'} style={{ minHeight: '100vh', backgroundColor: !theme ? 'rgba(243,244,246,1)' : '#252432' }} />;
   }
-  if (authStatus === 'out' && !isGuest) {
+  // A reset link wins over whatever the session says: someone still signed in (or
+  // browsing as a guest) must land on the reset form, not the editor.
+  if (arrivedWithResetToken || (authStatus === 'out' && !isGuest)) {
     return (
       <AuthScreen
-        onAuthenticated={(u) => { setUser(u); setIsGuest(false); setAuthStatus('in'); }}
-        onGuest={() => { setIsGuest(true); }}
+        onAuthenticated={(u) => { setUser(u); setIsGuest(false); setAuthStatus('in'); setArrivedWithResetToken(false); }}
+        onGuest={() => { setIsGuest(true); setArrivedWithResetToken(false); }}
       />
     );
   }
